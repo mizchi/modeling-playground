@@ -1,6 +1,7 @@
 // Every GLB in output/ is discovered by Vite and bundled for static distribution.
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
 const metadata = {
+  suzu: { label: 'Suzu · アニメキャラクター', direction: [.35, .10, 2.4] },
   'little-town': { label: 'Petit Quartier · 町並み', direction: [1, .85, 1.4] },
   traveler: { label: 'Milo · 旅人', direction: [.7, .25, 2.2] },
   'traveler-walk': { label: 'Milo · 歩行', direction: [.9, .28, 2.2] },
@@ -14,4 +15,4 @@ export const catalog = Object.entries(files).map(([path, url]) => {
   return { id, filename, url, label: metadata[id]?.label ?? filename, direction: metadata[id]?.direction ?? [1, .55, 1.8] };
 }).sort((a, b) => a.id.localeCompare(b.id));
 
-export const defaultModel = catalog.find(model => model.id === 'traveler-ik') ?? catalog.find(model => model.id === 'traveler-walk') ?? catalog[0];
+export const defaultModel = catalog.find(model => model.id === 'suzu') ?? catalog.find(model => model.id === 'traveler-ik') ?? catalog[0];

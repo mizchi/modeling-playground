@@ -113,3 +113,26 @@ test('IK handles can be dragged, crouched, reset, and switched to FK', async ({p
   await expect(page.locator('#ik-panel')).toBeHidden();
   await expect(hand).toHaveCount(0);
 });
+
+test('Suzu renders through the shared viewer, including a face close-up and mobile',async ({page})=>{
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.getByLabel('モデルを選択').selectOption('suzu');
+  await expect(page.locator('#model-name')).toHaveText('suzu.glb');
+  await expect(page.locator('#animation-panel')).toBeHidden();
+  await expect(page.locator('#ik-panel')).toBeHidden();
+  await page.getByRole('button',{name:'正面',exact:true}).click();
+  await page.screenshot({path:'output/suzu-front.png'});
+  const canvas=page.locator('canvas'),rect=await canvas.boundingBox();
+  await canvas.dblclick({position:{x:rect.width*.5,y:rect.height*.24}});
+  await expect(page.locator('#selection')).toContainText('Head');
+  await page.screenshot({path:'output/suzu-face.png'});
+  await page.getByRole('button',{name:'全体を表示 F'}).click();
+  await page.screenshot({path:'output/suzu-viewer.png'});
+  await page.getByRole('button',{name:'側面',exact:true}).click();
+  await expect(page.getByRole('button',{name:'側面',exact:true})).toHaveAttribute('aria-pressed','true');
+  await page.screenshot({path:'output/suzu-side.png'});
+  await page.setViewportSize({width:390,height:844});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect(page.locator('#model-name')).toHaveText('suzu.glb');
+  expect(errors).toEqual([]);
+});

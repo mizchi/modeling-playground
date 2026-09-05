@@ -13,7 +13,7 @@ test:
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character walk ik test render
+all: build character walk ik suzu test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -36,3 +36,7 @@ walk:
 # Generate native IK controls, verify constraints, export the viewer contract and render.
 ik:
     "{{blender}}" --background --python scripts/build_ik.py
+
+# Generate the anime character with Three.js only (no Blender required).
+suzu:
+    node scripts/build_suzu.mjs
