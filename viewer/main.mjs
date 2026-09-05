@@ -13,7 +13,7 @@ import { bindAsset } from '../runtime/asset.mjs';
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
 const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, binding: null };
-const directions = { perspective: new THREE.Vector3(1, .85, 1.4), front: new THREE.Vector3(0, 0, 1), side: new THREE.Vector3(1, 0, 0), top: new THREE.Vector3(0, 1, .0001) };
+const directions = { perspective: new THREE.Vector3(1, .85, 1.4), front: new THREE.Vector3(0, 0, 1), side: new THREE.Vector3(1, 0, 0), back: new THREE.Vector3(0, 0, -1), top: new THREE.Vector3(0, 1, .0001) };
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#eeeee6');
 const camera = new THREE.PerspectiveCamera(40, 1, .01, 1000);

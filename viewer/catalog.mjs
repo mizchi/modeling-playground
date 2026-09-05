@@ -2,6 +2,7 @@
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
+  ashley: { label: 'Ashley Riot · ローポリ研究', direction: [.7, .13, 2.4] },
   raven: { label: 'RAVEN-03 · 飛行型ロボット', direction: [.95, .28, 2.4] },
   suzu: { label: 'Suzu · アニメキャラクター', direction: [.35, .10, 2.4] },
   'little-town': { label: 'Petit Quartier · 町並み', direction: [1, .85, 1.4] },

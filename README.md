@@ -2,6 +2,8 @@
 
 生成コードで作る3Dモデルと、共通のThree.js GLB Viewer。
 
+キャラクター制作の前に：[リテイク再発防止ガイド](docs/modeling-retake-guide.md)。正面先行による厚み不足を避け、背中の量感・目の向き・衣服の接続を初期段階から確認するための手順です。
+
 **[公開Playground](https://mizchi.github.io/modeling-playground/)** — インストール不要で全モデルを表示・操作できます。
 
 ## GitHub Pages
@@ -21,6 +23,16 @@
 - `viewer/`：共通Viewerの表示と入力。
 
 `just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
+
+## Ashley Riot — テクスチャ付きローポリ研究
+
+『ベイグラントストーリー』の添付資料をもとに、アシュレイ・ライオットを Three.js で再構成した静止モデル。3,182 三角形・約 212 KB。256×256 の描画コード製テクスチャを GLB に埋め込み、別ファイルなしで表示できます。
+
+- [ローカル Viewer](http://127.0.0.1:5188/?model=ashley) / [GLB](output/ashley.glb) / [アトラス PNG](output/ashley-atlas.png) / [顔](output/ashley-face.png) / [横顔](output/ashley-profile.png) / [背面](output/ashley-back.png) / [斜め後ろ](output/ashley-rear-quarter.png)
+- 額に落ちる折れた前髪、後方へ流れる跳ね毛、襟足へ絞る後頭部。低い眉・太い上まぶた・暗い瞳で目元を調整。顎から耳への傾斜、前傾する首、胸郭・腰・骨盤が作る S 字を立体化しています。
+- 肩・胸郭の厚みと細い腰の対比、前後で異なる白布、腰の革パネルと暗い手甲。UV 領域とピクセル描画を分け、形状と表面を独立して修正できます。
+- `just ashley` で GLB と確認用 PNG を再生成。共通 Viewer の「再読み込み」で更新、「背面」ボタンで後ろから比較できます。
+- [特徴の整理・資料の解釈・修正履歴・テクスチャの仕組み](docs/ashley-study.md)。原作データの抽出ではなく近似再構成で、リグ・モーション・PS1 特有の画面効果は未実装です。
 
 ## RAVEN-03 — 飛行型ロボット
 

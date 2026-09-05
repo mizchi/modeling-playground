@@ -13,7 +13,7 @@ test:
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character walk ik suzu raven test render
+all: build character walk ik suzu raven ashley test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -50,4 +50,8 @@ raven:
     node scripts/build_raven.mjs
 
 # Three.js authoring path; Python/Blender assets remain usable without regeneration.
-models-js: suzu raven
+models-js: suzu raven ashley
+
+# Generate the textured low-poly Ashley study and the editable PNG atlas.
+ashley:
+    node scripts/build_ashley.mjs
