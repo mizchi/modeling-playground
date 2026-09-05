@@ -2,6 +2,14 @@
 
 生成コードで作る3Dモデルと、共通のThree.js GLB Viewer。
 
+**[公開Playground](https://mizchi.github.io/modeling-playground/)** — インストール不要で全モデルを表示・操作できます。
+
+## GitHub Pages
+
+`main`へのpushで、テスト・Viewerのビルド・GitHub Pagesへの公開を自動実行します。PRではテストのみ実行し、公開しません。生成済みのGLBを使うため、公開処理にBlenderは不要です。
+
+`just test-pages`で本番ビルドを`/modeling-playground/`配下に置いた状態を検証します。公開後の確認は`PLAYGROUND_URL=https://mizchi.github.io/modeling-playground/ pnpm test:pages`。モデルを編集した場合は再生成したGLBもコミットしてください。
+
 ## Suzu — アニメ調キャラクター
 
 濃紺のボブヘア、紫の瞳、藤色のワンピース、アイボリーの襟と靴下、星の髪飾り。高さ約1.66 mの静止モデルです。Miloとは別のキャラクターで、**Blender・Pythonを使わずThree.jsだけで生成**しています。

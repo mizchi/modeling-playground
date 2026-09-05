@@ -25,6 +25,10 @@ viewer-build:
 test-e2e:
     pnpm test:e2e
 
+# Build and check all models at the production subdirectory path.
+test-pages: viewer-build
+    pnpm test:pages
+
 # Generate, reimport, and render the humanoid character.
 character:
     "{{blender}}" --background --python scripts/build_character.py
