@@ -1,19 +1,34 @@
-import { test, expect } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import { FACE_ANATOMY } from '../../models/ashley-face.mjs';
 
-test('Ashley: embedded texture, front/profile/back, face focus and standalone GLB',async({page})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+// Each scenario gets a fresh page and its own 30-second budget. Keep runtime
+// error checks active for every scenario, including teardown after assertions.
+const test=base.extend({
+  pageErrors:[async({page},use)=>{
+    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await use(errors);
+    expect(errors).toEqual([]);
+  },{auto:true}],
+});
+
+test.beforeEach(async({page})=>{
   await page.goto('/?model=ashley');
   await expect(page.locator('#status')).toHaveText('表示中');
   await expect(page.locator('#model-name')).toHaveText('ashley.glb');
   await expect(page.locator('#animation-panel')).toBeHidden();
   expect(Number((await page.locator('#triangles').textContent()).replaceAll(',',''))).toBeLessThanOrEqual(3200);
+});
+
+test('Ashley: full-body view presets',async({page})=>{
   for(const [view,name] of [['正面','front'],['側面','side'],['背面','back'],['斜め','viewer']]) {
     await page.getByRole('button',{name:view,exact:true}).click();
     await expect(page.getByRole('button',{name:view,exact:true})).toHaveAttribute('aria-pressed','true');
     await page.locator('canvas').screenshot({path:`output/ashley-${name}.png`});
   }
+});
+
+test('Ashley: shorts from front, back and quarter',async({page})=>{
   for(const [view,name] of [['正面','shorts-front'],['背面','shorts-back'],['斜め','shorts-quarter']]) {
     await page.getByRole('button',{name:view,exact:true}).click();
     await page.locator('canvas').hover();await page.mouse.wheel(0,-1700);
@@ -21,6 +36,9 @@ test('Ashley: embedded texture, front/profile/back, face focus and standalone GL
     await page.waitForTimeout(300);
     await page.locator('canvas').screenshot({path:`output/ashley-${name}.png`});
   }
+});
+
+test('Ashley: back harness focus and rear quarter',async({page})=>{
   await page.getByRole('button',{name:'背面',exact:true}).click();
   const backCanvas=page.locator('canvas'),backRect=await backCanvas.boundingBox();
   await backCanvas.dblclick({position:{x:backRect.width*.5,y:backRect.height*.35}});
@@ -33,6 +51,9 @@ test('Ashley: embedded texture, front/profile/back, face focus and standalone GL
   await page.mouse.move(rear.x+rear.width*.58,rear.y+rear.height*.6,{steps:10});
   await page.mouse.up();
   await page.locator('canvas').screenshot({path:'output/ashley-rear-quarter.png'});
+});
+
+test('Ashley: face focus, wireframe and jaw quarter',async({page})=>{
   await page.getByRole('button',{name:'正面',exact:true}).click();
   const canvas=page.locator('canvas'),rect=await canvas.boundingBox();
   await canvas.dblclick({position:{x:rect.width*.5,y:rect.height*.215}});
@@ -46,10 +67,15 @@ test('Ashley: embedded texture, front/profile/back, face focus and standalone GL
   await page.mouse.move(rect.x+rect.width*.38,rect.y+rect.height*.6,{steps:10});
   await page.mouse.up();
   await canvas.screenshot({path:'output/ashley-jaw-quarter.png'});
+});
+
+test('Ashley: head profile and neck transition',async({page})=>{
   await page.getByRole('button',{name:'側面',exact:true}).click();
-  // A view preset frames the full model; select the head again in profile.
+  // The profile pick hits the Hair focus group, framing the skull and forelocks.
+  const canvas=page.locator('canvas');
   const after=await canvas.boundingBox();
   await canvas.dblclick({position:{x:after.width*.5,y:after.height*.215}});
+  await expect(page.locator('#selection')).toContainText('Hair');
   await canvas.screenshot({path:'output/ashley-profile.png'});
   // Include the nape-to-shoulder transition, not just a tightly framed skull.
   await canvas.hover();await page.mouse.wheel(0,320);
@@ -58,6 +84,9 @@ test('Ashley: embedded texture, front/profile/back, face focus and standalone GL
   await page.mouse.move(after.x+after.width*.55,after.y+after.height*.48,{steps:10});
   await page.mouse.up({button:'right'});
   await canvas.screenshot({path:'output/ashley-neck-profile.png'});
+});
+
+test('Ashley: standalone GLB and embedded texture',async({page})=>{
   await page.getByLabel('GLBファイルを選択').setInputFiles(fileURLToPath(new URL('../../output/ashley.glb',import.meta.url)));
   await expect(page.locator('#status')).toHaveText('表示中');
   const upperLid=Math.round((FACE_ANATOMY.top-FACE_ANATOMY.eyeY)/(FACE_ANATOMY.top-FACE_ANATOMY.bottom)*95)-2;
@@ -74,7 +103,9 @@ test('Ashley: embedded texture, front/profile/back, face focus and standalone GL
   expect(decoded.topology.features.map(f=>f.name)).toEqual(['leftEye','rightEye','mouth']);
   expect(decoded.filter).toBe(1003);expect(decoded.eye).toEqual([65,53,39,255]);
   expect(decoded.hair[0]).toBeGreaterThan(decoded.hair[2]);
+});
+
+test('Ashley: mobile viewport fits without horizontal overflow',async({page})=>{
   await page.setViewportSize({width:390,height:844});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  expect(errors).toEqual([]);
 });
