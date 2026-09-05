@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 const town = fileURLToPath(new URL('../../output/little-town.glb', import.meta.url));
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?model=little-town');
   await expect(page.locator('#status')).toHaveText('表示中');
 });
 
@@ -33,9 +33,25 @@ test('file selection, invalid file recovery, and town reload', async ({ page }) 
   await expect(page.getByRole('alert')).toContainText('有効なGLB');
   await expect(page.locator('#status')).toHaveText('前のモデルを表示中');
   await expect(page.locator('#model-name')).toHaveText('little-town.glb');
-  await page.getByRole('button', { name: '町を再読み込み' }).click();
+  await page.getByRole('button', { name: '再読み込み', exact: true }).click();
   await expect(page.locator('#status')).toHaveText('表示中');
   await expect(page.getByRole('alert')).toBeHidden();
+});
+
+test('shared viewer switches assets, reloads the active model, and accepts deep links', async ({ page }) => {
+  await page.getByLabel('モデルを選択').selectOption('traveler');
+  await expect(page.locator('#model-name')).toHaveText('traveler.glb');
+  await expect(page.locator('#status')).toHaveText('表示中');
+  await expect(page).toHaveURL(/model=traveler/);
+  await page.getByRole('button', { name: '再読み込み', exact: true }).click();
+  await expect(page.locator('#status')).toHaveText('表示中');
+  await expect(page.locator('#model-name')).toHaveText('traveler.glb');
+  await page.reload();
+  await expect(page.locator('#model-name')).toHaveText('traveler.glb');
+  await expect(page.locator('#status')).toHaveText('表示中');
+  await page.getByLabel('モデルを選択').selectOption('little-town');
+  await expect(page.locator('#model-name')).toHaveText('little-town.glb');
+  await expect(page.locator('#status')).toHaveText('表示中');
 });
 
 test('mobile viewport has a usable canvas and no horizontal overflow', async ({ page }) => {

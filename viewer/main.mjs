@@ -3,12 +3,12 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import townUrl from '../output/little-town.glb?url';
-import { frameModel, inspectModel, validateGlb, modelMaterials, disposeModel } from './model.mjs';
+import { catalog, defaultModel } from './catalog.mjs';
+import { frameModel, inspectModel, validateGlb, modelMaterials, disposeModel, focusTarget } from './model.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
-const state = { model: null, info: null, request: 0, view: 'perspective', selected: null };
+const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null };
 const directions = { perspective: new THREE.Vector3(1, .85, 1.4), front: new THREE.Vector3(0, 0, 1), top: new THREE.Vector3(0, 1, .0001) };
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#eeeee6');
@@ -92,7 +92,7 @@ function setView(view) {
   state.view = view;
   document.querySelectorAll('[data-view]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
   state.selected = null;
-  $('selection').textContent = 'ダブルクリックで建物や部品にフォーカス';
+  $('selection').textContent = 'ダブルクリックで部品にフォーカス';
   fit();
 }
 
@@ -115,7 +115,7 @@ function prepareStage(info) {
 }
 
 const loader = new GLTFLoader();
-async function loadModel(getBytes, filename) {
+async function loadModel(getBytes, filename, source) {
   const request = ++state.request;
   $('error').hidden = true;
   $('status').textContent = 'モデルを読み込み中…';
@@ -132,6 +132,13 @@ async function loadModel(getBytes, filename) {
     if (state.model) { scene.remove(state.model); disposeModel(state.model); }
     state.model = candidate;
     state.info = info;
+    state.source = source;
+    directions.perspective.fromArray(source.direction ?? [1, .55, 1.8]);
+    $('model-select').value = source.id ?? '';
+    const address = new URL(location.href);
+    if (source.id) address.searchParams.set('model', source.id);
+    else address.searchParams.delete('model');
+    history.replaceState(null, '', address);
     scene.add(candidate);
     prepareStage(info);
     $('model-name').textContent = filename;
@@ -144,28 +151,37 @@ async function loadModel(getBytes, filename) {
   } catch (error) {
     if (candidate && candidate !== state.model) disposeModel(candidate);
     if (request !== state.request) return;
+    $('model-select').value = state.source?.id ?? '';
     $('error').textContent = `読み込めませんでした。${error.message} 外部ファイルに依存しないGLBを選んでください。`;
     $('error').hidden = false;
     $('status').textContent = state.model ? '前のモデルを表示中' : '読み込みに失敗しました';
   }
 }
 
-function reloadTown() {
+function loadCatalogModel(source) {
+  if (!source) return;
   return loadModel(async () => {
-    const response = await fetch(`${townUrl}?reload=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`町のGLBを取得できません（${response.status}）。`);
+    const address = new URL(source.url, location.href);
+    address.searchParams.set('reload', Date.now());
+    const response = await fetch(address, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`GLBを取得できません（${response.status}）。`);
     return response.arrayBuffer();
-  }, 'little-town.glb');
+  }, source.filename, source);
 }
 function openFile(file) {
   if (!file) return;
   return loadModel(async () => {
     if (!file.name.toLowerCase().endsWith('.glb')) throw new Error('拡張子.glbのファイルを選んでください。');
     return file.arrayBuffer();
-  }, file.name);
+  }, file.name, { file });
 }
 $('file').addEventListener('change', event => { openFile(event.target.files[0]); event.target.value = ''; });
-$('reload').addEventListener('click', reloadTown);
+$('reload').addEventListener('click', () => {
+  if (state.source?.file) openFile(state.source.file);
+  else loadCatalogModel(state.source ?? defaultModel);
+});
+for (const model of catalog) $('model-select').add(new Option(model.label, model.id));
+$('model-select').addEventListener('change', event => loadCatalogModel(catalog.find(model => model.id === event.target.value)));
 $('reset').addEventListener('click', () => setView('perspective'));
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
 $('wireframe').addEventListener('change', event => {
@@ -187,7 +203,7 @@ renderer.domElement.addEventListener('dblclick', event => {
   raycaster.setFromCamera(new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1), camera);
   let object = raycaster.intersectObject(state.model, true)[0]?.object;
   if (!object) return;
-  while (object.parent && object.parent !== state.model && object.parent.name !== 'Town') object = object.parent;
+  object = focusTarget(object, state.model);
   state.selected = object;
   $('selection').textContent = `選択：${object.name || '名称なし'} ｜ Fで全体を表示`;
   fit(new THREE.Box3().setFromObject(object));
@@ -211,4 +227,5 @@ new ResizeObserver(() => {
   fit(state.selected ? new THREE.Box3().setFromObject(state.selected) : undefined);
   invalidate();
 }).observe(viewport);
-reloadTown();
+const requestedModel = new URLSearchParams(location.search).get('model');
+loadCatalogModel(catalog.find(model => model.id === requestedModel) ?? defaultModel);

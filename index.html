@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="GLBモデルを回転・拡大して確認できる、ローカルの3Dビューア。" />
     <link rel="icon" href="data:," />
-    <title>Petit Quartier · GLB Viewer</title>
+    <title>Model Studio · GLB Viewer</title>
   </head>
   <body>
     <header>
-      <div class="brand"><span class="brand-mark" aria-hidden="true">P<span>Q</span></span><div><h1>Petit Quartier</h1><p>MODEL VIEWER</p></div></div>
-      <div class="file-actions"><button id="reload">町を再読み込み</button><label class="primary file-button">GLBを開く<input id="file" type="file" accept=".glb" aria-label="GLBファイルを選択" /></label></div>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">M<span>S</span></span><div><h1>Model Studio</h1><p>GLB VIEWER</p></div></div>
+      <div class="file-actions"><button id="reload">再読み込み</button><label class="primary file-button">GLBを開く<input id="file" type="file" accept=".glb" aria-label="GLBファイルを選択" /></label></div>
     </header>
     <main>
       <section id="viewport" aria-label="3Dモデルの表示領域">
-        <div class="model-caption"><span class="eyebrow">CURRENT MODEL</span><h2 id="model-name">little-town.glb</h2><p id="status" role="status" aria-live="polite">モデルを読み込み中…</p></div>
+        <div class="model-caption"><span class="eyebrow">CURRENT MODEL</span><h2 id="model-name">GLB Viewer</h2><p id="status" role="status" aria-live="polite">モデルを読み込み中…</p></div>
         <div id="error" role="alert" hidden></div>
         <div id="drop-hint" hidden>GLBをドロップして開く</div>
-        <div class="viewport-footer"><span id="selection">ダブルクリックで建物や部品にフォーカス</span><span class="axis-label">Y UP</span></div>
+        <div class="viewport-footer"><span id="selection">ダブルクリックで部品にフォーカス</span><span class="axis-label">Y UP</span></div>
       </section>
       <aside aria-label="表示設定">
-        <section><span class="eyebrow">VIEW</span><h2>町を眺める</h2><p class="intro">角度を変えて、かたちと配置を確認。</p>
+        <section><label class="eyebrow" for="model-select">MODEL LIBRARY</label><select id="model-select" aria-label="モデルを選択"><option value="" disabled>ローカルファイル</option></select><h2>モデルを確認</h2><p class="intro">角度を変えて、かたちと配置を確認。</p>
           <div class="views" role="group" aria-label="視点"><button data-view="perspective" aria-pressed="true">斜め</button><button data-view="front" aria-pressed="false">正面</button><button data-view="top" aria-pressed="false">上面</button></div>
           <button id="reset" class="wide">全体を表示 <kbd>F</kbd></button>
         </section>

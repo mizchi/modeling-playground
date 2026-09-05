@@ -70,3 +70,14 @@ export function disposeModel(root) {
   for (const value of geometry) value.dispose();
   for (const value of textures) { value.dispose(); value.source?.data?.close?.(); }
 }
+
+/** Prefer author-supplied focus groups; otherwise use the top-level model part. */
+export function focusTarget(object, root) {
+  for (let ancestor = object; ancestor && ancestor !== root; ancestor = ancestor.parent) {
+    if (ancestor.userData.focusTarget && ancestor.parent !== root) return ancestor;
+  }
+  let content = root;
+  while (content.children.length === 1 && !content.children[0].isMesh) content = content.children[0];
+  while (object.parent && object.parent !== content && object.parent !== root) object = object.parent;
+  return object;
+}

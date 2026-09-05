@@ -12,7 +12,7 @@ render:
 test:
     pnpm test
 
-all: build test render
+all: build character test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -23,3 +23,7 @@ viewer-build:
 
 test-e2e:
     pnpm test:e2e
+
+# Generate, reimport, and render the humanoid character.
+character:
+    "{{blender}}" --background --python scripts/build_character.py

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Box3, Vector3, PerspectiveCamera } from 'three';
-import { frameModel, inspectModel, validateGlb } from '../viewer/model.mjs';
+import { frameModel, inspectModel, validateGlb, focusTarget } from '../viewer/model.mjs';
 import { readFile } from 'node:fs/promises';
 
 test('all corners fit the camera, including narrow phone viewports and off-center models', () => {
@@ -48,4 +48,20 @@ test('model measurements respect world transforms and count instances', async ()
   assert.deepEqual(info.size.toArray(), [12, 6, 8]);
   assert.equal(info.meshes, 2);
   assert.equal(info.triangles, 24);
+});
+
+test('focus groups support character parts and arbitrary model roots without town-specific names', async () => {
+  const { Group, Mesh, BoxGeometry, MeshBasicMaterial } = await import('three');
+  const scene = new Group();
+  const root = new Group();
+  const arm = new Group();
+  const other = new Group();
+  const finger = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+  scene.add(root);
+  root.add(arm, other);
+  arm.add(finger);
+  arm.userData.focusTarget = true;
+  assert.equal(focusTarget(finger, scene), arm);
+  delete arm.userData.focusTarget;
+  assert.equal(focusTarget(finger, scene), arm);
 });
