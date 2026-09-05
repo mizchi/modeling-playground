@@ -8,7 +8,19 @@
 
 `main`へのpushで、テスト・Viewerのビルド・GitHub Pagesへの公開を自動実行します。PRではテストのみ実行し、公開しません。生成済みのGLBを使うため、公開処理にBlenderは不要です。
 
-`just test-pages`で本番ビルドを`/modeling-playground/`配下に置いた状態を検証します。公開後の確認は`PLAYGROUND_URL=https://mizchi.github.io/modeling-playground/ pnpm test:pages`。モデルを編集した場合は再生成したGLBもコミットしてください。
+`just test-pages`で本番ビルドを`/modeling-playground/`配下に置いた状態を検証します。公開後の確認は`PLAYGROUND_URL=https://mizchi.github.io/modeling-playground/ pnpm test:pages`。モデルを編集した場合は再生成したGLBと付随する`.asset.json`もコミットしてください。
+
+## 生成コードの構成
+
+新規モデルはThree.jsを基本にし、モデル固有の造形・演出と、共通の生成・実行処理を分離しています。RAVENを移行済みで、既存のPython/Blender製モデルはそのまま利用できます。
+
+- `models/`：モデル固有の形状・骨格仕様・動作。
+- `contracts/`：付随する設定JSONの型と厳密な実行時検証。
+- `modeling/`：共通の形状部品・骨格生成・剛体ウェイト付け・モーション焼き込み。
+- `runtime/`：DOMに依存しない再生・IK・横薙ぎ計算・ソケット追従・時間イベント。
+- `viewer/`：共通Viewerの表示と入力。
+
+`just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
 
 ## RAVEN-03 — 飛行型ロボット
 
@@ -19,7 +31,7 @@
 - `Boost`：2.4秒。前傾・噴射増大・加速・減速を伴い、+Z方向へ4.8 m移動するルートモーションです。
 - `BladeSlash`：2.1秒・60 fps。低い溜めから噴射を強め、左右の脚を開いて約3.55 m前方へ飛び込み、右外側から前方を大きく横薙ぎします。腰と胴体を斬撃方向へひねり、肩装甲を開いて肘を下げ、刃と切断面は水平に保ちます。振り抜き後は移動先で減速して浮遊姿勢に戻り、開始位置へは巻き戻しません。
 - 装甲は各頂点を1本のボーンへ100%ウェイト付けした実際のSkinnedMeshです。関節は動きますが金属は曲がりません。噴射はボーンのスケールで変化する形状で、流体・粒子シミュレーションや攻撃の当たり判定はありません。IK操作は未実装です。
-- `models/raven.mjs`が形状・骨格、`models/raven-motion.mjs`が時間に対する姿勢、`scripts/build_raven.mjs`がGLB生成を担当。`just raven`で再生成できます。
+- `models/raven-definition.mjs`が骨格・ソケット・判定形状・噴射・攻撃時間を定義し、`models/raven.mjs`が形状、`models/raven-motion.mjs`が時間に対する姿勢を担当。`just raven`で[GLB](output/raven.glb)と[付随設定](output/raven.asset.json)を同時生成します。実際のゲーム用衝突処理・粒子描画はまだ実装していません。
 - `extras.groundLevel`を共通Viewerが読み、浮いたモデルとは独立した床を配置します。`extras.animationModes`により加速と斬撃は1回再生して停止し、「再生」で最初からやり直せます。他のGLB Viewerではループ設定を別途指定してください。
 - GLB検証、ウェイト、全フレームの有限な頂点・床との隙間、ホバリングのループ接続、加速距離、実際のブレード頂点の移動と剛性を自動テストしています。横薙ぎは生成前のモデルと再読込したGLBの両方を120 Hzでサンプルし、刃の水平と大きな弧、右前腕・ブレードと他の装甲の非交差を各部品の有向境界ボックスで検査します（接続する右上腕・右手は除外）。
 
@@ -104,7 +116,7 @@ http://127.0.0.1:5188 を開くと、共通のThree.js Viewerを表示します�
 
 `just viewer-build`で一覧の全GLBを含む静的配信用の`dist/`を生成し、`pnpm preview`で確認できます。静的ビルドにはビルド時点のモデルが含まれるため、モデルを更新したらビューアも再ビルドしてください。
 
-画面と入力処理は`viewer/main.mjs`、計測・カメラ距離計算・解放処理は`viewer/model.mjs`、再生状態とクリップ管理は`viewer/animation.mjs`に分離しています。
+画面と入力処理は`viewer/main.mjs`、計測・カメラ距離計算・解放処理は`viewer/model.mjs`、再生状態とクリップ管理は`runtime/animation-player.mjs`、IKの計算と状態は`runtime/solvers.mjs`と`runtime/ik.mjs`に分離しています。
 
 `just test`でGLB形式とカメラ・計測ロジック、`just test-e2e`でPlaywrightによる表示・視点切り替え・ファイル選択・エラーからの復帰・モバイル表示を検証します。初回にテスト用ブラウザがない場合は`pnpm exec playwright install chromium`を実行してください。
 

@@ -1,0 +1,611 @@
+{
+  "version": 1,
+  "id": "raven",
+  "units": "meters",
+  "coordinateSystem": "gltf-y-up",
+  "forward": "+Z",
+  "groundLevel": 0,
+  "rig": {
+    "bones": [
+      {
+        "name": "Motion",
+        "parent": null,
+        "position": [
+          0,
+          0.8,
+          0
+        ]
+      },
+      {
+        "name": "Hips",
+        "parent": "Motion",
+        "position": [
+          0,
+          1.78,
+          0
+        ]
+      },
+      {
+        "name": "Spine",
+        "parent": "Hips",
+        "position": [
+          0,
+          0.42,
+          0
+        ]
+      },
+      {
+        "name": "Neck",
+        "parent": "Spine",
+        "position": [
+          0,
+          0.65,
+          0
+        ]
+      },
+      {
+        "name": "Head",
+        "parent": "Neck",
+        "position": [
+          0,
+          0.17,
+          0
+        ]
+      },
+      {
+        "name": "LeftShoulder",
+        "parent": "Spine",
+        "position": [
+          -0.54,
+          0.43,
+          0
+        ]
+      },
+      {
+        "name": "LeftUpperArm",
+        "parent": "LeftShoulder",
+        "position": [
+          -0.12,
+          -0.08,
+          0
+        ]
+      },
+      {
+        "name": "LeftForearm",
+        "parent": "LeftUpperArm",
+        "position": [
+          0,
+          -0.5,
+          0
+        ]
+      },
+      {
+        "name": "LeftHand",
+        "parent": "LeftForearm",
+        "position": [
+          0,
+          -0.51,
+          0
+        ]
+      },
+      {
+        "name": "LeftThigh",
+        "parent": "Hips",
+        "position": [
+          -0.21,
+          -0.06,
+          0
+        ]
+      },
+      {
+        "name": "LeftShin",
+        "parent": "LeftThigh",
+        "position": [
+          0,
+          -0.78,
+          0
+        ]
+      },
+      {
+        "name": "LeftFoot",
+        "parent": "LeftShin",
+        "position": [
+          0,
+          -0.69,
+          0
+        ]
+      },
+      {
+        "name": "LeftBooster",
+        "parent": "Spine",
+        "position": [
+          -0.3,
+          0.24,
+          -0.39
+        ]
+      },
+      {
+        "name": "LeftBackJet",
+        "parent": "LeftBooster",
+        "position": [
+          0,
+          -0.4,
+          -0.03
+        ]
+      },
+      {
+        "name": "LeftFootJet",
+        "parent": "LeftFoot",
+        "position": [
+          0,
+          -0.18,
+          -0.035
+        ]
+      },
+      {
+        "name": "RightShoulder",
+        "parent": "Spine",
+        "position": [
+          0.54,
+          0.43,
+          0
+        ]
+      },
+      {
+        "name": "RightUpperArm",
+        "parent": "RightShoulder",
+        "position": [
+          0.12,
+          -0.08,
+          0
+        ]
+      },
+      {
+        "name": "RightForearm",
+        "parent": "RightUpperArm",
+        "position": [
+          0,
+          -0.5,
+          0
+        ]
+      },
+      {
+        "name": "RightHand",
+        "parent": "RightForearm",
+        "position": [
+          0,
+          -0.51,
+          0
+        ]
+      },
+      {
+        "name": "RightThigh",
+        "parent": "Hips",
+        "position": [
+          0.21,
+          -0.06,
+          0
+        ]
+      },
+      {
+        "name": "RightShin",
+        "parent": "RightThigh",
+        "position": [
+          0,
+          -0.78,
+          0
+        ]
+      },
+      {
+        "name": "RightFoot",
+        "parent": "RightShin",
+        "position": [
+          0,
+          -0.69,
+          0
+        ]
+      },
+      {
+        "name": "RightBooster",
+        "parent": "Spine",
+        "position": [
+          0.3,
+          0.24,
+          -0.39
+        ]
+      },
+      {
+        "name": "RightBackJet",
+        "parent": "RightBooster",
+        "position": [
+          0,
+          -0.4,
+          -0.03
+        ]
+      },
+      {
+        "name": "RightFootJet",
+        "parent": "RightFoot",
+        "position": [
+          0,
+          -0.18,
+          -0.035
+        ]
+      },
+      {
+        "name": "BladeTip",
+        "parent": "RightForearm",
+        "position": [
+          0.15,
+          -1.62,
+          0.12
+        ]
+      }
+    ]
+  },
+  "sockets": [
+    {
+      "id": "blade-root",
+      "node": "SocketBladeRoot",
+      "bone": "RightForearm",
+      "position": [
+        0.16,
+        -0.42,
+        0.12
+      ]
+    },
+    {
+      "id": "blade-tip",
+      "node": "SocketBladeTip",
+      "bone": "BladeTip",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "left-back",
+      "node": "SocketLeftBackExhaust",
+      "bone": "LeftBooster",
+      "position": [
+        0,
+        -0.435,
+        -0.03
+      ]
+    },
+    {
+      "id": "left-foot",
+      "node": "SocketLeftFootExhaust",
+      "bone": "LeftFoot",
+      "position": [
+        0,
+        -0.175,
+        -0.035
+      ]
+    },
+    {
+      "id": "right-back",
+      "node": "SocketRightBackExhaust",
+      "bone": "RightBooster",
+      "position": [
+        0,
+        -0.435,
+        -0.03
+      ]
+    },
+    {
+      "id": "right-foot",
+      "node": "SocketRightFootExhaust",
+      "bone": "RightFoot",
+      "position": [
+        0,
+        -0.175,
+        -0.035
+      ]
+    }
+  ],
+  "colliders": [
+    {
+      "id": "torso",
+      "bone": "Spine",
+      "shape": "box",
+      "center": [
+        0,
+        0.25,
+        0.1
+      ],
+      "halfExtents": [
+        0.43,
+        0.35,
+        0.32
+      ]
+    },
+    {
+      "id": "pelvis",
+      "bone": "Hips",
+      "shape": "box",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "halfExtents": [
+        0.24,
+        0.24,
+        0.2
+      ]
+    },
+    {
+      "id": "head",
+      "bone": "Head",
+      "shape": "box",
+      "center": [
+        0,
+        0.06,
+        0
+      ],
+      "halfExtents": [
+        0.23,
+        0.24,
+        0.23
+      ]
+    },
+    {
+      "id": "Left-arm",
+      "bone": "LeftForearm",
+      "shape": "box",
+      "center": [
+        0,
+        -0.27,
+        0.02
+      ],
+      "halfExtents": [
+        0.19,
+        0.24,
+        0.18
+      ]
+    },
+    {
+      "id": "Left-thigh",
+      "bone": "LeftThigh",
+      "shape": "box",
+      "center": [
+        0,
+        -0.39,
+        0
+      ],
+      "halfExtents": [
+        0.17,
+        0.35,
+        0.18
+      ]
+    },
+    {
+      "id": "Left-shin",
+      "bone": "LeftShin",
+      "shape": "box",
+      "center": [
+        0,
+        -0.34,
+        0.02
+      ],
+      "halfExtents": [
+        0.17,
+        0.35,
+        0.2
+      ]
+    },
+    {
+      "id": "Right-arm",
+      "bone": "RightForearm",
+      "shape": "box",
+      "center": [
+        0,
+        -0.27,
+        0.02
+      ],
+      "halfExtents": [
+        0.19,
+        0.24,
+        0.18
+      ]
+    },
+    {
+      "id": "Right-thigh",
+      "bone": "RightThigh",
+      "shape": "box",
+      "center": [
+        0,
+        -0.39,
+        0
+      ],
+      "halfExtents": [
+        0.17,
+        0.35,
+        0.18
+      ]
+    },
+    {
+      "id": "Right-shin",
+      "bone": "RightShin",
+      "shape": "box",
+      "center": [
+        0,
+        -0.34,
+        0.02
+      ],
+      "halfExtents": [
+        0.17,
+        0.35,
+        0.2
+      ]
+    }
+  ],
+  "attacks": [
+    {
+      "id": "blade-slash",
+      "from": "blade-root",
+      "to": "blade-tip",
+      "radius": 0.08
+    }
+  ],
+  "emitters": [
+    {
+      "id": "left-back",
+      "socket": "left-back",
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "preset": "ion",
+      "rate": 60,
+      "lifetime": 0.2,
+      "speed": 5
+    },
+    {
+      "id": "left-foot",
+      "socket": "left-foot",
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "preset": "ion",
+      "rate": 30,
+      "lifetime": 0.2,
+      "speed": 3
+    },
+    {
+      "id": "right-back",
+      "socket": "right-back",
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "preset": "ion",
+      "rate": 60,
+      "lifetime": 0.2,
+      "speed": 5
+    },
+    {
+      "id": "right-foot",
+      "socket": "right-foot",
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "preset": "ion",
+      "rate": 30,
+      "lifetime": 0.2,
+      "speed": 3
+    }
+  ],
+  "clips": [
+    {
+      "name": "Hover",
+      "duration": 2,
+      "fps": 30,
+      "mode": "repeat",
+      "windows": [
+        {
+          "kind": "emitter",
+          "id": "left-back",
+          "start": 0,
+          "end": 2
+        },
+        {
+          "kind": "emitter",
+          "id": "left-foot",
+          "start": 0,
+          "end": 2
+        },
+        {
+          "kind": "emitter",
+          "id": "right-back",
+          "start": 0,
+          "end": 2
+        },
+        {
+          "kind": "emitter",
+          "id": "right-foot",
+          "start": 0,
+          "end": 2
+        }
+      ]
+    },
+    {
+      "name": "Boost",
+      "duration": 2.4,
+      "fps": 30,
+      "mode": "once",
+      "windows": [
+        {
+          "kind": "emitter",
+          "id": "left-back",
+          "start": 0,
+          "end": 2.4
+        },
+        {
+          "kind": "emitter",
+          "id": "left-foot",
+          "start": 0,
+          "end": 2.4
+        },
+        {
+          "kind": "emitter",
+          "id": "right-back",
+          "start": 0,
+          "end": 2.4
+        },
+        {
+          "kind": "emitter",
+          "id": "right-foot",
+          "start": 0,
+          "end": 2.4
+        }
+      ]
+    },
+    {
+      "name": "BladeSlash",
+      "duration": 2.1,
+      "fps": 60,
+      "mode": "once",
+      "windows": [
+        {
+          "kind": "attack",
+          "id": "blade-slash",
+          "start": 0.6,
+          "end": 0.94
+        },
+        {
+          "kind": "emitter",
+          "id": "left-back",
+          "start": 0,
+          "end": 2.1
+        },
+        {
+          "kind": "emitter",
+          "id": "left-foot",
+          "start": 0,
+          "end": 2.1
+        },
+        {
+          "kind": "emitter",
+          "id": "right-back",
+          "start": 0,
+          "end": 2.1
+        },
+        {
+          "kind": "emitter",
+          "id": "right-foot",
+          "start": 0,
+          "end": 2.1
+        }
+      ]
+    }
+  ]
+}

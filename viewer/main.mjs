@@ -8,10 +8,11 @@ import { frameModel, inspectModel, validateGlb, modelMaterials, disposeModel, fo
 import { AnimationPlayer, animationBounds, updateSkinBounds } from './animation.mjs';
 import { IKPose } from './ik.mjs';
 import { IKEditor } from './ik-editor.mjs';
+import { bindAsset } from '../runtime/asset.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
-const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null };
+const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, binding: null };
 const directions = { perspective: new THREE.Vector3(1, .85, 1.4), front: new THREE.Vector3(0, 0, 1), side: new THREE.Vector3(1, 0, 0), top: new THREE.Vector3(0, 1, .0001) };
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#eeeee6');
@@ -190,14 +191,16 @@ async function loadModel(getBytes, filename, source) {
   let candidate;
   let candidatePlayer;
   try {
-    const bytes = await getBytes();
+    const [bytes,definition] = await Promise.all([getBytes(),source.definitionUrl?fetchCatalogFile(source.definitionUrl,'json'):null]);
     if (request !== state.request) return;
     validateGlb(bytes);
     const asset = await loader.parseAsync(bytes, '');
     candidate = asset.scene;
     const info = inspectModel(candidate);
     if (request !== state.request) { disposeModel(candidate); return; }
-    candidatePlayer = new AnimationPlayer(candidate, asset.animations);
+    // Bind and validate in the rest pose, before the first animation sample.
+    const candidateBinding = definition ? bindAsset(candidate,asset.animations,definition) : null;
+    candidatePlayer = new AnimationPlayer(candidate, asset.animations,{modes:candidateBinding?.modes});
     if (asset.animations.length) {
       info.bounds = animationBounds(candidatePlayer);
       info.size = info.bounds.getSize(new THREE.Vector3());
@@ -217,6 +220,7 @@ async function loadModel(getBytes, filename, source) {
     state.info = info;
     state.source = source;
     state.player = candidatePlayer;
+    state.binding = candidateBinding;
     state.ik = candidateIK;
     directions.perspective.fromArray(source.direction ?? [1, .55, 1.8]);
     $('model-select').value = source.id ?? '';
@@ -246,15 +250,16 @@ async function loadModel(getBytes, filename, source) {
   }
 }
 
+async function fetchCatalogFile(url,type) {
+  const address = new URL(url,location.href);
+  address.searchParams.set('reload',Date.now());
+  const response = await fetch(address,{cache:'no-store'});
+  if(!response.ok)throw new Error(`モデルファイルを取得できません（${response.status}）。`);
+  return type==='json'?response.json():response.arrayBuffer();
+}
 function loadCatalogModel(source) {
   if (!source) return;
-  return loadModel(async () => {
-    const address = new URL(source.url, location.href);
-    address.searchParams.set('reload', Date.now());
-    const response = await fetch(address, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`GLBを取得できません（${response.status}）。`);
-    return response.arrayBuffer();
-  }, source.filename, source);
+  return loadModel(()=>fetchCatalogFile(source.url,'glb'), source.filename, source);
 }
 function openFile(file) {
   if (!file) return;

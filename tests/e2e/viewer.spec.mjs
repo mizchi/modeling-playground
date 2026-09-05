@@ -170,3 +170,23 @@ test('Raven hovers, boosts once with replay, and slashes with its arm blade',asy
   await page.screenshot({path:'output/raven-rig.png'});
   expect(errors).toEqual([]);
 });
+
+test('asset sidecars are validated, failures preserve the current model, and standalone GLB still works',async({page})=>{
+  const sidecar=/raven\.asset\.json\?reload=/;
+  await page.route(sidecar,route=>route.fulfill({status:200,contentType:'application/json',body:'{"version":999}'}));
+  await page.getByLabel('モデルを選択').selectOption('raven');
+  await expect(page.getByRole('alert')).toContainText('Asset contract');
+  await expect(page.locator('#model-name')).toHaveText('little-town.glb');
+  await expect(page.locator('#status')).toHaveText('前のモデルを表示中');
+  await page.unroute(sidecar);
+  const fetched=page.waitForResponse(sidecar);
+  await page.getByLabel('モデルを選択').selectOption('raven');
+  expect((await (await fetched).json()).id).toBe('raven');
+  await expect(page.locator('#model-name')).toHaveText('raven.glb');
+  await expect(page.getByRole('alert')).toBeHidden();
+  await page.getByLabel('GLBファイルを選択').setInputFiles(fileURLToPath(new URL('../../output/raven.glb',import.meta.url)));
+  await expect(page.locator('#status')).toHaveText('表示中');
+  await page.getByLabel('アニメーションを選択').selectOption({label:'BladeSlash'});
+  await page.getByLabel('再生位置').fill('0.78');
+  await expect(page.locator('#animation-time')).toHaveText('0.78 / 2.10 s');
+});

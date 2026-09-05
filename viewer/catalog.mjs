@@ -1,5 +1,6 @@
 // Every GLB in output/ is discovered by Vite and bundled for static distribution.
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
+const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
   raven: { label: 'RAVEN-03 · 飛行型ロボット', direction: [.95, .28, 2.4] },
   suzu: { label: 'Suzu · アニメキャラクター', direction: [.35, .10, 2.4] },
@@ -9,11 +10,12 @@ const metadata = {
   'traveler-ik': { label: 'Milo · IKポーズ', direction: [.9, .28, 2.2] },
 };
 
-/** @type {Array<{id: string, label: string, filename: string, url: string, direction: number[]}>} */
+/** @type {Array<{id: string, label: string, filename: string, url: string, definitionUrl?: string, direction: number[]}>} */
 export const catalog = Object.entries(files).map(([path, url]) => {
   const filename = path.split('/').at(-1);
   const id = filename.slice(0, -4);
-  return { id, filename, url, label: metadata[id]?.label ?? filename, direction: metadata[id]?.direction ?? [1, .55, 1.8] };
+  return { id, filename, url, definitionUrl: definitions[`../output/${id}.asset.json`],
+    label: metadata[id]?.label ?? filename, direction: metadata[id]?.direction ?? [1, .55, 1.8] };
 }).sort((a, b) => a.id.localeCompare(b.id));
 
 export const defaultModel = catalog.find(model => model.id === 'raven') ?? catalog.find(model => model.id === 'suzu') ?? catalog[0];

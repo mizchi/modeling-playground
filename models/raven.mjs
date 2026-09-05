@@ -1,27 +1,15 @@
 import * as T from 'three';
-import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
-import { ravenClips, RAVEN_MOTION } from './raven-motion.mjs';
+import { ravenClips } from './raven-motion.mjs';
+import { RAVEN_SPEC } from './raven-definition.mjs';
+import { createRig, skinRigidParts } from '../modeling/rig.mjs';
+import { rigidPrimitives } from '../modeling/primitives.mjs';
 
 /** Hard-surface armor is 100% weighted to its joint: metal never bends like skin. */
 export function createRaven() {
-  const root=new T.Group();root.name='Raven';
+  const {root,bones}=createRig(RAVEN_SPEC,'Raven');
   root.userData={title:'RAVEN-03 / vector interceptor',generator:'Three.js',units:'meters',rigged:true,
-    groundLevel:0,animationModes:{Hover:'repeat',Boost:'once',BladeSlash:'once'}};
-  const bones=Object.create(null);
-  const bone=(name,parent,position)=>{
-    const b=new T.Bone();b.name=name;b.position.set(...position);(parent?bones[parent]:root).add(b);bones[name]=b;return b;
-  };
-  bone('Motion',null,[0,RAVEN_MOTION.hoverHeight,0]);bone('Hips','Motion',[0,1.78,0]);
-  bone('Spine','Hips',[0,.42,0]);bone('Neck','Spine',[0,.65,0]);bone('Head','Neck',[0,.17,0]);
-  for(const [label,s] of [['Left',-1],['Right',1]]) {
-    bone(label+'Shoulder','Spine',[s*.54,.43,0]);bone(label+'UpperArm',label+'Shoulder',[s*.12,-.08,0]);
-    bone(label+'Forearm',label+'UpperArm',[0,-.50,0]);bone(label+'Hand',label+'Forearm',[0,-.51,0]);
-    bone(label+'Thigh','Hips',[s*.21,-.06,0]);bone(label+'Shin',label+'Thigh',[0,-.78,0]);
-    bone(label+'Foot',label+'Shin',[0,-.69,0]);
-    bone(label+'Booster','Spine',[s*.3,.24,-.39]);bone(label+'BackJet',label+'Booster',[0,-.40,-.03]);
-    bone(label+'FootJet',label+'Foot',[0,-.18,-.035]);
-  }
-  bone('BladeTip','RightForearm',[.15,-1.62,.12]);
+    assetId:RAVEN_SPEC.id,assetVersion:RAVEN_SPEC.version,groundLevel:RAVEN_SPEC.groundLevel,
+    animationModes:Object.fromEntries(RAVEN_SPEC.clips.map(c=>[c.name,c.mode]))};
 
   const mat=(name,color,metalness=.3,emissive=null)=>{
     const m=new T.MeshStandardMaterial({color,metalness,roughness:.43,flatShading:true});m.name=name;
@@ -32,16 +20,7 @@ export function createRaven() {
   const light=mat('Ion cyan','#46d8ef',.2,'#1bcde5'),core=mat('Reactor ember','#ffb268',.1,'#f86220');
   const jetMat=new T.MeshBasicMaterial({color:'#119ad9'});jetMat.name='Blue exhaust';
   const jetCore=new T.MeshBasicMaterial({color:'#c7fbff'});jetCore.name='White hot exhaust';
-  const add=(parent,name,geometry,material,at=[0,0,0])=>{
-    const mesh=new T.Mesh(geometry,material);mesh.name=name;mesh.position.set(...at);bones[parent].add(mesh);return mesh;
-  };
-  const box=(parent,name,at,size,material)=>add(parent,name,new T.BoxGeometry(...size),material,at);
-  const hull=(parent,name,points,material)=>add(parent,name,new ConvexGeometry(points.map(p=>new T.Vector3(...p))),material);
-  const plate=(parent,name,points,depth,z,material)=>{
-    const shape=new T.Shape(points.map(p=>new T.Vector2(...p)));
-    const g=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.009,bevelThickness:.008});
-    g.translate(0,0,z-depth/2);return add(parent,name,g,material);
-  };
+  const {add,box,hull,plate}=rigidPrimitives(bones);
   const joint=(parent,name,at,radius,axis='x')=>{
     const mesh=add(parent,name,new T.CylinderGeometry(radius,radius,.14,12),dark,at);
     if(axis==='x')mesh.rotation.z=Math.PI/2;
@@ -121,20 +100,6 @@ export function createRaven() {
   box('RightForearm','Blade guard',[.16,-.42,.12],[.27,.055,.18],orange);
   plate('LeftForearm','Buckler',[[-.17,-.04],[.17,-.04],[.24,-.3],[0,-.62],[-.24,-.3]],.08,.23,navy);
 
-  // Bake each rigid armor part into bind-space and assign its nearest ancestor
-  // bone. The exported GLB contains actual skin attributes, not just node motion.
-  root.updateMatrixWorld(true);
-  const ordered=Object.values(bones),skeleton=new T.Skeleton(ordered),parts=[];
-  root.traverse(o=>{if(o.isMesh)parts.push(o);});
-  for(const part of parts) {
-    let owner=part.parent;while(!owner.isBone)owner=owner.parent;
-    const index=ordered.indexOf(owner),g=part.geometry.clone().applyMatrix4(part.matrixWorld);
-    const count=g.attributes.position.count,indices=new Uint16Array(count*4),weights=new Float32Array(count*4);
-    for(let i=0;i<count;i++){indices[i*4]=index;weights[i*4]=1;}
-    g.setAttribute('skinIndex',new T.Uint16BufferAttribute(indices,4));g.setAttribute('skinWeight',new T.Float32BufferAttribute(weights,4));
-    const skin=new T.SkinnedMesh(g,part.material);skin.name=part.name;skin.userData={...part.userData,joint:owner.name};
-    root.add(skin);skin.bind(skeleton);skin.frustumCulled=false;
-    part.removeFromParent();part.geometry.dispose();
-  }
-  return {root,bones,clips:ravenClips()};
+  skinRigidParts(root,bones);
+  return {root,bones,clips:ravenClips(),definition:RAVEN_SPEC};
 }

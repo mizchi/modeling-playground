@@ -1,7 +1,11 @@
-import { AnimationClip, Euler, Matrix4, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three';
+import { Euler, Quaternion } from 'three';
+import { RAVEN_SPEC } from './raven-definition.mjs';
+import { bakePoseClips } from '../modeling/bake-motion.mjs';
+import { solveHorizontalSweep } from '../runtime/solvers.mjs';
 
-export const RAVEN_MOTION=Object.freeze({fps:30,hoverHeight:.8,boostDistance:4.8,
-  durations:Object.freeze({Hover:2,Boost:2.4,BladeSlash:2.1})});
+export const RAVEN_MOTION=Object.freeze({fps:RAVEN_SPEC.clips[0].fps,
+  hoverHeight:RAVEN_SPEC.rig.bones.find(b=>b.name==='Motion').position[1],boostDistance:4.8,
+  durations:Object.freeze(Object.fromEntries(RAVEN_SPEC.clips.map(c=>[c.name,c.duration])))});
 const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
 const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
 const joints=['Hips','Spine','Head','RightShoulder','LeftUpperArm','RightUpperArm','LeftForearm','RightForearm',
@@ -45,35 +49,16 @@ const SLASH_KEYS=[
   {t:2.1,sweep:0,p:[.60,.8,3.55],thrust:.14,r:{}},
 ];
 
-// Author the weapon's trajectory, then solve the upper-arm orientation. The
-// blade extends along -Y and its cutting facet lies in XY. Counter-rotate the
-// torso's pitch/roll so both the reach and the cutting plane stay horizontal.
+// Character-specific choreography feeds the reusable task-space solver.
 function horizontalSlashArm(rotations,sweep,weight) {
   const quaternion=angles=>new Quaternion().setFromEuler(new Euler(...angles));
-  const chest=quaternion(rotations.Hips).multiply(quaternion(rotations.Spine));
-  const direction=new Vector3(Math.cos(sweep),0,Math.sin(sweep)).applyQuaternion(chest);
-  direction.y=0;direction.normalize();
-  const up=new Vector3(0,1,0);
-  const edge=new Vector3().crossVectors(direction,up);
-  const frame=new Matrix4().makeBasis(edge,direction.clone().negate(),up.clone().negate());
-  const blade=new Quaternion().setFromRotationMatrix(frame);
-  // Keep the elbow below the shoulder armor; the forearm counter-rotates to
-  // carry the blade horizontally instead of dragging the whole arm through it.
-  const elbowDirection=direction.clone();elbowDirection.y=-.55;elbowDirection.normalize();
-  const upperWorld=new Quaternion().setFromUnitVectors(direction,elbowDirection).multiply(blade);
-  const parent=chest.clone().multiply(quaternion(rotations.RightShoulder));
-  const inverseParent=parent.clone().invert();
-  const local=inverseParent.clone().multiply(upperWorld);
-  const rest=quaternion([.08,0,.14]);
-  const arm=rest.clone().slerp(local,weight);
-  // Quaternion blending alone can bow the elbow backwards through a pauldron.
-  // Blend the reach explicitly; apply the blade's roll around that reach.
-  const down=new Vector3(0,-1,0);
-  const reach=down.clone().applyQuaternion(rest).lerp(elbowDirection.clone().applyQuaternion(inverseParent),weight).normalize();
-  arm.premultiply(new Quaternion().setFromUnitVectors(down.clone().applyQuaternion(arm),reach));
-  rotations.RightUpperArm=new Euler().setFromQuaternion(arm,'XYZ').toArray().slice(0,3);
-  const forearm=quaternion([-.18,0,0]).slerp(parent.clone().multiply(arm).invert().multiply(blade),weight);
-  rotations.RightForearm=new Euler().setFromQuaternion(forearm,'XYZ').toArray().slice(0,3);
+  const result=solveHorizontalSweep({
+    chest:quaternion(rotations.Hips).multiply(quaternion(rotations.Spine)),
+    shoulder:quaternion(rotations.RightShoulder),sweep,weight,elbowDrop:.55,
+    restUpper:quaternion([.08,0,.14]),restForearm:quaternion([-.18,0,0]),
+  });
+  rotations.RightUpperArm=new Euler().setFromQuaternion(result.upper,'XYZ').toArray().slice(0,3);
+  rotations.RightForearm=new Euler().setFromQuaternion(result.forearm,'XYZ').toArray().slice(0,3);
 }
 
 /** Pose contract: XYZ Euler rotations in radians and root/jet transforms in meters. */
@@ -112,15 +97,12 @@ export function ravenPose(clip,time) {
 }
 
 export function ravenClips() {
-  return Object.entries(RAVEN_MOTION.durations).map(([name,duration])=>{
-    const fps=name==='BladeSlash'?60:RAVEN_MOTION.fps;
-    const authored=name==='BladeSlash'?SLASH_KEYS.map(k=>k.t):[];
-    const times=[...new Set([...Array.from({length:Math.round(duration*fps)+1},(_,i)=>i/fps),...authored])].sort((a,b)=>a-b);
-    const poses=times.map(t=>ravenPose(name,t));
-    const tracks=[new VectorKeyframeTrack('Motion.position',times,poses.flatMap(p=>p.position))];
-    for(const joint of joints)tracks.push(new QuaternionKeyframeTrack(`${joint}.quaternion`,times,
-      poses.flatMap(p=>new Quaternion().setFromEuler(new Euler(...p.rotations[joint])).toArray())));
-    for(const jet of jets)tracks.push(new VectorKeyframeTrack(`${jet}.scale`,times,poses.flatMap(p=>p.jetScales[jet])));
-    return new AnimationClip(name,duration,tracks);
+  return bakePoseClips({
+    clips:RAVEN_SPEC.clips,rootBone:'Motion',joints,scaleJoints:jets,
+    extraTimes:name=>name==='BladeSlash'?SLASH_KEYS.map(k=>k.t):[],
+    sample:(name,time)=>{
+      const pose=ravenPose(name,time);
+      return {position:pose.position,rotations:pose.rotations,scales:pose.jetScales};
+    },
   });
 }

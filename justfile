@@ -48,3 +48,6 @@ suzu:
 # Generate the weighted robot and its Hover / Boost / BladeSlash clips.
 raven:
     node scripts/build_raven.mjs
+
+# Three.js authoring path; Python/Blender assets remain usable without regeneration.
+models-js: suzu raven
