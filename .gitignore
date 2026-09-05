@@ -1,0 +1,6 @@
+node_modules/
+*.blend1
+dist/
+test-results/
+playwright-report/
+output/*.png[0-9][0-9][0-9][0-9].png

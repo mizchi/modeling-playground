@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="GLBモデルを回転・拡大して確認できる、ローカルの3Dビューア。" />
+    <link rel="icon" href="data:," />
+    <title>Petit Quartier · GLB Viewer</title>
+  </head>
+  <body>
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">P<span>Q</span></span><div><h1>Petit Quartier</h1><p>MODEL VIEWER</p></div></div>
+      <div class="file-actions"><button id="reload">町を再読み込み</button><label class="primary file-button">GLBを開く<input id="file" type="file" accept=".glb" aria-label="GLBファイルを選択" /></label></div>
+    </header>
+    <main>
+      <section id="viewport" aria-label="3Dモデルの表示領域">
+        <div class="model-caption"><span class="eyebrow">CURRENT MODEL</span><h2 id="model-name">little-town.glb</h2><p id="status" role="status" aria-live="polite">モデルを読み込み中…</p></div>
+        <div id="error" role="alert" hidden></div>
+        <div id="drop-hint" hidden>GLBをドロップして開く</div>
+        <div class="viewport-footer"><span id="selection">ダブルクリックで建物や部品にフォーカス</span><span class="axis-label">Y UP</span></div>
+      </section>
+      <aside aria-label="表示設定">
+        <section><span class="eyebrow">VIEW</span><h2>町を眺める</h2><p class="intro">角度を変えて、かたちと配置を確認。</p>
+          <div class="views" role="group" aria-label="視点"><button data-view="perspective" aria-pressed="true">斜め</button><button data-view="front" aria-pressed="false">正面</button><button data-view="top" aria-pressed="false">上面</button></div>
+          <button id="reset" class="wide">全体を表示 <kbd>F</kbd></button>
+        </section>
+        <section class="settings"><span class="eyebrow">DISPLAY</span>
+          <label class="toggle"><span>ワイヤーフレーム</span><input type="checkbox" id="wireframe" /></label>
+          <label class="toggle"><span>グリッド</span><input type="checkbox" id="grid" /></label>
+          <label class="toggle"><span>自動回転</span><input type="checkbox" id="rotate" /></label>
+          <label class="range-label" for="exposure">明るさ <output id="exposure-value">1.0</output></label><input id="exposure" type="range" min="0.3" max="2" step="0.1" value="1" />
+        </section>
+        <section><span class="eyebrow">MODEL INFO</span><dl><div><dt>サイズ</dt><dd id="file-size">—</dd></div><div><dt>メッシュ</dt><dd id="meshes">—</dd></div><div><dt>三角形</dt><dd id="triangles">—</dd></div><div class="dimensions"><dt>幅 × 高さ × 奥行き</dt><dd id="dimensions">—</dd></div></dl></section>
+        <section class="help"><span class="eyebrow">CONTROLS</span><p>ドラッグで回転<br>ホイール・ピンチで拡大縮小<br>右ドラッグ・2本指で移動</p><p>GLBのドラッグ＆ドロップにも対応。<br>選んだファイルはブラウザ内で表示します。</p></section>
+      </aside>
+    </main>
+    <script type="module" src="/viewer/main.mjs"></script>
+  </body>
+</html>
