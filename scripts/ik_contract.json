@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "coordinateSystem": "gltf-y-up",
+  "hips": "Hips",
+  "chains": [
+    {"id":"leftFoot","label":"左足","upper":"LeftThigh","lower":"LeftShin","end":"LeftFoot","pole":[-0.15,0.56,0.55]},
+    {"id":"rightFoot","label":"右足","upper":"RightThigh","lower":"RightShin","end":"RightFoot","pole":[0.15,0.56,0.55]},
+    {"id":"leftHand","label":"左手","upper":"LeftUpperArm","lower":"LeftForearm","end":"LeftHand","pole":[-0.68,1.14,-0.2]},
+    {"id":"rightHand","label":"右手","upper":"RightUpperArm","lower":"RightForearm","end":"RightHand","pole":[0.68,1.14,-0.2]}
+  ]
+}

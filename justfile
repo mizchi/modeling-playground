@@ -11,8 +11,9 @@ render:
 
 test:
     pnpm test
+    python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character test render
+all: build character walk ik test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -27,3 +28,11 @@ test-e2e:
 # Generate, reimport, and render the humanoid character.
 character:
     "{{blender}}" --background --python scripts/build_character.py
+
+# Generate the rig, bake Walk, export GLB and render a walking pose.
+walk:
+    "{{blender}}" --background --python scripts/rig_character.py
+
+# Generate native IK controls, verify constraints, export the viewer contract and render.
+ik:
+    "{{blender}}" --background --python scripts/build_ik.py

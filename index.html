@@ -24,6 +24,32 @@
           <div class="views" role="group" aria-label="視点"><button data-view="perspective" aria-pressed="true">斜め</button><button data-view="front" aria-pressed="false">正面</button><button data-view="top" aria-pressed="false">上面</button></div>
           <button id="reset" class="wide">全体を表示 <kbd>F</kbd></button>
         </section>
+        <section id="ik-panel" hidden aria-label="IKポーズ編集">
+          <span class="eyebrow">POSE CONTROLS</span>
+          <label class="range-label" for="ik-mode">制御方式</label><select id="ik-mode" aria-label="制御方式"><option value="IK">IK · ターゲット操作</option><option value="FK">FK · 関節の回転</option></select>
+          <div id="ik-target-fields"><label class="range-label" for="ik-target">操作対象</label><select id="ik-target" aria-label="操作対象"></select>
+            <label class="range-label" for="ik-x">X <output id="ik-x-value"></output></label><input type="range" id="ik-x" aria-label="ターゲット X" min="-2" max="2" step="0.01" />
+            <label class="range-label" for="ik-y">Y <output id="ik-y-value"></output></label><input type="range" id="ik-y" aria-label="ターゲット Y" min="0" max="2.5" step="0.01" />
+            <label class="range-label" for="ik-z">Z <output id="ik-z-value"></output></label><input type="range" id="ik-z" aria-label="ターゲット Z" min="-2" max="2" step="0.01" />
+            <button id="ik-crouch" class="wide">しゃがむ</button>
+          </div>
+          <div id="fk-fields" hidden><label class="range-label" for="fk-bone">関節</label><select id="fk-bone" aria-label="FK関節"></select>
+            <label class="range-label" for="fk-x">X <output id="fk-x-value">0°</output></label><input type="range" id="fk-x" aria-label="関節 X" min="-90" max="90" step="1" value="0" />
+            <label class="range-label" for="fk-y">Y <output id="fk-y-value">0°</output></label><input type="range" id="fk-y" aria-label="関節 Y" min="-90" max="90" step="1" value="0" />
+            <label class="range-label" for="fk-z">Z <output id="fk-z-value">0°</output></label><input type="range" id="fk-z" aria-label="関節 Z" min="-90" max="90" step="1" value="0" />
+          </div>
+          <button id="ik-reset" class="wide">ポーズをリセット</button>
+          <p id="ik-status" role="status" class="intro"></p>
+          <p class="intro">丸い目印をドラッグして手足を移動。青い目印は膝・肘の曲がる方向です。</p>
+        </section>
+        <section id="animation-panel" hidden aria-label="アニメーション">
+          <label class="eyebrow" for="clip-select">ANIMATION</label>
+          <select id="clip-select" aria-label="アニメーションを選択"></select>
+          <div class="playback-row"><button id="play-pause">一時停止</button><select id="playback-speed" aria-label="再生速度"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div>
+          <label class="range-label" for="timeline">再生位置 <output id="animation-time">0.00 / 0.00 s</output></label>
+          <input id="timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="再生位置" />
+          <label class="toggle"><span>骨格を表示</span><input type="checkbox" id="skeleton" /></label>
+        </section>
         <section class="settings"><span class="eyebrow">DISPLAY</span>
           <label class="toggle"><span>ワイヤーフレーム</span><input type="checkbox" id="wireframe" /></label>
           <label class="toggle"><span>グリッド</span><input type="checkbox" id="grid" /></label>

@@ -5,10 +5,13 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { catalog, defaultModel } from './catalog.mjs';
 import { frameModel, inspectModel, validateGlb, modelMaterials, disposeModel, focusTarget } from './model.mjs';
+import { AnimationPlayer, animationBounds, updateSkinBounds } from './animation.mjs';
+import { IKPose } from './ik.mjs';
+import { IKEditor } from './ik-editor.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
-const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null };
+const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null };
 const directions = { perspective: new THREE.Vector3(1, .85, 1.4), front: new THREE.Vector3(0, 0, 1), top: new THREE.Vector3(0, 1, .0001) };
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#eeeee6');
@@ -54,20 +57,48 @@ ground.receiveShadow = true;
 scene.add(ground);
 let grid;
 let renderPending = false;
+let lastFrame = 0;
 
 // Render only while controls change; idle inspection does not run a permanent loop.
 function invalidate() {
   if (renderPending) return;
   renderPending = true;
-  requestAnimationFrame(() => {
+  requestAnimationFrame(now => {
     renderPending = false;
+    const delta = lastFrame ? Math.min((now-lastFrame)/1000,.1) : 0;
+    lastFrame = now;
+    if (state.player?.playing) { state.player.update(delta); updatePlaybackUI(); }
     controls.update();
+    state.ikEditor?.update();
     renderer.render(scene, camera);
-    if (controls.autoRotate) invalidate();
+    if (controls.autoRotate || state.player?.playing) invalidate();
   });
 }
 controls.addEventListener('change', invalidate);
 controls.addEventListener('start', invalidate);
+
+function updatePlaybackUI() {
+  const player = state.player;
+  $('play-pause').textContent = player?.playing ? '一時停止' : '再生';
+  $('timeline').value = String(player?.time ?? 0);
+  $('animation-time').textContent = `${(player?.time ?? 0).toFixed(2)} / ${(player?.duration ?? 0).toFixed(2)} s`;
+}
+
+function setupPlayback() {
+  const player = state.player;
+  $('animation-panel').hidden = !player.clips.length;
+  $('clip-select').replaceChildren();
+  player.clips.forEach((clip,index) => $('clip-select').add(new Option(clip.name || `Clip ${index+1}`,index)));
+  $('timeline').max = String(player.duration);
+  player.speed = Number($('playback-speed').value);
+  state.skeleton = new THREE.SkeletonHelper(state.model);
+  state.skeleton.visible = $('skeleton').checked && state.skeleton.bones.length>0;
+  state.skeleton.material.depthTest = false;
+  state.skeleton.renderOrder = 10;
+  scene.add(state.skeleton);
+  updatePlaybackUI();
+  lastFrame = 0;
+}
 
 function fit(bounds = state.info?.bounds) {
   if (!bounds) return;
@@ -86,6 +117,43 @@ function fit(bounds = state.info?.bounds) {
   controls.update();
   controls.enableDamping = true;
   invalidate();
+}
+
+function syncIKUI(selected) {
+  const pose = state.ik;
+  if (!pose) return;
+  if (selected) $('ik-target').value = selected;
+  $('ik-mode').value = pose.mode;
+  $('ik-target-fields').hidden = pose.mode !== 'IK';
+  $('fk-fields').hidden = pose.mode !== 'FK';
+  const target = pose.targets[$('ik-target').value];
+  const angles = pose.fk[$('fk-bone').value] ?? new THREE.Vector3();
+  for (const axis of ['x','y','z']) {
+    $(`ik-${axis}`).value = String(target[axis]);
+    $(`ik-${axis}-value`).textContent = `${target[axis].toFixed(2)} m`;
+    const degrees = THREE.MathUtils.radToDeg(angles[axis]);
+    $(`fk-${axis}`).value = String(degrees);
+    $(`fk-${axis}-value`).textContent = `${Math.round(degrees)}°`;
+  }
+  const error = Math.max(0, ...Object.values(pose.errors));
+  $('ik-status').textContent = pose.mode === 'FK' ? '各関節を直接回転します。' : error < .002 ? 'ターゲットに追従中' : `届く範囲に制限中（最大差 ${error.toFixed(2)} m）`;
+  invalidate();
+}
+
+function setupIK() {
+  $('ik-panel').hidden = !state.ik;
+  if (!state.ik) return;
+  state.ikEditor = new IKEditor(state.ik, camera, viewport, controls, selected => {
+    state.player.playing = false;
+    updatePlaybackUI();
+    syncIKUI(selected);
+  });
+  $('ik-target').replaceChildren(...state.ikEditor.handles.map(h => new Option(h.label, h.id)));
+  const bones = [...new Set(state.ik.chains.flatMap(chain => [chain.upper,chain.lower,chain.end]))];
+  $('fk-bone').replaceChildren(...bones.map(bone => new Option(bone.name,bone.name)));
+  $('ik-target').value = state.ik.chains[0].id;
+  state.ik.solve();
+  syncIKUI();
 }
 
 function setView(view) {
@@ -120,19 +188,36 @@ async function loadModel(getBytes, filename, source) {
   $('error').hidden = true;
   $('status').textContent = 'モデルを読み込み中…';
   let candidate;
+  let candidatePlayer;
   try {
     const bytes = await getBytes();
     if (request !== state.request) return;
     validateGlb(bytes);
-    candidate = (await loader.parseAsync(bytes, '')).scene;
+    const asset = await loader.parseAsync(bytes, '');
+    candidate = asset.scene;
     const info = inspectModel(candidate);
     if (request !== state.request) { disposeModel(candidate); return; }
-    candidate.traverse(object => { if (object.isMesh) { object.castShadow = true; object.receiveShadow = true; } });
+    candidatePlayer = new AnimationPlayer(candidate, asset.animations);
+    if (asset.animations.length) {
+      info.bounds = animationBounds(candidatePlayer);
+      info.size = info.bounds.getSize(new THREE.Vector3());
+    }
+    candidate.traverse(object => {
+      if (object.isMesh) { object.castShadow = true; object.receiveShadow = true; }
+      if (object.isSkinnedMesh) object.frustumCulled = false;
+    });
     for (const material of modelMaterials(candidate)) material.wireframe = $('wireframe').checked;
+    const candidateIK = IKPose.fromModel(candidate);
+    state.ikEditor?.dispose();
+    state.ikEditor = null;
+    state.player?.dispose();
+    if (state.skeleton) { scene.remove(state.skeleton); state.skeleton.dispose(); }
     if (state.model) { scene.remove(state.model); disposeModel(state.model); }
     state.model = candidate;
     state.info = info;
     state.source = source;
+    state.player = candidatePlayer;
+    state.ik = candidateIK;
     directions.perspective.fromArray(source.direction ?? [1, .55, 1.8]);
     $('model-select').value = source.id ?? '';
     const address = new URL(location.href);
@@ -140,6 +225,8 @@ async function loadModel(getBytes, filename, source) {
     else address.searchParams.delete('model');
     history.replaceState(null, '', address);
     scene.add(candidate);
+    setupPlayback();
+    setupIK();
     prepareStage(info);
     $('model-name').textContent = filename;
     $('file-size').textContent = `${(bytes.byteLength / 1024).toFixed(0)} KB`;
@@ -149,6 +236,7 @@ async function loadModel(getBytes, filename, source) {
     setView('perspective');
     $('status').textContent = '表示中';
   } catch (error) {
+    if (candidatePlayer && candidatePlayer !== state.player) candidatePlayer.dispose();
     if (candidate && candidate !== state.model) disposeModel(candidate);
     if (request !== state.request) return;
     $('model-select').value = state.source?.id ?? '';
@@ -175,6 +263,63 @@ function openFile(file) {
     return file.arrayBuffer();
   }, file.name, { file });
 }
+$('ik-mode').addEventListener('change', event => {
+  state.ik.mode = event.target.value;
+  state.ik.solve();
+  syncIKUI();
+});
+$('ik-target').addEventListener('change', () => syncIKUI());
+$('fk-bone').addEventListener('change', () => syncIKUI());
+for (const axis of ['x','y','z']) {
+  $(`ik-${axis}`).addEventListener('input', event => {
+    state.ik.targets[$('ik-target').value][axis] = Number(event.target.value);
+    state.ik.solve();
+    syncIKUI();
+  });
+  $(`fk-${axis}`).addEventListener('input', event => {
+    const angles = state.ik.fk[$('fk-bone').value] ??= new THREE.Vector3();
+    angles[axis] = THREE.MathUtils.degToRad(Number(event.target.value));
+    state.ik.solve();
+    syncIKUI();
+  });
+}
+$('ik-crouch').addEventListener('click', () => {
+  state.ik.targets.hips.copy(state.ik.initial.hips).y -= .12;
+  state.ik.solve();
+  syncIKUI('hips');
+});
+$('ik-reset').addEventListener('click', () => { state.ik.reset(); syncIKUI(); });
+$('play-pause').addEventListener('click', () => {
+  if (!state.player?.duration) return;
+  state.player.playing = !state.player.playing;
+  lastFrame = 0;
+  updatePlaybackUI();
+  invalidate();
+});
+$('timeline').addEventListener('input', event => {
+  state.player?.seek(Number(event.target.value));
+  updatePlaybackUI();
+  invalidate();
+});
+$('playback-speed').addEventListener('change', event => {
+  if (state.player) state.player.speed = Number(event.target.value);
+});
+$('clip-select').addEventListener('change', event => {
+  state.player.select(Number(event.target.value));
+  state.info.bounds = animationBounds(state.player);
+  state.info.size = state.info.bounds.getSize(new THREE.Vector3());
+  $('timeline').max = String(state.player.duration);
+  $('dimensions').textContent = `${state.info.size.toArray().map(n => n.toFixed(2)).join(' × ')} m`;
+  prepareStage(state.info);
+  fit();
+  updatePlaybackUI();
+  lastFrame = 0;
+  invalidate();
+});
+$('skeleton').addEventListener('change', event => {
+  if (state.skeleton) state.skeleton.visible = event.target.checked;
+  invalidate();
+});
 $('file').addEventListener('change', event => { openFile(event.target.files[0]); event.target.value = ''; });
 $('reload').addEventListener('click', () => {
   if (state.source?.file) openFile(state.source.file);
@@ -199,6 +344,7 @@ renderer.domElement.addEventListener('keydown', event => { if (event.key.toLower
 const raycaster = new THREE.Raycaster();
 renderer.domElement.addEventListener('dblclick', event => {
   if (!state.model) return;
+  if (state.player?.duration) { state.player.playing = false; updatePlaybackUI(); updateSkinBounds(state.model); }
   const rect = renderer.domElement.getBoundingClientRect();
   raycaster.setFromCamera(new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1), camera);
   let object = raycaster.intersectObject(state.model, true)[0]?.object;
