@@ -167,7 +167,7 @@ function setView(view) {
 function prepareStage(info) {
   const center = info.bounds.getCenter(new THREE.Vector3());
   const span = Math.max(...info.size, .01);
-  ground.position.set(center.x, info.bounds.min.y - span * .001, center.z);
+  ground.position.set(center.x, (info.groundY ?? info.bounds.min.y) - span * .001, center.z);
   ground.scale.setScalar(span * 5);
   if (grid) { scene.remove(grid); grid.geometry.dispose(); grid.material.dispose(); }
   grid = new THREE.GridHelper(span * 2, 40, 0x9ba78d, 0xc5ccbc);
@@ -291,7 +291,8 @@ $('ik-crouch').addEventListener('click', () => {
 $('ik-reset').addEventListener('click', () => { state.ik.reset(); syncIKUI(); });
 $('play-pause').addEventListener('click', () => {
   if (!state.player?.duration) return;
-  state.player.playing = !state.player.playing;
+  if (state.player.playing) state.player.playing = false;
+  else state.player.play();
   lastFrame = 0;
   updatePlaybackUI();
   invalidate();

@@ -13,7 +13,7 @@ test:
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character walk ik suzu test render
+all: build character walk ik suzu raven test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -44,3 +44,7 @@ ik:
 # Generate the anime character with Three.js only (no Blender required).
 suzu:
     node scripts/build_suzu.mjs
+
+# Generate the weighted robot and its Hover / Boost / BladeSlash clips.
+raven:
+    node scripts/build_raven.mjs

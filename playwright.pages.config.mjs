@@ -3,7 +3,8 @@ import { defineConfig } from '@playwright/test';
 const deployed=process.env.PLAYGROUND_URL;
 export default defineConfig({
   testDir:'./tests/pages',
-  timeout:30_000,
+  // Every catalog model is loaded sequentially, including shader compilation.
+  timeout:60_000,
   workers:1,
   use:{baseURL:deployed??'http://127.0.0.1:4173/modeling-playground/',viewport:{width:1280,height:900}},
   webServer:deployed?undefined:{

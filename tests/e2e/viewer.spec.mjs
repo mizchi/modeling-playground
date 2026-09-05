@@ -136,3 +136,37 @@ test('Suzu renders through the shared viewer, including a face close-up and mobi
   await expect(page.locator('#model-name')).toHaveText('suzu.glb');
   expect(errors).toEqual([]);
 });
+
+test('Raven hovers, boosts once with replay, and slashes with its arm blade',async({page})=>{
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.getByLabel('モデルを選択').selectOption('raven');
+  await expect(page.locator('#model-name')).toHaveText('raven.glb');
+  await expect(page.getByLabel('アニメーションを選択').locator('option')).toHaveText(['Hover','Boost','BladeSlash']);
+  await page.getByLabel('再生位置').fill('0.2');
+  await page.screenshot({path:'output/raven-hover.png'});
+  await page.getByRole('button',{name:'側面',exact:true}).click();
+  await page.screenshot({path:'output/raven-side.png'});
+  await page.getByRole('button',{name:'斜め',exact:true}).click();
+  await page.getByLabel('アニメーションを選択').selectOption({label:'Boost'});
+  await page.getByLabel('再生位置').fill('0.8');
+  await page.screenshot({path:'output/raven-boost.png'});
+  await page.getByRole('button',{name:'再生',exact:true}).click();
+  await expect(page.getByRole('button',{name:'再生',exact:true})).toBeVisible({timeout:5000});
+  await expect(page.locator('#animation-time')).toHaveText('2.40 / 2.40 s');
+  await page.getByRole('button',{name:'再生',exact:true}).click();
+  await expect(page.getByRole('button',{name:'一時停止',exact:true})).toBeVisible();
+  await page.getByLabel('アニメーションを選択').selectOption({label:'BladeSlash'});
+  for(const [t,name] of [['0.48','windup'],['0.7','slash'],['0.94','followthrough']]) {
+    await page.getByLabel('再生位置').fill(t);
+    await page.screenshot({path:`output/raven-${name}.png`});
+  }
+  await page.getByLabel('再生位置').fill('0.78');
+  for(const [view,name] of [['正面','front'],['側面','side'],['上面','top']]) {
+    await page.getByRole('button',{name:view,exact:true}).click();
+    await page.screenshot({path:`output/raven-slash-${name}.png`});
+  }
+  await page.getByRole('button',{name:'斜め',exact:true}).click();
+  await page.getByRole('checkbox',{name:'骨格を表示'}).check();
+  await page.screenshot({path:'output/raven-rig.png'});
+  expect(errors).toEqual([]);
+});

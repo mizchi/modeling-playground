@@ -33,14 +33,16 @@ export function inspectModel(model) {
   const bounds = new Box3().setFromObject(model);
   let meshes = 0;
   let triangles = 0;
+  let groundY;
   model.traverse(object => {
+    if (Number.isFinite(object.userData.groundLevel)) groundY = object.localToWorld(new Vector3(0, object.userData.groundLevel, 0)).y;
     if (!object.isMesh) return;
     const instances = object.isInstancedMesh ? object.count : 1;
     meshes += instances;
     triangles += ((object.geometry.index?.count ?? object.geometry.attributes.position?.count ?? 0) / 3) * instances;
   });
   if (!meshes || bounds.isEmpty()) throw new Error('表示できる形状がありません。');
-  return { bounds, size: bounds.getSize(new Vector3()), meshes, triangles };
+  return { bounds, size: bounds.getSize(new Vector3()), meshes, triangles, groundY };
 }
 
 export function validateGlb(bytes) {

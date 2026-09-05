@@ -6,7 +6,7 @@ test('production site loads every GLB under the Pages subdirectory',async({page}
   page.on('response',response=>{if(response.status()>=400)errors.push(`${response.status()} ${response.url()}`);});
   await page.goto('./?model=suzu');
   await expect(page.locator('#model-name')).toHaveText('suzu.glb');
-  const models=['traveler','traveler-walk','traveler-ik','little-town','suzu'];
+  const models=['traveler','traveler-walk','traveler-ik','little-town','raven','suzu'];
   for(const model of models) {
     await page.getByLabel('モデルを選択').selectOption(model);
     await expect(page.locator('#model-name')).toHaveText(model+'.glb');

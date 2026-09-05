@@ -24,6 +24,17 @@ test('playback pauses, seeks, changes speed and loops independently of rendering
   player.dispose();
 });
 
+test('one-shot clips hold their final position, replay, and scrub after finishing',()=>{
+  const root=new Group();root.userData.animationModes={Boost:'once'};
+  const clip=new AnimationClip('Boost',1,[new NumberKeyframeTrack('.position[z]',[0,1],[0,5])]);
+  const player=new AnimationPlayer(root,[clip]);
+  player.update(1.1);
+  assert.equal(player.playing,false);assert.equal(root.position.z,5);
+  player.play();player.update(.2);assert.ok(Math.abs(root.position.z-1)<1e-6);
+  player.update(1);player.seek(.4);assert.ok(Math.abs(root.position.z-2)<1e-6);
+  player.dispose();
+});
+
 test('models without animation are supported and selecting a clip resets playback', () => {
   const root = new Group();
   const empty = new AnimationPlayer(root, []);
