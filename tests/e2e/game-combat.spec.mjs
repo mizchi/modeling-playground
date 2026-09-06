@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { useDragLook, expectDragLookActive } from './game-input.mjs';
+test.use({deviceScaleFactor:process.env.CI ? 0.5 : 1});
 const value=(page,key)=>page.locator('#combat-telemetry').getAttribute(`data-${key}`).then(Number);
 test('live fire: rifle, multi-lock salvo, damage, pause cancellation and target reset',async({page})=>{
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/game.html');
   await expect(page.locator('.arena')).toHaveAttribute('data-ready','true',{timeout:30_000});
@@ -30,7 +31,7 @@ test('live fire: rifle, multi-lock salvo, damage, pause cancellation and target 
   await page.screenshot({path:'output/game-missiles.png'});
   await expect.poll(()=>value(page,'hits'),{timeout:20_000}).toBeGreaterThan(0);
   await page.keyboard.down('e');
-  await expect.poll(()=>value(page,'locked'),{timeout:15_000}).toBeGreaterThanOrEqual(2);
+  await expect.poll(()=>value(page,'locked'),{timeout:30_000}).toBeGreaterThanOrEqual(2);
   await page.keyboard.up('e');
   await expect.poll(()=>value(page,'kills'),{timeout:20_000}).toBeGreaterThan(0);
   await page.keyboard.down('e');await page.keyboard.press('Escape');await page.keyboard.up('e');

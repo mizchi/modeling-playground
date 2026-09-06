@@ -74,7 +74,8 @@ function App() {
   };
   const heading=((telemetry.yaw*180/Math.PI)%360+360)%360;
   return <main ref={arena} className="arena" data-ready={ready} data-active={active} aria-label="ロボットTPS訓練場">
-    <RenderBoundary><Canvas shadows dpr={[1,1.5]} camera={{fov:58,near:.15,far:260}} gl={{antialias:true,powerPreference:'high-performance'}}
+    {/* Honor low-DPR software-rendered contexts; normal displays keep their existing resolution. */}
+    <RenderBoundary><Canvas shadows dpr={[.5,1.5]} camera={{fov:58,near:.15,far:260}} gl={{antialias:true,powerPreference:'high-performance'}}
       fallback={<div className="fatal" role="alert">WebGL 2対応のブラウザで開いてください。</div>}>
       <Suspense fallback={null}><World controls={controls} pilot={pilot} combat={combat} hp={combatHud.hp} onReady={loaded} onTelemetry={setTelemetry} onCombatHud={setCombatHud}/></Suspense>
     </Canvas></RenderBoundary>

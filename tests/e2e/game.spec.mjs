@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { useDragLook, expectDragLookActive } from './game-input.mjs';
 
+// Preserve CSS geometry and gameplay; reduce only framebuffer pixels on software-rendered CI.
+test.use({deviceScaleFactor:process.env.CI ? 0.5 : 1});
+
 const state=page=>page.locator('#pilot-telemetry').evaluate(node=>({x:Number(node.dataset.x),z:Number(node.dataset.z),yaw:Number(node.dataset.yaw),speed:Number(node.dataset.speed),boost:Number(node.dataset.boost)}));
 
 test('IRON YARD: real GLBs, mouse-look, WASD, boost, pause, resume and reset',async({page})=>{
