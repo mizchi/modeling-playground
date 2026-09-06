@@ -12,6 +12,8 @@
 
 `just test-pages`で本番ビルドを`/modeling-playground/`配下に置いた状態を検証します。公開後の確認は`PLAYGROUND_URL=https://mizchi.github.io/modeling-playground/ pnpm test:pages`。モデルを編集した場合は再生成したGLBと付随する`.asset.json`もコミットしてください。
 
+Pages検証では、モデル読込の完了（モデル名・「表示中」・エラーなし）を最大15秒待ちます。CIでSuzu再読込が既定の5秒を超えて失敗したため、GLB応答を6秒遅らせる回帰テストを含めています。固定時間の待機で成功扱いにせず、完了条件を検証します。
+
 ## 生成コードの構成
 
 新規モデルはThree.jsを基本にし、モデル固有の造形・演出と、共通の生成・実行処理を分離しています。RAVENを移行済みで、既存のPython/Blender製モデルはそのまま利用できます。
