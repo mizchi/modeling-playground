@@ -1,0 +1,27 @@
+import { test, expect } from '@playwright/test';
+const number=(page,id,key)=>page.locator(id).getAttribute(`data-${key}`).then(Number);
+test('Space jumps, holds to air boost, supports firing, releases to land, and clears on pause',async({page})=>{
+  test.setTimeout(90_000);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/game.html');
+  await expect(page.locator('.arena')).toHaveAttribute('data-ready','true',{timeout:30_000});
+  await page.getByRole('button',{name:/出撃する/}).click();
+  await page.keyboard.down('Space');
+  await expect.poll(()=>number(page,'#pilot-telemetry','y')).toBeGreaterThan(.1);
+  await page.keyboard.up('Space');
+  await expect(page.locator('#pilot-telemetry')).toHaveAttribute('data-grounded','true',{timeout:10_000});
+  await page.keyboard.down('Space');
+  await expect.poll(()=>number(page,'#pilot-telemetry','y'),{timeout:10_000}).toBeGreaterThan(5);
+  await expect.poll(()=>number(page,'#pilot-telemetry','boost')).toBeGreaterThan(.9);
+  await page.mouse.move(640,450);await page.mouse.down();
+  await expect.poll(()=>number(page,'#combat-telemetry','shots')).toBeGreaterThan(0);await page.mouse.up();
+  await page.screenshot({path:'output/game-air-boost.png'});
+  await page.keyboard.up('Space');
+  await expect(page.locator('#pilot-telemetry')).toHaveAttribute('data-grounded','true',{timeout:15_000});
+  expect(await number(page,'#pilot-telemetry','y')).toBe(0);
+  await page.keyboard.down('Space');await page.keyboard.press('Escape');await page.keyboard.up('Space');
+  await page.getByRole('button',{name:'出発地点へ戻す',exact:true}).click();
+  await page.getByRole('button',{name:/操作を再開/}).click();await page.waitForTimeout(300);
+  expect(await number(page,'#pilot-telemetry','y')).toBe(0);
+  expect(errors).toEqual([]);
+});

@@ -10,6 +10,7 @@ render:
     "{{blender}}" --background output/little-town.blend --python scripts/render_town.py
 
 test:
+    pnpm exec tsc -p tsconfig.game.json
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
@@ -24,6 +25,12 @@ viewer-build:
 
 test-e2e:
     pnpm test:e2e
+
+# Type-check and test the TPS controller, then exercise the playable stage.
+game-check:
+    pnpm exec tsc -p tsconfig.game.json
+    node --test tests/game.test.mjs tests/game-rig.test.mjs tests/game-combat.test.mjs
+    pnpm exec playwright test tests/e2e/game.spec.mjs tests/e2e/game-combat.spec.mjs tests/e2e/game-jump.spec.mjs
 
 # Build and check all models at the production subdirectory path.
 test-pages: viewer-build
