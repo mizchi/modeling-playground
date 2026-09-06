@@ -26,6 +26,15 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 `just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
 
+## BASTION-06 — 重装モジュール機
+
+RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、油圧機構、幅広い接地脚、左右非対称の銃器・肩武装を持つオリーブドラブの機体です。
+
+- [ローカルで表示・交換](http://127.0.0.1:5188/?model=bastion) / [GLB](output/bastion.glb) / [斜め](output/bastion-quarter.png) / [側面](output/bastion-side.png) / [背面](output/bastion-back.png)
+- 頭・胴・左右の腕／脚・背部・左右の手／肩武装の11モジュールをViewerで交換。「構成をGLBで保存」で書き出し、再び開いて編集できます。
+- `just bastion`で標準構成と[接続規格JSON](output/bastion.parts.json)を再生成。約15,200三角形、テクスチャ内包。
+- [造形・交換規格・検証・制約](docs/bastion-study.md)。現段階は静止アセンブリで、リグ・歩行アニメーション・任意の外部パーツ読込は未実装です。
+
 ## Pixel Motion Lab — 歩行素体から実ピクセルへ
 
 [公開スプライト実験ページ](https://mizchi.github.io/modeling-playground/sprite-lab.html) / [ローカル再生プレビュー](http://127.0.0.1:5188/sprite-lab.html)で、簡単な3D素体の歩行を8方向から確認できます。32×48px、8コマ、共通の15色＋透明。画像生成でコマを個別に描かず、同じ骨格・歩行位相から決定的にラスタライズします。

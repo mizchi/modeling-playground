@@ -1,4 +1,5 @@
 import { Box3, Vector3 } from 'three';
+export { modelMaterials, disposeModel } from '../modeling/resources.mjs';
 
 /** Return camera parameters without changing the model's original coordinates. */
 export function frameModel(bounds, fov, aspect, direction = new Vector3(1, .85, 1.4)) {
@@ -51,31 +52,6 @@ export function validateGlb(bytes) {
   if (view.getUint32(0, true) !== 0x46546c67 || view.getUint32(4, true) !== 2 || view.getUint32(8, true) !== bytes.byteLength) {
     throw new Error('GLB 2.0ファイルを選んでください。ファイルが破損している可能性もあります。');
   }
-}
-
-export function modelMaterials(root) {
-  const materials = new Set();
-  root.traverse(object => {
-    for (const material of [object.material].flat()) if (material) materials.add(material);
-  });
-  return materials;
-}
-
-export function disposeModel(root) {
-  const geometry = new Set();
-  const textures = new Set();
-  const skeletons = new Set();
-  root.traverse(object => {
-    if (object.geometry) geometry.add(object.geometry);
-    if (object.skeleton) skeletons.add(object.skeleton);
-  });
-  for (const material of modelMaterials(root)) {
-    for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
-    material.dispose();
-  }
-  for (const value of geometry) value.dispose();
-  for (const value of textures) { value.dispose(); value.source?.data?.close?.(); }
-  for (const skeleton of skeletons) skeleton.dispose();
 }
 
 /** Prefer author-supplied focus groups; otherwise use the top-level model part. */

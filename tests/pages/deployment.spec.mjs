@@ -16,10 +16,15 @@ test('production site loads every GLB under the Pages subdirectory',async({page}
   page.on('response',response=>{if(/raven\.asset(?:-[^/]+)?\.json(?:\?|$)/.test(response.url()))sidecars.push(response);});
   await page.goto('./?model=suzu');
   await expectModelReady(page,'suzu.glb');
-  const models=['traveler','traveler-walk','traveler-ik','little-town','raven','ashley','suzu'];
+  const models=['traveler','traveler-walk','traveler-ik','little-town','raven','bastion','ashley','suzu'];
   for(const model of models) {
     await page.getByLabel('モデルを選択').selectOption(model);
     await expectModelReady(page,model+'.glb');
+    if(model==='bastion') {
+      await page.getByLabel('頭部',{exact:true}).selectOption('command');
+      await expect(page.locator('#assembly-status')).toContainText('頭部');
+      await expect(page.locator('#error')).toBeHidden();
+    }
     expect(new URL(page.url()).pathname).toMatch(/\/modeling-playground\/$/);
   }
   // Consume the response while its document is still alive, before reload.

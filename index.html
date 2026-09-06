@@ -25,6 +25,16 @@
           <div class="views" role="group" aria-label="視点"><button data-view="perspective" aria-pressed="true">斜め</button><button data-view="front" aria-pressed="false">正面</button><button data-view="side" aria-pressed="false">側面</button><button data-view="back" aria-pressed="false">背面</button><button data-view="top" aria-pressed="false">上面</button></div>
           <button id="reset" class="wide">全体を表示 <kbd>F</kbd></button>
         </section>
+        <section id="assembly-panel" hidden aria-label="機体アセンブリ">
+          <span class="eyebrow">BASTION / ASSEMBLY</span>
+          <h2>機体パーツを交換</h2>
+          <p class="intro">共通接続口を持つ11モジュール。左右は機体から見た向きです。</p>
+          <div id="assembly-fields"></div>
+          <button id="assembly-reset" class="wide">標準構成に戻す</button>
+          <button id="assembly-export" class="wide">構成をGLBで保存</button>
+          <p id="assembly-status" class="intro" role="status"></p>
+          <p class="intro">変更は保存ボタンで書き出せます。再読み込みでは元の構成に戻ります。</p>
+        </section>
         <section id="ik-panel" hidden aria-label="IKポーズ編集">
           <span class="eyebrow">POSE CONTROLS</span>
           <label class="range-label" for="ik-mode">制御方式</label><select id="ik-mode" aria-label="制御方式"><option value="IK">IK · ターゲット操作</option><option value="FK">FK · 関節の回転</option></select>

@@ -9,10 +9,21 @@ import { AnimationPlayer, animationBounds, updateSkinBounds } from './animation.
 import { IKPose } from './ik.mjs';
 import { IKEditor } from './ik-editor.mjs';
 import { bindAsset } from '../runtime/asset.mjs';
+import { createAssemblyPanel } from './assembly.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
 const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, binding: null };
+const assembly=createAssemblyPanel(()=>{
+  if(!state.model)return;
+  state.info=inspectModel(state.model);
+  for(const material of modelMaterials(state.model))material.wireframe=$('wireframe').checked;
+  $('meshes').textContent=state.info.meshes.toLocaleString('ja-JP');
+  $('triangles').textContent=Math.round(state.info.triangles).toLocaleString('ja-JP');
+  $('dimensions').textContent=`${state.info.size.toArray().map(n=>n.toFixed(2)).join(' × ')} m`;
+  $('file-size').textContent='未保存の構成';
+  prepareStage(state.info);setView(state.view);
+});
 const directions = { perspective: new THREE.Vector3(1, .85, 1.4), front: new THREE.Vector3(0, 0, 1), side: new THREE.Vector3(1, 0, 0), back: new THREE.Vector3(0, 0, -1), top: new THREE.Vector3(0, 1, .0001) };
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#eeeee6');
@@ -229,6 +240,7 @@ async function loadModel(getBytes, filename, source) {
     else address.searchParams.delete('model');
     history.replaceState(null, '', address);
     scene.add(candidate);
+    assembly.setModel(candidate);
     setupPlayback();
     setupIK();
     prepareStage(info);

@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "id": "bastion",
+  "units": "meters",
+  "forward": "+Z",
+  "slots": [
+    {
+      "id": "core",
+      "label": "胴体",
+      "position": [
+        0,
+        3.54,
+        0
+      ],
+      "options": [
+        {
+          "id": "fortress",
+          "label": "C01 · 重装傾斜装甲"
+        },
+        {
+          "id": "patrol",
+          "label": "C02 · 哨戒装甲"
+        }
+      ]
+    },
+    {
+      "id": "head",
+      "label": "頭部",
+      "position": [
+        0,
+        4.35,
+        0.12
+      ],
+      "options": [
+        {
+          "id": "sensor",
+          "label": "H01 · 低背センサー"
+        },
+        {
+          "id": "command",
+          "label": "H02 · 指揮通信型"
+        }
+      ]
+    },
+    {
+      "id": "leftArm",
+      "label": "左腕",
+      "position": [
+        1.37,
+        4.02,
+        0
+      ],
+      "options": [
+        {
+          "id": "armored",
+          "label": "A01 · 重装マニピュレータ"
+        },
+        {
+          "id": "utility",
+          "label": "A02 · 作業用フレーム"
+        }
+      ]
+    },
+    {
+      "id": "rightArm",
+      "label": "右腕",
+      "position": [
+        -1.37,
+        4.02,
+        0
+      ],
+      "options": [
+        {
+          "id": "armored",
+          "label": "A01 · 重装マニピュレータ"
+        },
+        {
+          "id": "utility",
+          "label": "A02 · 作業用フレーム"
+        }
+      ]
+    },
+    {
+      "id": "leftLeg",
+      "label": "左脚",
+      "position": [
+        0.66,
+        2.5,
+        -0.1
+      ],
+      "options": [
+        {
+          "id": "siege",
+          "label": "L01 · 重装接地脚"
+        },
+        {
+          "id": "field",
+          "label": "L02 · 野戦脚"
+        }
+      ]
+    },
+    {
+      "id": "rightLeg",
+      "label": "右脚",
+      "position": [
+        -0.66,
+        2.5,
+        -0.1
+      ],
+      "options": [
+        {
+          "id": "siege",
+          "label": "L01 · 重装接地脚"
+        },
+        {
+          "id": "field",
+          "label": "L02 · 野戦脚"
+        }
+      ]
+    },
+    {
+      "id": "backpack",
+      "label": "背部",
+      "position": [
+        0,
+        3.65,
+        -0.72
+      ],
+      "options": [
+        {
+          "id": "reactor",
+          "label": "B01 · 双発動力パック"
+        },
+        {
+          "id": "cooler",
+          "label": "B02 · 冷却パック"
+        }
+      ]
+    },
+    {
+      "id": "leftWeapon",
+      "label": "左手武装",
+      "position": [
+        1.63,
+        2.68,
+        0.3
+      ],
+      "options": [
+        {
+          "id": "rifle",
+          "label": "W01 · 長砲身ライフル"
+        },
+        {
+          "id": "gatling",
+          "label": "W02 · 回転機関砲"
+        },
+        {
+          "id": "none",
+          "label": "装備なし"
+        }
+      ]
+    },
+    {
+      "id": "rightWeapon",
+      "label": "右手武装",
+      "position": [
+        -1.63,
+        2.68,
+        0.3
+      ],
+      "options": [
+        {
+          "id": "rifle",
+          "label": "W01 · 長砲身ライフル"
+        },
+        {
+          "id": "gatling",
+          "label": "W02 · 回転機関砲"
+        },
+        {
+          "id": "none",
+          "label": "装備なし"
+        }
+      ]
+    },
+    {
+      "id": "leftShoulder",
+      "label": "左肩武装",
+      "position": [
+        1.05,
+        4.12,
+        -0.4
+      ],
+      "options": [
+        {
+          "id": "missiles",
+          "label": "S01 · 6連装ミサイル"
+        },
+        {
+          "id": "cannon",
+          "label": "S02 · 肩部榴弾砲"
+        },
+        {
+          "id": "none",
+          "label": "装備なし"
+        }
+      ]
+    },
+    {
+      "id": "rightShoulder",
+      "label": "右肩武装",
+      "position": [
+        -1.05,
+        4.12,
+        -0.4
+      ],
+      "options": [
+        {
+          "id": "missiles",
+          "label": "S01 · 6連装ミサイル"
+        },
+        {
+          "id": "cannon",
+          "label": "S02 · 肩部榴弾砲"
+        },
+        {
+          "id": "none",
+          "label": "装備なし"
+        }
+      ]
+    }
+  ],
+  "loadout": {
+    "core": "fortress",
+    "head": "sensor",
+    "leftArm": "armored",
+    "rightArm": "armored",
+    "leftLeg": "siege",
+    "rightLeg": "siege",
+    "backpack": "reactor",
+    "leftWeapon": "gatling",
+    "rightWeapon": "rifle",
+    "leftShoulder": "missiles",
+    "rightShoulder": "cannon"
+  }
+}
