@@ -55,3 +55,7 @@ models-js: suzu raven ashley
 # Generate the textured low-poly Ashley study and the editable PNG atlas.
 ashley:
     node scripts/build_ashley.mjs
+
+# Deterministic indexed-pixel walk study, with shared 3D pose and 8 directions.
+sprite-walk:
+    node scripts/build_sprite_walk.mjs

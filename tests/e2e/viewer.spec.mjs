@@ -56,6 +56,8 @@ test('shared viewer switches assets, reloads the active model, and accepts deep 
 
 test('mobile viewport has a usable canvas and no horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  // The viewer updates its canvas in ResizeObserver, after the viewport changes.
+  await expect.poll(async () => (await page.locator('canvas').boundingBox()).width).toBe(390);
   const box = await page.locator('canvas').boundingBox();
   expect(box.width).toBe(390);
   expect(box.height).toBeGreaterThan(400);

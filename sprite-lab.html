@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>歩行素体 | Pixel Motion Lab</title>
+  <link rel="stylesheet" href="./sprites/lab.css">
+</head>
+<body>
+  <header><a href="./">← Model Studio</a><span>PIXEL MOTION LAB / 01</span></header>
+  <main>
+    <h1>絵を並べる前に、歩かせる。</h1>
+    <p class="intro">共通の3D素体 → 歩行ポーズ → 8方向の投影 → 32 × 48の実ピクセル。<br>8・4・3・2頭身を同じ身長・同じ位相で比べ、接地とシルエットを確認します。</p>
+    <section class="workspace">
+      <div class="preview">
+        <div class="panel-title"><h2>歩行プレビュー</h2><span>NEAREST / 整数倍表示</span></div>
+        <div class="canvas-wrap"><canvas id="stage" width="128" height="64" aria-label="歩行素体の再生"></canvas></div>
+        <div class="transport">
+          <button id="play" type="button">一時停止</button><button id="step" type="button">1コマ進む</button>
+          <label>フレーム <input id="frame" type="range" min="0" max="7" value="0" step="1"></label>
+          <output id="frame-label">1 / 8</output>
+        </div>
+        <p class="legend"><span class="left">● 左手・左足</span> <span class="right">● 右手・右足</span>　下の目印＝接地中の足</p>
+      </div>
+      <aside>
+        <h2>同じポーズを、別の方向から。</h2>
+        <label class="field">頭身<select id="proportion" aria-label="頭身"></select></label>
+        <label class="field">方向<select id="direction"></select></label>
+        <label class="field">再生速度<select id="speed"><option value="0.5">0.5倍</option><option value="1" selected>1倍</option><option value="1.5">1.5倍</option></select></label>
+        <label class="check"><input id="colored" type="checkbox" checked>左右の手足を色分け</label>
+        <label class="check"><input id="bones" type="checkbox">骨格を重ねる</label>
+        <label class="check"><input id="ground" type="checkbox" checked>移動する地面の目印</label>
+        <dl><dt>1コマ</dt><dd>32 × 48 px</dd><dt>歩行周期</dt><dd>0.8秒 / 8コマ</dd><dt>色</dt><dd>15色 + 透明</dd><dt>頭高 / 身長</dt><dd id="ratio"></dd><dt>歩幅</dt><dd id="stride-length"></dd><dt>接地</dt><dd id="contact"></dd></dl>
+        <p class="note">体はその場で歩き、地面が後ろへ流れます。骨格・地面・接地マーカーは検証用で、PNGには入りません。</p>
+        <p class="note" id="head-mode"></p>
+      </aside>
+    </section>
+    <section class="comparison">
+      <div class="panel-title"><h2>頭身を横並びで比較</h2><span>同じ方向・同じフレーム・同じ倍率</span></div>
+      <div class="comparison-grid">
+        <div class="comparison-card"><button type="button" data-proportion="8head">8頭身を選択</button><div class="canvas-wrap"><canvas id="compare-8head" width="32" height="48" aria-label="8頭身の比較"></canvas></div><p>長い手足・小さな頭</p></div>
+        <div class="comparison-card"><button type="button" data-proportion="4head">4頭身を選択</button><div class="canvas-wrap"><canvas id="compare-4head" width="32" height="48" aria-label="4頭身の比較"></canvas></div><p>中間のデフォルメ</p></div>
+        <div class="comparison-card"><button type="button" data-proportion="3head">3頭身を選択</button><div class="canvas-wrap"><canvas id="compare-3head" width="32" height="48" aria-label="3頭身の比較"></canvas></div><p>大きな頭・短い手足</p></div>
+        <div class="comparison-card"><button type="button" data-proportion="2head">2頭身を選択</button><div class="canvas-wrap"><canvas id="compare-2head" width="32" height="48" aria-label="2頭身の比較"></canvas></div><p>頭と胴体以下が1対1</p></div>
+      </div>
+      <p class="note">頭身は直立時の身長÷頭頂から顎までの長さです。歩幅・足の持ち上げ・上下動は脚長に合わせて調整。投影と1pxへの丸めで見た目の比率は少し変わります。</p>
+    </section>
+    <section class="frames">
+      <div class="panel-title"><h2>現在の方向の8コマ</h2><span>クリックでコマを選択</span></div>
+      <div class="canvas-wrap"><canvas id="strip" width="256" height="48" aria-label="歩行8コマ"></canvas></div>
+      <p>左足接地 → 右足の振り出し → 右足接地 → 左足の振り出し。全方向で歩行位相は共通です。</p>
+    </section>
+    <section class="exports">
+      <h2>画像ではなく、ピクセルデータを正本に。</h2>
+      <p>選択中の頭身：<strong id="export-proportion"></strong>。出力は256 × 384px、8列 × 8方向。透過PNGと、フレーム寸法・方向・骨格・接地状態を含むJSONを一緒に使います。</p>
+      <nav><a id="debug-download" download>色分けPNG</a><a id="neutral-download" download>単色素体PNG</a><a id="metadata-download" download>動作定義JSON</a></nav>
+      <p class="note">今回は動作検証用の素体です。ロマサガ3風の顔・髪・衣装・方向別のドット補正は次の工程です。</p>
+    </section>
+  </main>
+  <script type="module" src="./sprites/lab.mjs"></script>
+</body>
+</html>
