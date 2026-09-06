@@ -3,6 +3,7 @@ const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', 
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
   bastion: { label: 'BASTION-06 · 重装モジュール機', direction: [1.3, .65, 2.5] },
+  strix: { label: 'STRIX-04 · 四脚歩行機', direction: [1.3, .80, 2.3] },
   ashley: { label: 'Ashley Riot · ローポリ研究', direction: [.7, .13, 2.4] },
   raven: { label: 'RAVEN-03 · 飛行型ロボット', direction: [.95, .28, 2.4] },
   suzu: { label: 'Suzu · アニメキャラクター', direction: [.35, .10, 2.4] },

@@ -1,0 +1,327 @@
+{
+  "version": 1,
+  "id": "strix",
+  "units": "meters",
+  "coordinateSystem": "gltf-y-up",
+  "forward": "+Z",
+  "groundLevel": 0,
+  "rig": {
+    "bones": [
+      {
+        "name": "Motion",
+        "parent": null,
+        "position": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "Hull",
+        "parent": "Motion",
+        "position": [
+          0,
+          1.58,
+          0
+        ]
+      },
+      {
+        "name": "Torso",
+        "parent": "Hull",
+        "position": [
+          0,
+          0.56,
+          -0.1
+        ]
+      },
+      {
+        "name": "Head",
+        "parent": "Torso",
+        "position": [
+          0,
+          0.73,
+          0.29
+        ]
+      },
+      {
+        "name": "FrontLeftUpper",
+        "parent": "Hull",
+        "position": [
+          0.65,
+          -0.06,
+          0.66
+        ]
+      },
+      {
+        "name": "FrontLeftLower",
+        "parent": "FrontLeftUpper",
+        "position": [
+          1.3051774659706092,
+          0.2580463465379075,
+          0.9242964163951831
+        ]
+      },
+      {
+        "name": "FrontLeftFoot",
+        "parent": "FrontLeftLower",
+        "position": [
+          0.044822534029390626,
+          -1.6180463465379076,
+          0.06570358360481676
+        ]
+      },
+      {
+        "name": "RearRightUpper",
+        "parent": "Hull",
+        "position": [
+          -0.65,
+          -0.06,
+          -0.66
+        ]
+      },
+      {
+        "name": "RearRightLower",
+        "parent": "RearRightUpper",
+        "position": [
+          -1.3051774659706092,
+          0.2580463465379075,
+          -0.9242964163951831
+        ]
+      },
+      {
+        "name": "RearRightFoot",
+        "parent": "RearRightLower",
+        "position": [
+          -0.044822534029390626,
+          -1.6180463465379076,
+          -0.06570358360481676
+        ]
+      },
+      {
+        "name": "FrontRightUpper",
+        "parent": "Hull",
+        "position": [
+          -0.65,
+          -0.06,
+          0.66
+        ]
+      },
+      {
+        "name": "FrontRightLower",
+        "parent": "FrontRightUpper",
+        "position": [
+          -1.3051774659706092,
+          0.2580463465379075,
+          0.9242964163951831
+        ]
+      },
+      {
+        "name": "FrontRightFoot",
+        "parent": "FrontRightLower",
+        "position": [
+          -0.044822534029390626,
+          -1.6180463465379076,
+          0.06570358360481676
+        ]
+      },
+      {
+        "name": "RearLeftUpper",
+        "parent": "Hull",
+        "position": [
+          0.65,
+          -0.06,
+          -0.66
+        ]
+      },
+      {
+        "name": "RearLeftLower",
+        "parent": "RearLeftUpper",
+        "position": [
+          1.3051774659706092,
+          0.2580463465379075,
+          -0.9242964163951831
+        ]
+      },
+      {
+        "name": "RearLeftFoot",
+        "parent": "RearLeftLower",
+        "position": [
+          0.044822534029390626,
+          -1.6180463465379076,
+          -0.06570358360481676
+        ]
+      },
+      {
+        "name": "LeftArm",
+        "parent": "Torso",
+        "position": [
+          0.98,
+          0.35,
+          0.06
+        ]
+      },
+      {
+        "name": "LeftForearm",
+        "parent": "LeftArm",
+        "position": [
+          0.15,
+          -0.54,
+          0.13
+        ]
+      },
+      {
+        "name": "LeftHand",
+        "parent": "LeftForearm",
+        "position": [
+          0,
+          -0.43,
+          0.2
+        ]
+      },
+      {
+        "name": "LeftCannon",
+        "parent": "Torso",
+        "position": [
+          0.84,
+          0.86,
+          -0.48
+        ]
+      },
+      {
+        "name": "RightArm",
+        "parent": "Torso",
+        "position": [
+          -0.98,
+          0.35,
+          0.06
+        ]
+      },
+      {
+        "name": "RightForearm",
+        "parent": "RightArm",
+        "position": [
+          -0.15,
+          -0.54,
+          0.13
+        ]
+      },
+      {
+        "name": "RightHand",
+        "parent": "RightForearm",
+        "position": [
+          0,
+          0.1240040745505884,
+          0.45773681247508613
+        ]
+      },
+      {
+        "name": "RightCannon",
+        "parent": "Torso",
+        "position": [
+          -0.84,
+          0.86,
+          -0.48
+        ]
+      }
+    ]
+  },
+  "sockets": [
+    {
+      "id": "FrontLeftContact",
+      "node": "FrontLeftContactSocket",
+      "bone": "FrontLeftFoot",
+      "position": [
+        0,
+        -0.16,
+        0
+      ]
+    },
+    {
+      "id": "RearRightContact",
+      "node": "RearRightContactSocket",
+      "bone": "RearRightFoot",
+      "position": [
+        0,
+        -0.16,
+        0
+      ]
+    },
+    {
+      "id": "FrontRightContact",
+      "node": "FrontRightContactSocket",
+      "bone": "FrontRightFoot",
+      "position": [
+        0,
+        -0.16,
+        0
+      ]
+    },
+    {
+      "id": "RearLeftContact",
+      "node": "RearLeftContactSocket",
+      "bone": "RearLeftFoot",
+      "position": [
+        0,
+        -0.16,
+        0
+      ]
+    }
+  ],
+  "colliders": [
+    {
+      "id": "hull",
+      "bone": "Hull",
+      "shape": "box",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "halfExtents": [
+        0.73,
+        0.28,
+        0.9
+      ]
+    },
+    {
+      "id": "torso",
+      "bone": "Torso",
+      "shape": "box",
+      "center": [
+        0,
+        0.2,
+        0
+      ],
+      "halfExtents": [
+        0.62,
+        0.43,
+        0.45
+      ]
+    }
+  ],
+  "attacks": [],
+  "emitters": [],
+  "clips": [
+    {
+      "name": "Idle",
+      "duration": 2.4,
+      "fps": 60,
+      "mode": "repeat",
+      "windows": []
+    },
+    {
+      "name": "Walk",
+      "duration": 2.4,
+      "fps": 60,
+      "mode": "repeat",
+      "windows": []
+    },
+    {
+      "name": "Advance",
+      "duration": 2.4,
+      "fps": 60,
+      "mode": "once",
+      "windows": []
+    }
+  ]
+}
