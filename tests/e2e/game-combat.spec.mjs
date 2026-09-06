@@ -1,14 +1,18 @@
 import { test, expect } from '@playwright/test';
+import { useDragLook, expectDragLookActive } from './game-input.mjs';
 const value=(page,key)=>page.locator('#combat-telemetry').getAttribute(`data-${key}`).then(Number);
 test('live fire: rifle, multi-lock salvo, damage, pause cancellation and target reset',async({page})=>{
   test.setTimeout(120_000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/game.html');
   await expect(page.locator('.arena')).toHaveAttribute('data-ready','true',{timeout:30_000});
+  await useDragLook(page);
   await page.getByRole('button',{name:/出撃する/}).click();
+  await expectDragLookActive(page);
   // Aim through the visible HUD using normal mouse controls, not injected combat state.
   await page.mouse.move(640,450);
   for(let i=0;i<4;i++) {
+    await expect(page.locator('[data-target="B-01"]')).toBeVisible({timeout:5000});
     const box=await page.locator('[data-target="B-01"]').boundingBox();expect(box).not.toBeNull();
     const dx=box.x+box.width/2-640,dy=box.y+box.height/2-450;
     if(Math.hypot(dx,dy)<8)break;

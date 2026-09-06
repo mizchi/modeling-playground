@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { useDragLook, expectDragLookActive } from './game-input.mjs';
 const number=(page,id,key)=>page.locator(id).getAttribute(`data-${key}`).then(Number);
 test('Space jumps, holds to air boost, supports firing, releases to land, and clears on pause',async({page})=>{
   test.setTimeout(90_000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/game.html');
   await expect(page.locator('.arena')).toHaveAttribute('data-ready','true',{timeout:30_000});
+  await useDragLook(page);
   await page.getByRole('button',{name:/出撃する/}).click();
+  await expectDragLookActive(page);
   await page.keyboard.down('Space');
   await expect.poll(()=>number(page,'#pilot-telemetry','y')).toBeGreaterThan(.1);
   await page.keyboard.up('Space');

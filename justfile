@@ -29,7 +29,7 @@ test-e2e:
 # Type-check and test the TPS controller, then exercise the playable stage.
 game-check:
     pnpm exec tsc -p tsconfig.game.json
-    node --test tests/game.test.mjs tests/game-rig.test.mjs tests/game-combat.test.mjs
+    node --test tests/game.test.mjs tests/game-rig.test.mjs tests/game-combat.test.mjs tests/game-controls.test.mjs
     pnpm exec playwright test tests/e2e/game.spec.mjs tests/e2e/game-combat.spec.mjs tests/e2e/game-jump.spec.mjs
 
 # Build and check all models at the production subdirectory path.

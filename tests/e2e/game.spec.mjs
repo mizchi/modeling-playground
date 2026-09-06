@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { useDragLook, expectDragLookActive } from './game-input.mjs';
 
 const state=page=>page.locator('#pilot-telemetry').evaluate(node=>({x:Number(node.dataset.x),z:Number(node.dataset.z),yaw:Number(node.dataset.yaw),speed:Number(node.dataset.speed),boost:Number(node.dataset.boost)}));
 
@@ -9,12 +10,14 @@ test('IRON YARD: real GLBs, mouse-look, WASD, boost, pause, resume and reset',as
   page.on('response',response=>{if(response.url().includes('.glb'))assets.push(response.url());});
   await page.goto('/game.html');
   await expect(page.locator('.arena')).toHaveAttribute('data-ready','true',{timeout:30_000});
+  await useDragLook(page);
   await expect(page.getByRole('heading',{name:'IRON YARD',exact:true})).toBeVisible();
   await page.screenshot({path:'output/game-deployment.png'});
   await page.getByRole('button',{name:/出撃する/}).click();
-  await expect(page.locator('.arena')).toHaveAttribute('data-active','true');
+  await expectDragLookActive(page);
   await page.screenshot({path:'output/game-tps.png'});
   const initial=await state(page);
+  expect(initial.yaw).toBe(0);
   await page.keyboard.down('w');
   await expect.poll(async()=>(await state(page)).z).toBeGreaterThan(initial.z+.8);
   await page.keyboard.up('w');
