@@ -56,7 +56,7 @@ models-js: suzu raven bastion strix ashley
 bastion:
     node scripts/build_bastion.mjs
 
-# Generate the four-legged rig and Idle / Walk / Advance clips.
+# Generate the four-legged IK rig and Idle / Walk / Advance / Boost clips.
 strix:
     node scripts/build_strix.mjs
 

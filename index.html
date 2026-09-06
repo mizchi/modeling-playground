@@ -37,6 +37,7 @@
         </section>
         <section id="ik-panel" hidden aria-label="IKポーズ編集">
           <span class="eyebrow">POSE CONTROLS</span>
+          <label class="check"><input type="checkbox" id="ik-visible" checked /> IKハンドルを表示</label>
           <label class="range-label" for="ik-mode">制御方式</label><select id="ik-mode" aria-label="制御方式"><option value="IK">IK · ターゲット操作</option><option value="FK">FK · 関節の回転</option></select>
           <div id="ik-target-fields"><label class="range-label" for="ik-target">操作対象</label><select id="ik-target" aria-label="操作対象"></select>
             <label class="range-label" for="ik-x">X <output id="ik-x-value"></output></label><input type="range" id="ik-x" aria-label="ターゲット X" min="-2" max="2" step="0.01" />
@@ -51,7 +52,7 @@
           </div>
           <button id="ik-reset" class="wide">ポーズをリセット</button>
           <p id="ik-status" role="status" class="intro"></p>
-          <p class="intro">丸い目印をドラッグして手足を移動。青い目印は膝・肘の曲がる方向です。</p>
+          <p class="intro">再生中は一時停止すると目印を表示。丸は手足、青は膝・肘の曲がる方向です。編集は一時的で、再生・シークすると解除されます。</p>
         </section>
         <section id="animation-panel" hidden aria-label="アニメーション">
           <label class="eyebrow" for="clip-select">ANIMATION</label>

@@ -3,6 +3,7 @@ import { solveTwoBone } from './solvers.mjs';
 
 const position=bone=>bone.getWorldPosition(new Vector3());
 const rotation=bone=>bone.getWorldQuaternion(new Quaternion());
+const snapshot=bones=>new Map(Object.values(bones).map(b=>[b,{position:b.position.clone(),quaternion:b.quaternion.clone(),scale:b.scale.clone()}]));
 function setWorldRotation(bone,quaternion) {
   bone.quaternion.copy(rotation(bone.parent).invert().multiply(quaternion));
   bone.updateMatrixWorld(true);
@@ -32,7 +33,8 @@ export class IKPose {
     model.traverse(object=>{if(object.isBone)this.bones[object.name]=object;});
     this.hips=this.bones[spec.hips];
     if(!this.hips) throw new Error('IKの腰ボーンがありません。');
-    this.rest=new Map(Object.values(this.bones).map(b=>[b,{position:b.position.clone(),quaternion:b.quaternion.clone(),scale:b.scale.clone()}]));
+    this.rest=snapshot(this.bones);
+    this.editRest=this.rest;
     this.targets=Object.assign(Object.create(null),{hips:position(this.hips)});
     this.chains=spec.chains.map(item=>{
       const upper=this.bones[item.upper],lower=this.bones[item.lower],end=this.bones[item.end];
@@ -41,7 +43,7 @@ export class IKPose {
       this.targets[item.id+'Pole']=owner.localToWorld(new Vector3(...item.pole));
       const upperLength=position(upper).distanceTo(position(lower)),lowerLength=position(lower).distanceTo(position(end));
       if(upperLength<1e-5 || lowerLength<1e-5) throw new Error('IKには長さのあるボーンが必要です。');
-      return {...item,upper,lower,end,upperLength,lowerLength,endOrientation:rotation(end)};
+      return {...item,upper,lower,end,upperLength,lowerLength,endOrientation:rotation(end),initialOrientation:rotation(end)};
     });
     this.initial=Object.fromEntries(Object.entries(this.targets).map(([id,p])=>[id,p.clone()]));
     this.fk=Object.create(null);
@@ -49,10 +51,27 @@ export class IKPose {
     this.errors={};
   }
   restore() {
-    for(const [bone,rest] of this.rest) {
+    for(const [bone,rest] of this.editRest) {
       bone.position.copy(rest.position);bone.quaternion.copy(rest.quaternion);bone.scale.copy(rest.scale);
     }
     this.model.updateMatrixWorld(true);
+  }
+  /** Follow the evaluated animation without changing any bone transforms. */
+  follow() {
+    this.model.updateMatrixWorld(true);
+    this.targets.hips.copy(position(this.hips));
+    for(const chain of this.chains) {
+      const start=position(chain.upper),knee=position(chain.lower),end=position(chain.end);
+      this.targets[chain.id].copy(end);
+      // A pole in the current bend plane reproduces the evaluated knee exactly.
+      this.targets[chain.id+'Pole'].copy(knee).add(knee.clone().sub(start.clone().add(end).multiplyScalar(.5)));
+      chain.endOrientation.copy(rotation(chain.end));
+    }
+  }
+  /** Take animation ownership once; subsequent edits solve against this snapshot. */
+  capture() {
+    this.follow();this.editRest=snapshot(this.bones);
+    this.fk=Object.create(null);this.mode='IK';this.errors={};
   }
   solve() {
     this.restore();
@@ -82,6 +101,8 @@ export class IKPose {
     this.model.updateMatrixWorld(true);
   }
   reset() {
+    this.editRest=this.rest;
+    for(const chain of this.chains)chain.endOrientation.copy(chain.initialOrientation);
     for(const [id,p] of Object.entries(this.initial))this.targets[id].copy(p);
     this.fk=Object.create(null);this.mode='IK';this.solve();
   }

@@ -44,6 +44,42 @@
         ]
       },
       {
+        "name": "LeftMainJet",
+        "parent": "Torso",
+        "position": [
+          0.42,
+          0.24,
+          -0.82
+        ]
+      },
+      {
+        "name": "LeftLiftJet",
+        "parent": "Hull",
+        "position": [
+          0.57,
+          -0.23,
+          0.05
+        ]
+      },
+      {
+        "name": "RightMainJet",
+        "parent": "Torso",
+        "position": [
+          -0.42,
+          0.24,
+          -0.82
+        ]
+      },
+      {
+        "name": "RightLiftJet",
+        "parent": "Hull",
+        "position": [
+          -0.57,
+          -0.23,
+          0.05
+        ]
+      },
+      {
         "name": "FrontLeftUpper",
         "parent": "Hull",
         "position": [
@@ -265,6 +301,46 @@
         -0.16,
         0
       ]
+    },
+    {
+      "id": "LeftMainJetNozzle",
+      "node": "LeftMainJetSocket",
+      "bone": "Torso",
+      "position": [
+        0.42,
+        0.24,
+        -0.82
+      ]
+    },
+    {
+      "id": "LeftLiftJetNozzle",
+      "node": "LeftLiftJetSocket",
+      "bone": "Hull",
+      "position": [
+        0.57,
+        -0.23,
+        0.05
+      ]
+    },
+    {
+      "id": "RightMainJetNozzle",
+      "node": "RightMainJetSocket",
+      "bone": "Torso",
+      "position": [
+        -0.42,
+        0.24,
+        -0.82
+      ]
+    },
+    {
+      "id": "RightLiftJetNozzle",
+      "node": "RightLiftJetSocket",
+      "bone": "Hull",
+      "position": [
+        -0.57,
+        -0.23,
+        0.05
+      ]
     }
   ],
   "colliders": [
@@ -300,7 +376,60 @@
     }
   ],
   "attacks": [],
-  "emitters": [],
+  "emitters": [
+    {
+      "id": "LeftMainJet",
+      "socket": "LeftMainJetNozzle",
+      "direction": [
+        0,
+        -0.4472135954999579,
+        -0.8944271909999159
+      ],
+      "preset": "ion",
+      "rate": 90,
+      "lifetime": 0.18,
+      "speed": 8
+    },
+    {
+      "id": "LeftLiftJet",
+      "socket": "LeftLiftJetNozzle",
+      "direction": [
+        0,
+        -0.9841833239736953,
+        -0.17715299831526515
+      ],
+      "preset": "ion",
+      "rate": 90,
+      "lifetime": 0.18,
+      "speed": 8
+    },
+    {
+      "id": "RightMainJet",
+      "socket": "RightMainJetNozzle",
+      "direction": [
+        0,
+        -0.4472135954999579,
+        -0.8944271909999159
+      ],
+      "preset": "ion",
+      "rate": 90,
+      "lifetime": 0.18,
+      "speed": 8
+    },
+    {
+      "id": "RightLiftJet",
+      "socket": "RightLiftJetNozzle",
+      "direction": [
+        0,
+        -0.9841833239736953,
+        -0.17715299831526515
+      ],
+      "preset": "ion",
+      "rate": 90,
+      "lifetime": 0.18,
+      "speed": 8
+    }
+  ],
   "clips": [
     {
       "name": "Idle",
@@ -322,6 +451,38 @@
       "fps": 60,
       "mode": "once",
       "windows": []
+    },
+    {
+      "name": "Boost",
+      "duration": 3.2,
+      "fps": 60,
+      "mode": "once",
+      "windows": [
+        {
+          "kind": "emitter",
+          "id": "LeftMainJet",
+          "start": 0.25,
+          "end": 2.85
+        },
+        {
+          "kind": "emitter",
+          "id": "LeftLiftJet",
+          "start": 0.25,
+          "end": 2.85
+        },
+        {
+          "kind": "emitter",
+          "id": "RightMainJet",
+          "start": 0.25,
+          "end": 2.85
+        },
+        {
+          "kind": "emitter",
+          "id": "RightLiftJet",
+          "start": 0.25,
+          "end": 2.85
+        }
+      ]
     }
   ]
 }

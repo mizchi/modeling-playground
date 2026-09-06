@@ -1,18 +1,20 @@
 import * as T from 'three';
 import { createRig, skinRigidParts } from '../modeling/rig.mjs';
 import { rigidPrimitives } from '../modeling/primitives.mjs';
-import { STRIX_GAIT as G, STRIX_LEGS, STRIX_SPEC, STRIX_RIGHT_ELBOW } from './strix-definition.mjs';
+import { STRIX_GAIT as G, STRIX_LEGS, STRIX_SPEC, STRIX_RIGHT_ELBOW, STRIX_JETS, STRIX_IK } from './strix-definition.mjs';
 import { limbFrame, strixClips } from './strix-motion.mjs';
 
 export function createStrix() {
   const {root,bones}=createRig(STRIX_SPEC,'STRIX-04');
   root.userData={title:'STRIX-04 / quadruped siege platform',assetId:'strix',assetVersion:1,groundLevel:0,
-    rigged:true,animationModes:{Idle:'repeat',Walk:'repeat',Advance:'once'}};
+    rigged:true,animationModes:Object.fromEntries(STRIX_SPEC.clips.map(c=>[c.name,c.mode])),ikRig:JSON.stringify(STRIX_IK)};
   const mat=(name,color,metalness=.55,roughness=.48)=>Object.assign(new T.MeshStandardMaterial({color,metalness,roughness}),{name});
   const blue=mat('Slate blue armor','#536998'),edge=mat('Light armor bevel','#91a4c4'),navy=mat('Secondary armor','#35445e');
   const frame=mat('Gunmetal skeleton','#252e39',.74,.42),steel=mat('Actuator steel','#889299',.8,.31);
   const black=mat('Bore and vents','#0e151c',.25,.78),white=mat('Identification','#bdc7d3',.3,.55);
   const optic=mat('Crimson optic','#f14e46',.3,.25);optic.emissive.set('#d62d24');optic.emissiveIntensity=1.3;
+  const flame=new T.MeshBasicMaterial({color:'#ff9c28',toneMapped:false,transparent:true,opacity:.52,depthWrite:false});flame.name='Amber boost exhaust';
+  const hot=new T.MeshBasicMaterial({color:'#fff3ce',toneMapped:false});hot.name='White hot boost core';
   const {add,box,hull,plate}=rigidPrimitives(bones,{bevelSize:.016,bevelThickness:.010});
   const rod=(parent,name,a,b,r,m=steel,r2=r,sides=12)=>{
     const av=new T.Vector3(...a),bv=new T.Vector3(...b);
@@ -23,6 +25,18 @@ export function createStrix() {
     box(parent,name+'Recess',at,[w,h,.03],black);
     for(let i=0;i<5;i++)box(parent,name+'Slat'+i,[at[0],at[1]+(i-2)*h/6,at[2]+.025],[w*.92,.018,.04],steel);
   };
+  for(const jet of STRIX_JETS) {
+    const at=new T.Vector3(...jet.position),direction=new T.Vector3(...jet.direction).normalize();
+    rod(jet.bone,jet.name+'Housing',at.clone().addScaledVector(direction,-.22).toArray(),at.toArray(),jet.radius*1.45,navy,jet.radius*1.3,16);
+    rod(jet.bone,jet.name+'Rim',at.clone().addScaledVector(direction,-.035).toArray(),at.clone().addScaledVector(direction,.025).toArray(),jet.radius*1.38,steel,jet.radius*1.38,16);
+    const opening=add(jet.bone,jet.name+'Aperture',new T.CircleGeometry(jet.radius,16),black,at.clone().addScaledVector(direction,.027).toArray());
+    opening.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),direction);
+    for(const [suffix,factor,material] of [['Plume',1,flame],['Core',.66,hot]]) {
+      const length=jet.length*factor;
+      const mesh=add(jet.name,jet.name+suffix,new T.ConeGeometry(jet.radius*factor,length,8),material,direction.clone().multiplyScalar(length/2).toArray());
+      mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),direction);mesh.userData.effect=true;
+    }
+  }
   // A long, thick cruciform chassis supports four distinct diagonal leg roots.
   hull('Hull','Armored chassis',[
     [-.63,-.22,-.92],[.63,-.22,-.92],[-.80,-.12,-.55],[.80,-.12,-.55],[-.78,-.14,.70],[.78,-.14,.70],
@@ -43,7 +57,6 @@ export function createStrix() {
     hull('Torso',s+'Collar facet',[[s*.13,.62,.03],[s*.53,.57,-.25],[s*.63,.41,.05],[s*.23,.42,.35]],edge);
     plate('Torso',s+'Chest intake',[[s*.15,.35],[s*.43,.40],[s*.42,.28],[s*.20,.20]],.025,.57,black);
     box('Torso',s+'Back engine',[s*.42,.13,-.56],[.32,.64,.37],navy);
-    rod('Torso',s+'Exhaust pipe',[s*.43,.34,-.66],[s*.43,.04,-.87],.10,steel,.14);
     box('Torso',s+'Rear cooling fin',[s*.45,.54,-.48],[.38,.07,.54],blue);
   }
   vent('Torso','Back radiator',[0,.18,-.466],.37,.43);

@@ -13,7 +13,7 @@ import { createAssemblyPanel } from './assembly.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
-const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, binding: null };
+const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, ikEditing: false, binding: null };
 const assembly=createAssemblyPanel(()=>{
   if(!state.model)return;
   state.info=inspectModel(state.model);
@@ -80,7 +80,9 @@ function invalidate() {
     const delta = lastFrame ? Math.min((now-lastFrame)/1000,.1) : 0;
     lastFrame = now;
     if (state.player?.playing) { state.player.update(delta); updatePlaybackUI(); }
+    if (state.ik && !state.ikEditing && state.player?.duration) state.ik.follow();
     controls.update();
+    if (state.ikEditor) state.ikEditor.layer.hidden = Boolean(state.player?.playing) || !$('ik-visible').checked;
     state.ikEditor?.update();
     renderer.render(scene, camera);
     if (controls.autoRotate || state.player?.playing) invalidate();
@@ -140,7 +142,10 @@ function syncIKUI(selected) {
   $('fk-fields').hidden = pose.mode !== 'FK';
   const target = pose.targets[$('ik-target').value];
   const angles = pose.fk[$('fk-bone').value] ?? new THREE.Vector3();
+  const reach = Math.max(1,...pose.chains.map(c=>c.upperLength+c.lowerLength));
   for (const axis of ['x','y','z']) {
+    $(`ik-${axis}`).min = String(Math.floor(Math.min(target[axis],pose.targets.hips[axis])-reach));
+    $(`ik-${axis}`).max = String(Math.ceil(Math.max(target[axis],pose.targets.hips[axis])+reach));
     $(`ik-${axis}`).value = String(target[axis]);
     $(`ik-${axis}-value`).textContent = `${target[axis].toFixed(2)} m`;
     const degrees = THREE.MathUtils.radToDeg(angles[axis]);
@@ -156,16 +161,39 @@ function setupIK() {
   $('ik-panel').hidden = !state.ik;
   if (!state.ik) return;
   state.ikEditor = new IKEditor(state.ik, camera, viewport, controls, selected => {
-    state.player.playing = false;
-    updatePlaybackUI();
+    beginIK();
     syncIKUI(selected);
   });
   $('ik-target').replaceChildren(...state.ikEditor.handles.map(h => new Option(h.label, h.id)));
   const bones = [...new Set(state.ik.chains.flatMap(chain => [chain.upper,chain.lower,chain.end]))];
   $('fk-bone').replaceChildren(...bones.map(bone => new Option(bone.name,bone.name)));
   $('ik-target').value = state.ik.chains[0].id;
-  state.ik.solve();
   syncIKUI();
+}
+
+function beginIK() {
+  if (!state.ik) return;
+  state.player.playing = false;
+  if (!state.ikEditing && state.player.duration) state.ik.capture();
+  state.ikEditing = true;
+  updatePlaybackUI();
+}
+
+function followAnimation() {
+  if (!state.ik) return;
+  state.ikEditing = false;
+  state.ik.mode = 'IK';
+  state.ik.fk = Object.create(null);
+  state.ik.errors = {};
+  state.ik.follow();
+  syncIKUI();
+}
+
+function releaseIK() {
+  // Mixer skips writes for unchanged cached keys. Restore the captured sample
+  // first, including non-animated positions such as Hull's editable height.
+  if (state.ikEditing) state.ik.restore();
+  state.ikEditing = false;
 }
 
 function setView(view) {
@@ -217,7 +245,7 @@ async function loadModel(getBytes, filename, source) {
       info.size = info.bounds.getSize(new THREE.Vector3());
     }
     candidate.traverse(object => {
-      if (object.isMesh) { object.castShadow = true; object.receiveShadow = true; }
+      if (object.isMesh) { object.castShadow = !object.userData.effect; object.receiveShadow = !object.userData.effect; }
       if (object.isSkinnedMesh) object.frustumCulled = false;
     });
     for (const material of modelMaterials(candidate)) material.wireframe = $('wireframe').checked;
@@ -233,6 +261,7 @@ async function loadModel(getBytes, filename, source) {
     state.player = candidatePlayer;
     state.binding = candidateBinding;
     state.ik = candidateIK;
+    state.ikEditing = false;
     directions.perspective.fromArray(source.direction ?? [1, .55, 1.8]);
     $('model-select').value = source.id ?? '';
     const address = new URL(location.href);
@@ -281,19 +310,26 @@ function openFile(file) {
   }, file.name, { file });
 }
 $('ik-mode').addEventListener('change', event => {
+  beginIK();
   state.ik.mode = event.target.value;
   state.ik.solve();
   syncIKUI();
 });
-$('ik-target').addEventListener('change', () => syncIKUI());
+$('ik-visible').addEventListener('change', invalidate);
+$('ik-target').addEventListener('change', () => {
+  if (!state.ikEditing && state.player.duration) state.ik.follow();
+  syncIKUI();
+});
 $('fk-bone').addEventListener('change', () => syncIKUI());
 for (const axis of ['x','y','z']) {
   $(`ik-${axis}`).addEventListener('input', event => {
+    beginIK();
     state.ik.targets[$('ik-target').value][axis] = Number(event.target.value);
     state.ik.solve();
     syncIKUI();
   });
   $(`fk-${axis}`).addEventListener('input', event => {
+    beginIK();
     const angles = state.ik.fk[$('fk-bone').value] ??= new THREE.Vector3();
     angles[axis] = THREE.MathUtils.degToRad(Number(event.target.value));
     state.ik.solve();
@@ -301,21 +337,38 @@ for (const axis of ['x','y','z']) {
   });
 }
 $('ik-crouch').addEventListener('click', () => {
-  state.ik.targets.hips.copy(state.ik.initial.hips).y -= .12;
+  beginIK();
+  state.ik.targets.hips.y -= .12;
   state.ik.solve();
   syncIKUI('hips');
 });
-$('ik-reset').addEventListener('click', () => { state.ik.reset(); syncIKUI(); });
+$('ik-reset').addEventListener('click', () => {
+  state.player.playing = false;
+  if (state.player.duration) {
+    // Return to the selected animation sample, not the model's origin.
+    releaseIK();
+    state.player.seek(state.player.time);
+    followAnimation();
+  } else { state.ik.reset(); syncIKUI(); }
+  updatePlaybackUI();
+});
 $('play-pause').addEventListener('click', () => {
   if (!state.player?.duration) return;
   if (state.player.playing) state.player.playing = false;
-  else state.player.play();
+  else {
+    if (state.ikEditing) { releaseIK(); state.player.seek(state.player.time); }
+    state.player.play();
+    followAnimation();
+  }
+  if (state.ik && !state.ikEditing) { state.ik.follow(); syncIKUI(); }
   lastFrame = 0;
   updatePlaybackUI();
   invalidate();
 });
 $('timeline').addEventListener('input', event => {
+  releaseIK();
   state.player?.seek(Number(event.target.value));
+  followAnimation();
   updatePlaybackUI();
   invalidate();
 });
@@ -323,9 +376,11 @@ $('playback-speed').addEventListener('change', event => {
   if (state.player) state.player.speed = Number(event.target.value);
 });
 $('clip-select').addEventListener('change', event => {
+  releaseIK();
   state.player.select(Number(event.target.value));
   state.info.bounds = animationBounds(state.player);
   state.info.size = state.info.bounds.getSize(new THREE.Vector3());
+  followAnimation();
   $('timeline').max = String(state.player.duration);
   $('dimensions').textContent = `${state.info.size.toArray().map(n => n.toFixed(2)).join(' × ')} m`;
   prepareStage(state.info);

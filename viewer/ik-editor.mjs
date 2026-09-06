@@ -35,6 +35,7 @@ export class IKEditor {
   start(event,id,button) {
     if(event.button!==0 || this.pose.mode!=='IK')return;
     event.preventDefault();event.stopPropagation();
+    this.onChange(id);
     const point=this.pose.targets[id].clone();
     const plane=new Plane().setFromNormalAndCoplanarPoint(this.camera.getWorldDirection(new Vector3()),point);
     const hit=this.ray(event).intersectPlane(plane,new Vector3());
@@ -42,7 +43,6 @@ export class IKEditor {
     this.drag={id,plane,offset:point.sub(hit),button,pointerId:event.pointerId,auto:this.orbit.autoRotate};
     this.orbit.enabled=false;this.orbit.autoRotate=false;
     button.setPointerCapture(event.pointerId);
-    this.onChange(id);
   }
   move(event) {
     if(!this.drag)return;

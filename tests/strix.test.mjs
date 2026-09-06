@@ -9,6 +9,7 @@ import { strixPose } from '../models/strix-motion.mjs';
 import { createStrix } from '../models/strix.mjs';
 import { exportGlb } from '../scripts/export_glb.mjs';
 import { bindAsset } from '../runtime/asset.mjs';
+import { IKPose } from '../runtime/ik.mjs';
 
 test('diagonal pairs swing together with overlap, fixed lengths and planted world-space feet',()=>{
   const liftedPairs=new Set();let overlap=0;
@@ -86,6 +87,9 @@ test('exported four-leg rig moves actual rigid armor and keeps feet level above 
   assert.equal(validation.issues.numErrors,0,JSON.stringify(validation.issues.messages));
   const loaded=await new GLTFLoader().parseAsync(bytes.buffer,'');
   bindAsset(loaded.scene,loaded.animations,asset.definition);
+  const ik=IKPose.fromModel(loaded.scene);
+  assert.ok(ik,'IK metadata survives GLB export and reimport');
+  assert.equal(ik.chains.length,4);
   const mixer=new AnimationMixer(loaded.scene);
   for(const clip of loaded.animations) {
     mixer.stopAllAction();const action=mixer.clipAction(clip).play();
@@ -97,7 +101,10 @@ test('exported four-leg rig moves actual rigid armor and keeps feet level above 
         const foot=loaded.scene.getObjectByName(leg.id+'Foot');
         const error=foot.getWorldPosition(new Vector3()).distanceTo(expected.feet[leg.id].ankle);
         assert.ok(error<.002,`${clip.name}/${t}/${leg.id}: ankle error ${error}`);
-        assert.ok(new Vector3(0,1,0).transformDirection(foot.matrixWorld).y>.9999);
+        const footUp=new Vector3(0,1,0).transformDirection(foot.matrixWorld);
+        // Flight feet may pitch; all grounded clips keep level soles.
+        if(clip.name!=='Boost'||expected.feet[leg.id].contact)assert.ok(footUp.y>.9999);
+        else assert.ok(footUp.y>Math.cos(.25));
       }
       loaded.scene.traverse(mesh=>{
         if(!mesh.isSkinnedMesh)return;
