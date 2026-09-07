@@ -104,3 +104,31 @@ test('nape and neck motion survive exported GLB injection and are inspected from
   }
   await expect(page.locator('#error')).toBeHidden();
 });
+
+test('female body switches independently of hair and face, exports and plays shared motions',async({page})=>{
+  test.setTimeout(60_000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/human-viewer.html');await expect(page.locator('#status')).toHaveText('編集を反映しました');
+  await page.locator('#noseHeight').fill('0.4');await page.locator('#noseHeight').dispatchEvent('change');
+  await page.locator('#body-type').selectOption('female');
+  await expect(page.locator('#model-title')).toHaveText('BASE-45 F');
+  await expect(page.locator('#hair')).toHaveValue('lumi-short');await expect(page.locator('#face')).toHaveValue('lumi');
+  await expect(page.locator('#noseHeight')).toHaveValue('0.4');
+  await page.getByRole('button',{name:'元に戻す',exact:true}).click();await expect(page.locator('#body-type')).toHaveValue('male');
+  await page.getByRole('button',{name:'やり直す',exact:true}).click();await expect(page.locator('#body-type')).toHaveValue('female');
+  await page.reload();await expect(page.locator('#body-type')).toHaveValue('female');await expect(page.locator('#noseHeight')).toHaveValue('0.4');
+  await page.locator('[data-preset="base45-female"]').click();await expect(page.locator('#hair')).toHaveValue('none');
+  const canvas=page.locator('#viewport canvas');
+  for(const [view,name] of [['正面','front'],['側面','side'],['背面','back'],['斜め','quarter'],['斜め上','high'],['斜め下','low']]) {
+    await page.getByRole('button',{name:view,exact:true}).click();await canvas.screenshot({path:`output/human-female-${name}.png`});
+  }
+  await page.locator('#wireframe').check();await canvas.screenshot({path:'output/human-female-wire.png'});await page.locator('#wireframe').uncheck();
+  await page.locator('#hair').selectOption('lumi-short');await page.locator('#face').selectOption('lumi');
+  await page.getByRole('button',{name:'斜め',exact:true}).click();
+  await page.locator('#motion').selectOption('歩行テスト');await page.locator('#timeline').fill('0.5');await page.locator('#timeline').dispatchEvent('input');
+  await canvas.screenshot({path:'output/human-female-walk.png'});
+  await page.locator('#play').click();await expect(page.locator('#play')).toHaveText('一時停止');
+  const download=page.waitForEvent('download');await page.locator('#export-glb').click();
+  expect((await validateBytes(await readFile(await (await download).path()))).issues.numErrors).toBe(0);
+  await page.locator('#motion').selectOption('rest');await page.screenshot({path:'output/human-female-workshop.png'});
+  await expect(page.locator('#error')).toBeHidden();expect(errors).toEqual([]);
+});

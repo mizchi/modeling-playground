@@ -10,7 +10,7 @@ const keys=(v,allowed)=>{
   if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).some(k=>!allowed.includes(k)))throw new Error('未対応の設定項目があります');
 };
 export function presetRecipe(model) {
-  if(!['base45','lumi'].includes(model))throw new Error('未対応の素体です');
+  if(!['base45','base45-female','lumi'].includes(model))throw new Error('未対応の素体です');
   return {version:1,model,hair:model==='lumi'?'lumi-short':'none',face:model==='lumi'?'lumi':'clay',
     shape:Object.fromEntries(Object.keys(SHAPE_FIELDS).map(k=>[k,0])),rig:null};
 }
@@ -28,7 +28,7 @@ export function validateRecipe(value) {
   keys(value,['version','model','hair','face','shape','rig']);
   if(value.version!==1)throw new Error('設定の version は 1 が必要です');
   const result=presetRecipe(value.model);
-  if(!['none','lumi-short'].includes(value.hair)||!['clay','lumi'].includes(value.face))throw new Error('未対応の髪・顔です');
+  if(!['none','lumi-short','lumi-side-tail'].includes(value.hair)||!['clay','lumi'].includes(value.face))throw new Error('未対応の髪・顔です');
   keys(value.shape,Object.keys(SHAPE_FIELDS));
   for(const [key,{min,max}] of Object.entries(SHAPE_FIELDS)) {
     const n=value.shape[key];if(!Number.isFinite(n)||n<min||n>max)throw new Error(`${key} は ${min}〜${max} の数値が必要です`);

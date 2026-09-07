@@ -10,7 +10,7 @@ import { fitMotion, createMotions } from '../human/motion.mjs';
 import { createHistory } from '../human/state.mjs';
 import { inspectMotionGlb } from '../human/io.mjs';
 
-test('human recipes are versioned, bounded and limited to the two existing models',()=>{
+test('human recipes are versioned, bounded and limited to registered models',()=>{
   assert.equal(presetRecipe('base45').hair,'none');
   assert.equal(presetRecipe('lumi').face,'lumi');
   for(const patch of [{model:'female'},{version:2},{unknown:1},{shape:{noseHeight:NaN}},{shape:{eyeSpacing:2}}])

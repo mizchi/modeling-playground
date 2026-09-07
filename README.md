@@ -28,6 +28,10 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 ## BASE-45 — キャラクター制作前の共通素体
 
+女性素体 **BASE-45 F** をhuman-viewerへ追加しました。「体型」で男性／女性を切り替え、髪・顔・編集値を維持できます。共通の頭・首・四角面・22ボーンを使い、身体は1,320三角形のまま。`just human-female` で再生成。[GLB](output/human-female.glb) / [OBJ](output/human-female.obj) / [正面](output/human-female-front.png) / [側面](output/human-female-side.png)。
+
+髪の選択に **黄色のサイドテール** を追加。前髪を保ち、高い片側の結び目から肩の後ろへ流れるロングです。追加288三角形、男女共用。`just human-side-tail` で [モーション付きGLB](output/human-side-tail.glb) と [設定JSON](output/human-side-tail.recipe.json) を再生成。[正面](output/human-side-tail-front.png) / [背面](output/human-side-tail-back.png)。髪の物理演算は未実装です。
+
 人体の編集は [HUMAN専用Viewer](http://127.0.0.1:5188/human-viewer.html) へ。`human/` でBASE-45 / LUMIの髪・顔・骨格・モーションを組み替え、鼻の高さ・顔の長さと幅・目の間隔を調整できます。`just human-viewer` で起動、`just human-check` で検証。[構成・互換性と制限](docs/human-workshop.md)。既存モデルの生成コード・GLBは保持します。
 
 4〜5等身のTポーズ（頭の短縮後は約4.9等身）。662頂点・660四角面、22ボーン。肩・股・親指・耳まで共有頂点でつなぎ、側面の厚みと関節の変形を確認するための無地のベースです。頭と額を短く丸め、目のループはテクスチャを貼るための浅い連続面に調整。こめかみから頬・顎へ続く輪郭の列と、額・下頬・顎下の補助ループを追加しています。顔外周は盛り上がった縁ではなく、側面へ傾きが続く曲面として接続。深い眼窩や独立した眼球状の盛り上がりは作りません。素体の製品用UV・テクスチャ・視線・まばたきは未制作。Viewerでは四角面のワイヤーを初期表示します。

@@ -62,14 +62,15 @@ function rebuild(recipe) {
     helper=new SkeletonHelper(root);helper.visible=$('skeleton').checked;scene.add(helper);
     setModelWireframe(root,$('wireframe').checked);activateMotion(time,resume);
     let triangles=0;root.traverse(o=>{if(o.isMesh)triangles+=o.geometry.index.count/3;});
-    $('model-title').textContent=recipe.model.toUpperCase();$('model-stats').textContent=`${triangles.toLocaleString()} triangles / 22 body bones / ${recipe.hair==='none'?'no hair':'31 hair bones'}`;
+    const hairBones=new Set();next.traverse(o=>{if(o.isSkinnedMesh&&o.name!=='BaseBody')o.skeleton.bones.forEach(b=>hairBones.add(b));});
+    $('model-title').textContent=recipe.model==='base45-female'?'BASE-45 F':recipe.model.toUpperCase();$('model-stats').textContent=`${triangles.toLocaleString()} triangles / 22 body bones / ${hairBones.size?`${hairBones.size} hair bones`:'no hair'}`;
     $('status').textContent='編集を反映しました';$('viewport').dataset.revision=String(++revision);
     sync(recipe);invalidate();
   }catch(e){if(root!==next)disposeHuman(next);throw e;}
 }
 function sync(recipe) {
   for(const [key] of Object.entries(SHAPE_FIELDS)){$(key).value=recipe.shape[key];$(`${key}-value`).value=recipe.shape[key].toFixed(2);}
-  $('hair').value=recipe.hair;$('face').value=recipe.face;
+  $('hair').value=recipe.hair;$('face').value=recipe.face;$('body-type').value=recipe.model==='base45-female'?'female':'male';
   $('rig-name').textContent=recipe.rig?'読み込み骨格 / 22 bones':'BASE-45 / 22 bones';
   $('face-asset').textContent=bitmap?`${bitmapName}${recipe.face==='clay'?'（クレイ表示中）':''}`:'標準テクスチャ';
   document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===recipe.model)));
@@ -93,6 +94,7 @@ for(const [key,field] of Object.entries(SHAPE_FIELDS)) {
   container.append(label,input);$('shape-fields').append(container);
 }
 for(const key of ['hair','face'])$(key).addEventListener('change',()=>change(r=>{r[key]=$(key).value;}));
+$('body-type').addEventListener('change',()=>change(r=>{r.model=$('body-type').value==='female'?'base45-female':'base45';}));
 document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>commit(presetRecipe(b.dataset.preset))));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 $('focus').addEventListener('click',()=>{faceFocus=!faceFocus;$('focus').textContent=faceFocus?'全身に戻る':'顔に寄る';setView();});

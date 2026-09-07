@@ -31,8 +31,16 @@ human-viewer:
     pnpm dev --open /human-viewer.html
 
 human-check:
-    node --test tests/human.test.mjs
-    pnpm exec playwright test tests/e2e/human.spec.mjs
+    node --test tests/human.test.mjs tests/human-female.test.mjs tests/human-side-tail.test.mjs
+    pnpm exec playwright test tests/e2e/human.spec.mjs tests/e2e/human-side-tail.spec.mjs
+
+# Compatible female body preset; preserve approved BASE-45 / LUMI assets.
+human-female:
+    node scripts/build_human_female.mjs
+
+# 女性素体 + 黄色のサイドテール、設定JSONとモーション付きGLB
+human-side-tail:
+    node scripts/build_human_side_tail.mjs
 
 # Type-check and test the TPS controller, then exercise the playable stage.
 game-check:

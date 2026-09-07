@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "model": "base45-female",
+  "hair": "lumi-side-tail",
+  "face": "lumi",
+  "shape": {
+    "noseHeight": 0,
+    "faceLength": 0,
+    "faceWidth": 0,
+    "eyeSpacing": 0
+  },
+  "rig": null
+}
