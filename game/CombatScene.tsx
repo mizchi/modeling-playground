@@ -6,22 +6,26 @@ import { boxIntersection } from './simulation.ts';
 import { STAGE } from './stage.ts';
 import type { Vec3 } from './types.ts';
 import type { PilotControls } from './controls.ts';
+import { enemyTargets, ENEMY, type EnemyState, type EnemyMode } from './enemies.ts';
 
 export interface CombatHud {
-  targets:{id:string;x:number;y:number;hp:number;lock:number;distance:number}[];
+  targets:{id:string;x:number;y:number;hp:number;lock:number;distance:number;mode:EnemyMode;warning:boolean}[];
   hp:Record<string,number>;locked:number;cooldown:number;charging:boolean;shots:number;missiles:number;hits:number;kills:number;flying:number;
+  playerHp:number;enemyShots:number;enemyHits:number;damageFlash:number;enemies:{id:string;position:Vec3;mode:EnemyMode;warning:number}[];
 }
 export const emptyCombatHud=():CombatHud=>({targets:[],hp:Object.fromEntries(STAGE.targets.map(t=>[t.id,WEAPONS.targetHp])),
-  locked:0,cooldown:0,charging:false,shots:0,missiles:0,hits:0,kills:0,flying:0});
+  locked:0,cooldown:0,charging:false,shots:0,missiles:0,hits:0,kills:0,flying:0,
+  playerHp:ENEMY.playerHp,enemyShots:0,enemyHits:0,damageFlash:0,enemies:[]});
 
-export function CombatScene({combat,controls,focus,mounts,onHud}:{combat:RefObject<CombatState>;controls:PilotControls;
+export function CombatScene({combat,enemies,controls,focus,mounts,onHud}:{combat:RefObject<CombatState>;enemies:RefObject<EnemyState>;controls:PilotControls;
   focus:RefObject<Vec3>;mounts:RefObject<WeaponMounts>;onHud:(hud:CombatHud)=>void}) {
   const bullets=useRef<InstancedMesh>(null),missiles=useRef<InstancedMesh>(null),trails=useRef<InstancedMesh>(null),impacts=useRef<InstancedMesh>(null),flash=useRef<Mesh>(null);
   const timer=useRef(0),scratch=useMemo(()=>({object:new Object3D(),direction:new Vector3(),up:new Vector3(0,1,0),point:new Vector3(),color:new Color()}),[]);
   useFrame(({camera},delta)=>{
     const frame={eye:camera.position.toArray(),forward:camera.getWorldDirection(scratch.direction).toArray(),aim:focus.current,mounts:mounts.current};
-    if(controls.active)combat.current=advanceCombat(combat.current,controls.weapons(),frame,delta,STAGE);
-    else if(combat.current.wasLocking||combat.current.queue.length)combat.current=advanceCombat(combat.current,{fire:false,lock:false,cancel:true},frame,0,STAGE);
+    const world={...STAGE,targets:enemyTargets(enemies.current)};
+    if(controls.active&&enemies.current.playerHp>0)combat.current=advanceCombat(combat.current,controls.weapons(),frame,delta,world);
+    else if(combat.current.wasLocking||combat.current.queue.length)combat.current=advanceCombat(combat.current,{fire:false,lock:false,cancel:true},frame,0,world);
     const state=combat.current,{object,direction,up}=scratch;let b=0,m=0,t=0,e=0;
     for(const p of state.projectiles) {
       const mesh=p.kind==='bullet'?bullets.current:missiles.current,index=p.kind==='bullet'?b++:m++;
@@ -49,16 +53,19 @@ export function CombatScene({combat,controls,focus,mounts,onHud}:{combat:RefObje
     timer.current+=delta;
     if(timer.current<.08)return;timer.current=0;
     camera.updateMatrixWorld();
-    const targets=STAGE.targets.flatMap(target=>{
+    const targets=world.targets.flatMap(target=>{
       if(state.hp[target.id]<=0)return [];
       const point=targetPoint(target),ray=point.map((v,i)=>v-frame.eye[i]) as Vec3;
       if(STAGE.solids.some(s=>boxIntersection(frame.eye,ray,s)!==null))return [];
       const projected=scratch.point.fromArray(point).project(camera);
       if(projected.z<0||projected.z>1||Math.abs(projected.x)>1||Math.abs(projected.y)>1)return [];
-      return [{id:target.id,x:(projected.x+1)*50,y:(1-projected.y)*50,hp:state.hp[target.id],lock:state.locks[target.id]??0,distance:Math.hypot(...ray)}];
+      const enemy=enemies.current.units.find(u=>u.id===target.id)!;
+      return [{id:target.id,x:(projected.x+1)*50,y:(1-projected.y)*50,hp:state.hp[target.id],lock:state.locks[target.id]??0,distance:Math.hypot(...ray),mode:enemy.mode,warning:enemy.warning>0}];
     });
     onHud({targets,hp:{...state.hp},locked:Object.values(state.locks).filter(p=>p>=1).length,cooldown:state.missileCooldown,
-      charging:controls.weapons().lock,shots:state.shots,missiles:state.missilesFired,hits:state.hits,kills:state.kills,flying:state.projectiles.length});
+      charging:controls.weapons().lock,shots:state.shots,missiles:state.missilesFired,hits:state.hits,kills:state.kills,flying:state.projectiles.length,
+      playerHp:enemies.current.playerHp,enemyShots:enemies.current.shots,enemyHits:enemies.current.hits,damageFlash:enemies.current.damageFlash,
+      enemies:enemies.current.units.map(u=>({id:u.id,position:[...u.position],mode:state.hp[u.id]>0?u.mode:'destroyed',warning:u.warning}))});
   },-.5);
   return <>
     <instancedMesh ref={bullets} args={[undefined,undefined,64]} frustumCulled={false}><boxGeometry args={[.09,1.6,.09]}/><meshBasicMaterial color="#ffecad" toneMapped={false}/></instancedMesh>
@@ -72,14 +79,19 @@ export function CombatScene({combat,controls,focus,mounts,onHud}:{combat:RefObje
 export function CombatOverlay({hud}:{hud:CombatHud}) {
   return <>
     <div className="target-overlay" aria-hidden="true">{hud.targets.map(t=><div key={t.id} data-target={t.id} className={`target-marker ${t.lock>=1?'locked':''}`} style={{left:`${t.x}%`,top:`${t.y}%`}}>
-      <span>{t.id} · {Math.round(t.distance)}m</span><div className="target-brackets"/>
+      <span>{t.id} · {Math.round(t.distance)}m</span><div className={`target-brackets ${t.warning?'hostile-warning':''}`}/>
       <div className="target-health"><i style={{width:`${t.hp/WEAPONS.targetHp*100}%`}}/></div>
-      <small>{t.lock>=1?'LOCKED':t.lock>0?`ACQUIRING ${Math.floor(t.lock*100)}%`:`AP ${t.hp}`}</small>
+      <small>{t.warning?'⚠ INCOMING':t.lock>=1?'LOCKED':t.lock>0?`ACQUIRING ${Math.floor(t.lock*100)}%`:`AP ${t.hp}`}</small>
     </div>)}</div>
     <div className="weapon-readout" aria-live="off"><span>RIFLE / AUTO　∞</span><strong>{hud.cooldown>.01?`MISSILE RELOAD ${hud.cooldown.toFixed(1)}s`:`MULTI LOCK ${hud.locked} / 3`}</strong>
       <small>{hud.charging?'Eを離して斉射':'左クリック：射撃　E長押し→離す：ミサイル'}</small><span>HIT {hud.hits}　DESTROYED {hud.kills} / 3</span></div>
     <output id="combat-telemetry" className="sr-only" data-shots={hud.shots} data-missiles={hud.missiles} data-hits={hud.hits} data-kills={hud.kills} data-locked={hud.locked} data-flying={hud.flying} data-hp={JSON.stringify(hud.hp)}>
       撃破 {hud.kills} / 3
     </output>
+    <div className="armor-readout" aria-label="自機AP">AP <strong>{hud.playerHp.toString().padStart(4,'0')}</strong> / {ENEMY.playerHp}
+      <div><i style={{width:`${hud.playerHp/ENEMY.playerHp*100}%`}}/></div>
+    </div>
+    {hud.damageFlash>0&&<div className="damage-flash" aria-hidden="true"/>}
+    <output id="enemy-telemetry" className="sr-only" data-player-hp={hud.playerHp} data-shots={hud.enemyShots} data-hits={hud.enemyHits} data-units={JSON.stringify(hud.enemies)}>敵の射撃 {hud.enemyShots} / 被弾 {hud.enemyHits}</output>
   </>;
 }
