@@ -78,7 +78,7 @@ test('continuous contour strips support both cheek-to-temple turns down through 
     const cheek=points.filter(v=>v[1]>1.94&&v[1]<1.98&&v[2]>=-.001);
     assert.ok(cheek.length>=4,'Side turn is not a single flat polygon');
   }
-  assert.ok(d.positions.length<=654);assert.ok(d.faces.length<=652);
+  assert.ok(d.positions.length<=666);assert.ok(d.faces.length<=664);
 });
 test('lower cheek does not form a sharp shelf and the underside has a curved transition row',()=>{
   const d=createBase45Topology();
@@ -96,7 +96,7 @@ test('lower cheek does not form a sharp shelf and the underside has a curved tra
   assert.equal(seams.length,1);
   for(const e of seams)assert.ok(normal(d.faces[e.faces[0]]).angleTo(normal(d.faces[e.faces[1]]))<Math.PI/6,'Under-eye cheek seam should not turn by 57 degrees');
   const underside=new Set(d.faces.flatMap((f,i)=>d.regions[i]==='Head.UnderJaw'?f:[]));
-  assert.ok([...underside].some(i=>{const [x,y,z]=d.positions[i];return Math.abs(x)<1e-8&&y>1.75&&y<1.78&&z>.05&&z<.12;}),'A support row rounds the long chin-to-throat span');
+  assert.ok([...underside].some(i=>{const [x,y,z]=d.positions[i];return Math.abs(x)<1e-8&&y>1.75&&y<1.78&&z>.09&&z<.13;}),'A support row rounds the chin-to-throat span');
 });
 test('forehead and lower cheek have shape-supporting rows instead of long straight spans',()=>{
   const p=headPoints();
@@ -112,7 +112,7 @@ test('profile separates brow, shallow eye bed, nose, mouth and chin from a reces
   assert.ok(nose[2]-eye[2]>.050&&nose[2]-eye[2]<.068,'Defined nose relief against the unchanged texture-friendly eye bed');
   assert.ok(nose[2]-chin[2]>.025&&nose[2]-chin[2]<.08,'Restrained facial projection, not a muzzle');
   const d=createBase45Topology(),neck=new Set(d.faces.flatMap((f,i)=>d.regions[i]==='Neck'?f:[]));
-  const upper=[...neck].map(i=>d.positions[i]).filter(v=>v[1]>1.74&&v[2]<.03);
+  const upper=[...neck].map(i=>d.positions[i]).filter(v=>v[1]>1.74);
   assert.ok(upper.length>=12,'Inspect the actual upper attachment, not an empty slice');
   assert.ok(chin[2]-Math.max(...upper.map(v=>v[2]))>.09,'Neck attaches behind the chin');
 });
@@ -121,7 +121,7 @@ test('mandibular corners support a curved underside and the throat attaches abov
   const underside=points('Head.UnderJaw');
   assert.ok(underside.length>=20,'The chin-to-neck underside is a separate authoring region');
   const chin=underside.find(v=>Math.abs(v[0])<1e-8&&v[2]>.13);
-  const throat=underside.find(v=>Math.abs(v[0])<1e-8&&v[2]>0&&v[2]<.03);
+  const throat=underside.find(v=>Math.abs(v[0])<1e-8&&Math.abs(v[1]-1.77)<1e-8&&v[2]>0&&v[2]<.07);
   assert.ok(chin&&throat);assert.ok(throat[1]-chin[1]>=.015,'Under-chin surface rises back into the throat instead of a horizontal plate');
   for(const side of [-1,1]) {
     assert.ok(underside.some(v=>v[0]*side>.12&&v[1]>1.79&&v[1]<1.82&&v[2]<0&&v[2]>-.05),'The jaw corner has width and sits behind the cheek, not at the tiny neck radius');

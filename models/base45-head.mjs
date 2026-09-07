@@ -2,27 +2,34 @@ import { appendBase45Eyes, base45FaceDepth } from './base45-eyes.mjs';
 import { appendContourColumns, bridgeContour } from './base45-contour.mjs';
 import { base45JawPosition, base45NeckAttachmentY } from './base45-jaw.mjs';
 import { appendBase45Ear } from './base45-ears.mjs';
+import { shapeBase45Nape } from './base45-nape.mjs';
 
 /** Head-only shape authoring. Keep body proportions, sockets and shared neck intact. */
 export function appendBase45Head(builder, torsoLoop) {
   const {vertex,bridge,cap}=builder;
   let last=torsoLoop;
-  for(const [y,w,d,centerZ,weights] of [
-    [1.65,.088,.076,-.018,[['Neck',1]]],
-    [1.745,.072,.071,-.053,[['Neck',.45],['Head',.55]]],
+  for(const [role,y,w,d,centerZ,weights] of [
+    ['neckBase',1.65,.088,.076,-.018,[['Chest',.2],['Neck',.8]]],
+    ['neckMiddle',1.715,.080,.074,-.014,[['Neck',.82],['Head',.18]]],
+    // Keep the attachment behind the ear, but above/slightly forward of the
+    // lower neck. The old -.053 center tilted the throat backward in profile.
+    ['neckUpper',1.745,.072,.071,-.010,[['Neck',.4],['Head',.6]]],
   ]) {
     const current=Array.from({length:12},(_,i)=>{
       const angle=i*Math.PI/6;
-      return vertex([Math.sin(angle)*w,y===1.745?base45NeckAttachmentY(Math.cos(angle)):y,centerZ+Math.cos(angle)*d],weights);
+      const rear=[0,role==='neckUpper'?base45NeckAttachmentY(-1):y,centerZ-d];
+      const p=[Math.sin(angle)*w,role==='neckUpper'?base45NeckAttachmentY(Math.cos(angle)):y,centerZ+Math.cos(angle)*d];
+      return vertex(shapeBase45Nape(role,p,Math.min(i,12-i),rear),weights);
     });
     bridge(last,current,'Neck');last=current;
   }
   // One submental row spreads the turn beneath the jaw; otherwise a broad
   // flat quad runs directly from the chin edge to the narrow throat.
+  const underRear=builder.data.positions[last[6]].map((v,k)=>v*.4+base45JawPosition('chin',6,1)[k]*.6);underRear[1]-=.003;
   const underJaw=Array.from({length:12},(_,i)=>{
     const outer=base45JawPosition('chin',Math.min(i,12-i),i<=6?1:-1),inner=builder.data.positions[last[i]];
     const p=inner.map((v,k)=>v*.4+outer[k]*.6);p[1]-=.003;
-    return vertex(p,[['Neck',.15],['Head',.85]]);
+    return vertex(shapeBase45Nape('underJaw',p,Math.min(i,12-i),underRear),[['Neck',.15],['Head',.85]]);
   });
   bridge(last,underJaw,'Head.UnderJaw');last=underJaw;
   // Front/side/back heights lift the jaw toward the ear and occiput. Horizontal
@@ -47,7 +54,7 @@ export function appendBase45Head(builder, torsoLoop) {
     const eyePatch=['nose','eye','brow'].includes(row.role);
     const current=Array.from({length:12},(_,i)=>{
       const column=Math.min(i,12-i),jawPoint=base45JawPosition(row.role,column,i<=6?1:-1);
-      if(jawPoint)return vertex(jawPoint,'Head');
+      if(jawPoint)return vertex(shapeBase45Nape(row.role,jawPoint,column,base45JawPosition(row.role,6,1)),'Head');
       const angle=i*Math.PI/6,x=Math.sin(angle),c=Math.cos(angle);
       const y=c>=0?row.side+(row.y-row.side)*c:row.side+(row.backY-row.side)*-c;
       // Eyes have shallow frontal beds, not forward-projecting cheek wedges.
@@ -63,7 +70,7 @@ export function appendBase45Head(builder, torsoLoop) {
       if(row.role==='mouth'&&column>0&&column<=2)z=base45FaceDepth(x*row.w,y);
       if(eyePatch&&column===2)z=base45FaceDepth(x*row.w,y);
       if(row.role==='brow'&&column===1)z=base45FaceDepth(x*row.w,y)+.001;
-      return vertex([x*row.w,y,z],'Head');
+      return vertex(shapeBase45Nape(row.role,[x*row.w,y,z],column,[0,row.backY,-row.back]),'Head');
     });
     const earOpening=['nose','eye'].includes(row.role);
     bridge(last,current,row===rows[0]?'Head.UnderJaw':'Head',[2,9,...(eyePatch?[0,1,10,11]:[]),...(earOpening?[3,8]:[])]);

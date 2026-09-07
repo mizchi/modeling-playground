@@ -22,7 +22,7 @@ test('small mirrored ears are connected quads with a rim and shallow bowl, weigh
     const depths=[...rimIds].map(i=>d.positions[i][2]);
     assert.ok(Math.max(...depths)-Math.min(...depths)>.07,'Ear plane must turn toward the side, not be a flat front-facing plate');
   }
-  assert.ok(d.positions.length<=654&&d.faces.length<=652,'Ear detail must remain local');
+  assert.ok(d.positions.length<=666&&d.faces.length<=664,'Ear detail must remain local');
 });
 
 test('LUMI exposes both ears through its short hair from front, quarter and side',()=>{

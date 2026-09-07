@@ -1,4 +1,4 @@
-import { AnimationClip, Quaternion, QuaternionKeyframeTrack, Vector3 } from 'three';
+import { AnimationClip, Euler, Quaternion, QuaternionKeyframeTrack, Vector3 } from 'three';
 
 /** Imported tracks use BASE-45 local axes. This is compatibility checking and
  * root-motion rebasing, NOT an arbitrary-rig retargeter. Never silently drop tracks. */
@@ -30,5 +30,14 @@ export function createMotions(root) {
   return [
     new AnimationClip('待機',2,[...arms,track('Chest',[0,0,1],[0,.015,0,-.015,0]),track('Head',[0,1,0],[0,.06,0,-.06,0])]),
     new AnimationClip('歩行テスト',2,[...arms.map(t=>t.clone()),track('LeftThigh',[1,0,0],[0,.30,0,-.30,0]),track('RightThigh',[1,0,0],[0,-.30,0,.30,0]),track('LeftShin',[1,0,0],[0,.05,.25,.05,0]),track('RightShin',[1,0,0],[.25,.05,0,.05,.25])]),
+    createNeckCheckMotion(),
   ].map(c=>fitMotion(root,c));
+}
+
+/** Total yaw ±45°, pitch ±30°, roll ±23°. Shared by inspection and the UI. */
+export function createNeckCheckMotion() {
+  const neck=[[0,0,0],[0,.26,0],[0,-.26,0],[0,0,0],[.17,0,0],[-.17,0,0],[0,0,.14],[0,0,-.14],[.12,.17,0],[0,0,0]];
+  const head=[[0,0,0],[0,.52,0],[0,-.52,0],[0,0,0],[.35,0,0],[-.35,0,0],[0,0,.26],[0,0,-.26],[.22,.35,.12],[0,0,0]];
+  return new AnimationClip('首・頭チェック',9,[['Neck',neck],['Head',head]].map(([name,poses])=>
+    new QuaternionKeyframeTrack(`${name}.quaternion`,poses.map((_,i)=>i),poses.flatMap(p=>new Quaternion().setFromEuler(new Euler(...p)).toArray()))));
 }

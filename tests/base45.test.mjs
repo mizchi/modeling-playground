@@ -28,8 +28,8 @@ test('base is a symmetric grounded T-pose with a shortened head and real side de
 test('shared-index topology is one closed oriented surface, mostly quads',()=>{
   const data=createBase45Topology();validateBaseTopology(data);
   assert.ok(data.faces.filter(f=>f.length===4).length/data.faces.length>.95);
-  assert.ok(data.positions.length<=654,'Keep the base compact, including the connected ears');
-  assert.ok(data.faces.length<=652,'Spend loops on silhouette, joints, eyes and ears, not uniform subdivision');
+  assert.ok(data.positions.length<=666,'Keep the base compact, including ears and one neck support row');
+  assert.ok(data.faces.length<=664,'Spend loops on silhouette, joints, eyes and ears, not uniform subdivision');
   const broken=structuredClone(data);broken.faces.pop();broken.regions.pop();
   assert.throws(()=>validateBaseTopology(broken),/edge|closed/i);
   const root=createBase45(),g=root.getObjectByName('BaseBody').geometry,t=new Triangle();
