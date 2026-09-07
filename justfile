@@ -26,6 +26,14 @@ viewer-build:
 test-e2e:
     pnpm test:e2e
 
+# Character workshop: http://127.0.0.1:5188/human-viewer.html
+human-viewer:
+    pnpm dev --open /human-viewer.html
+
+human-check:
+    node --test tests/human.test.mjs
+    pnpm exec playwright test tests/e2e/human.spec.mjs
+
 # Type-check and test the TPS controller, then exercise the playable stage.
 game-check:
     pnpm exec tsc -p tsconfig.game.json

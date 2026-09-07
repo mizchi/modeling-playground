@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HUMAN — Character Workshop</title></head>
+<body>
+  <header><a class="brand" href="./human-viewer.html">H<span>U</span>MAN <small>CHARACTER WORKSHOP / 01</small></a><nav><a href="./">モデル一覧</a><button id="save-recipe">設定を保存</button><button id="export-glb" class="primary">GLBを書き出す ↗</button></nav></header>
+  <main>
+    <section class="stage" aria-label="モデルプレビュー">
+      <div id="viewport"></div>
+      <div class="stage-heading"><span class="eyebrow">LIVE ASSEMBLY</span><h1 id="model-title">LUMI</h1><p id="model-stats"></p><p id="status" role="status">準備中…</p></div>
+      <div class="display-options"><label><input id="wireframe" type="checkbox">ワイヤー</label><label><input id="skeleton" type="checkbox">骨格</label></div>
+      <div class="stage-bottom"><div class="views" aria-label="確認する角度"><button data-view="front">正面</button><button data-view="quarter">斜め</button><button data-view="side">側面</button><button data-view="back">背面</button><button data-view="high">斜め上</button><button data-view="low">斜め下</button><button id="focus">顔に寄る</button></div><p>ドラッグで回転 · ホイールでズーム · 右ドラッグで移動</p></div>
+      <div id="error" role="alert" hidden></div>
+    </section>
+    <aside aria-label="キャラメイク設定">
+      <div class="panel-heading"><div><span class="eyebrow">CHARACTER SETUP</span><h2>キャラクターをつくる</h2></div><div class="history"><button id="undo" aria-label="元に戻す">↶</button><button id="redo" aria-label="やり直す">↷</button></div></div>
+      <section><h3><span>01</span> ベースモデル</h3><div class="presets"><button data-preset="base45"><strong>BASE-45</strong><small>素体 / ニュートラル</small></button><button data-preset="lumi"><strong>LUMI</strong><small>顔テクスチャ + ショート</small></button></div><p class="hint">共通の低ポリゴン素体。モデル切替で編集値を初期化します。</p></section>
+      <section><h3><span>02</span> パーツ構成</h3><label class="field">髪<select id="hair"><option value="none">なし</option><option value="lumi-short">LUMI / ショート</option></select></label><label class="field">顔テクスチャ<select id="face"><option value="clay">なし / クレイ</option><option value="lumi">LUMI / 顔アトラス</option></select></label><label class="file">顔PNGを差し替え<input id="face-file" type="file" accept="image/png,image/jpeg"></label><p class="hint">LUMIと同じUV配置のPNG / JPEG（最大4096px）。</p><p id="face-asset" class="asset">標準テクスチャ</p><button id="reset-face" class="quiet">標準テクスチャへ戻す</button></section>
+      <section><h3><span>03</span> 顔の形状 <button id="reset-shape" class="quiet">リセット</button></h3><div id="shape-fields"></div><p class="hint">0が承認済みの形。左右対称でメッシュを変形します。側面・斜め下からも確認してください。</p></section>
+      <section><h3><span>04</span> 骨格</h3><p id="rig-name" class="asset">BASE-45 / 22 bones</p><div class="row"><label class="file">骨格JSONを読み込み<input id="rig-file" type="file" accept=".json,application/json"></label><button id="save-rig">保存</button></div><button id="reset-rig" class="quiet">共通骨格へ戻す</button><p class="hint">共通の22ボーン名・親子関係を維持したレスト位置を交換。ウェイト付きメッシュと髪も追従します。</p></section>
+      <section><h3><span>05</span> モーション</h3><label class="field">クリップ<select id="motion"><option value="rest">レストポーズ</option></select></label><div class="row playback"><button id="play">再生</button><input id="timeline" aria-label="再生位置" type="range" min="0" max="2" step=".01" value="0"><output id="time">0.00 s</output></div><label class="file">モーションGLBを注入<input id="motion-file" type="file" accept=".glb,model/gltf-binary"></label><p id="motion-asset" class="asset">組み込みの待機・歩行テスト</p><p class="hint">同名ボーン・同じローカル軸の回転に対応。位置キーはRoot / Hipsのみ。自動リターゲットは未対応。</p></section>
+      <section class="storage"><label class="file">設定JSONを読み込み<input id="recipe-file" type="file" accept=".json,application/json"></label><p class="hint">形状とパーツ構成は自動保存。外部の顔画像・モーションは再読み込みが必要です。GLBには適用中の画像とモーションも含まれます。</p></section>
+    </aside>
+  </main>
+  <script type="module" src="/human/viewer.mjs"></script>
+</body></html>
