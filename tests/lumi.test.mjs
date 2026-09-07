@@ -6,8 +6,42 @@ import { readFile } from 'node:fs/promises';
 import { createBase45 } from '../models/base45.mjs';
 import { createLumi } from '../models/lumi.mjs';
 import { exportGlb } from '../scripts/export_glb.mjs';
+import { createLumiTexture, lumiFaceUV, LUMI_EYE_CENTER_X } from '../models/lumi-texture.mjs';
 
-test('LUMI preserves the accepted base positions, normals, weights and body rig',()=>{
+test('painted irises have tonal depth and small specular highlights',()=>{
+  const {data,width}=createLumiTexture().image;
+  for(const side of [-1,1]) {
+    const [u,v]=lumiFaceUV([side*LUMI_EYE_CENTER_X,1.932]);
+    const colors=new Set();let shine=0;
+    for(let dy=-13;dy<=13;dy++)for(let dx=-12;dx<=12;dx++) {
+      if((dx/12)**2+(dy/13)**2>1)continue;
+      const i=(Math.round(v*width+dy)*width+Math.round(u*width+dx))*4;
+      const rgb=[...data.slice(i,i+3)];colors.add(rgb.join(','));
+      if(rgb.every(c=>c>240))shine++;
+    }
+    assert.ok(colors.size>24,'Iris should have a gradient, not two flat bands');
+    assert.ok(shine>3&&shine<100,'Keep readable glints without washing out the iris');
+  }
+});
+
+test('eye spacing is slightly tighter and the mouth has a readable stroke',()=>{
+  const {data,width}=createLumiTexture().image;
+  const pixel=(x,y)=>{
+    const [u,v]=lumiFaceUV([x,y]),i=(Math.round(v*width)*width+Math.round(u*width))*4;
+    return [...data.slice(i,i+3)];
+  };
+  for(const side of [-1,1]) {
+    const c=pixel(side*.092,1.935);
+    assert.ok(c[0]<60&&c[1]<90&&c[2]<100,'Pupil center must move inward with the iris');
+  }
+  let mouthPixels=0;
+  for(let y=1.805;y<=1.825;y+=.48/256)for(let x=-.025;x<=.026;x+=.48/256) {
+    const c=pixel(x,y);if(c[0]<165&&c[1]<120&&c[2]<115)mouthPixels++;
+  }
+  assert.ok(mouthPixels>=30&&mouthPixels<90,`Mouth stroke should be readable but restrained: ${mouthPixels}`);
+});
+
+test('LUMI inherits the current BASE-45 positions, normals, weights and body rig',()=>{
   const base=createBase45().getObjectByName('BaseBody'),root=createLumi(),body=root.getObjectByName('BaseBody');
   for(const [i,source] of body.userData.sourceVertices.entries())for(const name of ['position','normal','skinIndex','skinWeight']) {
     const a=body.geometry.attributes[name],b=base.geometry.attributes[name];
@@ -65,7 +99,7 @@ test('hair silhouette is fuller above the temples and tapers below the cheeks',(
 
 test('swept fringe leaves both painted pupils visible from the front',()=>{
   const root=createLumi();root.updateMatrixWorld(true);
-  for(const x of [-.102,.102]) {
+  for(const x of [-LUMI_EYE_CENTER_X,LUMI_EYE_CENTER_X]) {
     const ray=new Raycaster(new Vector3(x,1.932,1),new Vector3(0,0,-1));
     const hit=ray.intersectObjects([root.getObjectByName('Hair'),root.getObjectByName('BaseBody')],false)[0];
     assert.equal(hit?.object.name,'BaseBody');

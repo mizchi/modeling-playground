@@ -23,6 +23,15 @@ const headPoints=()=>{
   const indices=new Set(data.faces.flatMap((f,i)=>data.regions[i].startsWith('Head')?f:[]));
   return [...indices].map(i=>data.positions[i]);
 };
+test('lower lip has an upright plane before the rounded chin turn, with modest nose relief',()=>{
+  const p=headPoints();
+  const at=y=>p.find(v=>Math.abs(v[0])<1e-8&&Math.abs(v[1]-y)<1e-8&&v[2]>.1);
+  const mouth=at(1.825),lower=at(1.81),jaw=at(1.785),chin=at(1.75),nose=at(1.89);
+  assert.ok(Math.abs(mouth[2]-jaw[2])<.004,'Mouth-to-chin front should not slope steadily backward');
+  assert.ok(Math.abs(lower[2]-jaw[2])<.004,'Keep a flatter lower-lip plane');
+  assert.ok(jaw[2]-chin[2]>.015&&jaw[2]-chin[2]<.030,'Round beneath the upright plane, not a projecting shelf');
+  assert.ok(nose[2]>=.229&&nose[2]<=.235,'Further raise the nose while retaining the head scale');
+});
 test('egg-shaped skull has a broad upper mass and compact tapered lower face',()=>{
   const p=headPoints(),width=(lo,hi)=>2*Math.max(...p.filter(v=>v[1]>=lo&&v[1]<=hi).map(v=>Math.abs(v[0])));
   assert.ok(width(1.97,2.07)>=.43&&width(1.97,2.07)<=.445,'An egg contour, not a head widened into a ball');
@@ -100,7 +109,7 @@ test('profile separates brow, shallow eye bed, nose, mouth and chin from a reces
   // Texture eyes need a shallow transition, not a modeled eyelid trench.
   const eye=nearest(.102,1.972),brow=nearest(.102,1.982),nose=nearest(0,1.89),chin=nearest(0,1.785);
   assert.ok(Math.abs(brow[2]-eye[2])<.004,'Shallow brow-to-eye transition');
-  assert.ok(nose[2]-eye[2]>.025&&nose[2]-eye[2]<.05,'Restrained nose relief against a texture-friendly face');
+  assert.ok(nose[2]-eye[2]>.050&&nose[2]-eye[2]<.068,'Defined nose relief against the unchanged texture-friendly eye bed');
   assert.ok(nose[2]-chin[2]>.025&&nose[2]-chin[2]<.08,'Restrained facial projection, not a muzzle');
   const d=createBase45Topology(),neck=new Set(d.faces.flatMap((f,i)=>d.regions[i]==='Neck'?f:[]));
   const upper=[...neck].map(i=>d.positions[i]).filter(v=>v[1]>1.74&&v[2]<.03);
@@ -125,5 +134,5 @@ test('outer forehead and under-eye cheek do not step backward from the texture b
   const cheek=nearest(.161*Math.sqrt(3)/2,1.845);
   assert.ok(Math.abs(cheek[2]-base45FaceDepth(cheek[0],cheek[1]))<1e-6,'The cheek continues the same shallow surface');
   const nose=nearest(0,1.89),eye=nearest(.102,1.932);
-  assert.ok(nose[2]-eye[2]<.04,'Avoid the long triangular wedge below the inner eyes');
+  assert.ok(nose[2]-eye[2]>.050&&nose[2]-eye[2]<.068,'Further raised nose, with a bounded projection relative to the unchanged eye bed');
 });

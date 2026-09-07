@@ -29,10 +29,10 @@ export function appendBase45Head(builder, torsoLoop) {
   const rows=[
     {role:'chin'},
     {role:'jaw'},
-    {role:'lowerCheek',y:1.81,side:1.848,backY:1.862,w:.146,front:.181,back:.196,columns:[.174,.162]},
+    {role:'lowerCheek',y:1.81,side:1.848,backY:1.862,w:.146,front:.184,back:.196,columns:[.177,.164]},
     {role:'mouth',y:1.825,side:1.865,backY:1.875,w:.161,front:.177,back:.21,mouth:.006},
-    {role:'nose',y:1.89,side:1.935,backY:1.925,w:.201,front:.18,back:.24,nose:.025},
-    {role:'eye',y:1.935,side:1.975,backY:1.975,w:.211,front:.178,back:.245,nose:.008},
+    {role:'nose',y:1.89,side:1.935,backY:1.925,w:.201,front:.18,back:.24,nose:.050},
+    {role:'eye',y:1.935,side:1.975,backY:1.975,w:.211,front:.178,back:.245,nose:.014},
     {role:'brow',y:1.985,side:2.01,backY:2.02,w:.218,front:.195,back:.245},
     {role:'forehead',y:2.049,side:2.057,backY:2.061,w:.211,front:.187,back:.236,columns:[.177,.145]},
     // Shorter forehead with a rounded shoulder, not a long conical slope.
