@@ -34,6 +34,12 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 [ローカルで表示](http://127.0.0.1:5188/?model=base45) / [Blender編集用](output/base45.blend) / [四角面OBJ](output/base45.obj) / [リグ付きGLB](output/base45.glb) / [仕様・再利用手順](docs/base45-study.md)。`just base45`で再生成、`just base45-blend`でネイティブBlenderファイルも再生成できます。
 
+## LUMI — BASE-45に顔と髪を合わせた試作
+
+素体のチェックポイントは `29e4571`。顔・身体の頂点位置と法線を変えず、256pxの顔テクスチャと、独立した金髪レイヤーショート＋アホ毛を追加。頭頂に量感を持たせ、サイドと後頭部には後ろへ流れる短い毛束を二段重ねています。顎と首を髪で覆わない構成。2,734三角形・約133.4 KiB。身体22＋髪31ボーン。髪には将来の物理制御用ボーンがありますが、物理ソルバーは未実装です。
+
+[ローカルで表示](http://127.0.0.1:5188/?model=lumi) / [GLB](output/lumi.glb) / [斜め](output/lumi-face-quarter.png) / [斜め下](output/lumi-face-low.png) / [後頭部](output/lumi-hair-back-high.png) / [仕様](docs/lumi-study.md)。`just lumi`で再生成。BASE-45の生成済みファイルは上書きしません。
+
 ## ASTER — 長い手足の4等身モデル
 
 LILAを残した独立試作。小さい顔、短い首、束の稜線をメッシュに作り込んだ金髪ロング＋アホ毛。頭と髪は独立して生成します。888三角形・約39.6 KiB、身体16＋髪16ボーン。髪の5系統を曲げる制御と物理接続用設定を用意。物理ソルバー・歩行・IKは未実装。

@@ -14,7 +14,7 @@ test:
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character walk ik suzu raven bastion strix ashley wyvern dog corgi corgi-chibi fes256 aster base45 test render
+all: build character walk ik suzu raven bastion strix ashley wyvern dog corgi corgi-chibi fes256 aster base45 lumi test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -57,7 +57,7 @@ raven:
     node scripts/build_raven.mjs
 
 # Three.js authoring path; Python/Blender assets remain usable without regeneration.
-models-js: suzu raven bastion strix ashley wyvern dog corgi corgi-chibi fes256 aster base45
+models-js: suzu raven bastion strix ashley wyvern dog corgi corgi-chibi fes256 aster base45 lumi
 
 # Generate the ground-heavy robot with 11 interchangeable module sockets.
 bastion:
@@ -103,6 +103,10 @@ base45:
 # Optional native Blender authoring file with quad mesh and editable armature.
 base45-blend: base45
     "{{blender}}" --background --python scripts/build_base45_blend.py
+
+# Separate dressed/haired instance; does not regenerate or overwrite BASE-45.
+lumi:
+    node scripts/build_lumi.mjs
 
 # Deterministic indexed-pixel walk study, with shared 3D pose and 8 directions.
 sprite-walk:

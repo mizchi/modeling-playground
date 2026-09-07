@@ -2,6 +2,7 @@
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
+  lumi: { label: 'LUMI · BASE-45＋顔・レイヤーショート', direction: [1.2,.55,2.4], defaultWireframe: false },
   base45: { label: 'BASE-45 · 顔テクスチャ用素体', direction: [1, .65, 2.4], defaultWireframe: true },
   'base45-face-check': { label: 'BASE-45 · 仮の目／顔形状チェック', direction: [1.4, .35, 2.4] },
   aster: { label: 'ASTER · 金髪ロングの4等身', direction: [1.3, 1.35, 2.4] },
