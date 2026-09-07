@@ -10,9 +10,11 @@ import { IKPose } from './ik.mjs';
 import { IKEditor } from './ik-editor.mjs';
 import { bindAsset } from '../runtime/asset.mjs';
 import { createAssemblyPanel } from './assembly.mjs';
+import { createExpressionPanel } from './expressions.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
+const expressions=createExpressionPanel(invalidate);
 const state = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, ikEditing: false, binding: null };
 const assembly=createAssemblyPanel(()=>{
   if(!state.model)return;
@@ -80,12 +82,13 @@ function invalidate() {
     const delta = lastFrame ? Math.min((now-lastFrame)/1000,.1) : 0;
     lastFrame = now;
     if (state.player?.playing) { state.player.update(delta); updatePlaybackUI(); }
+    expressions.update(delta);
     if (state.ik && !state.ikEditing && state.player?.duration) state.ik.follow();
     controls.update();
     if (state.ikEditor) state.ikEditor.layer.hidden = Boolean(state.player?.playing) || !$('ik-visible').checked;
     state.ikEditor?.update();
     renderer.render(scene, camera);
-    if (controls.autoRotate || state.player?.playing) invalidate();
+    if (controls.autoRotate || state.player?.playing || expressions.playing) invalidate();
   });
 }
 controls.addEventListener('change', invalidate);
@@ -270,6 +273,7 @@ async function loadModel(getBytes, filename, source) {
     history.replaceState(null, '', address);
     scene.add(candidate);
     assembly.setModel(candidate);
+    expressions.setModel(candidate);
     setupPlayback();
     setupIK();
     prepareStage(info);

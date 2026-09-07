@@ -2,6 +2,8 @@
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
+  aster: { label: 'ASTER · 金髪ロングの4等身', direction: [1.3, 1.35, 2.4] },
+  fes256: { label: 'LILA-256 · 表情付き3等身', direction: [.8, .28, 2.4] },
   corgi: { label: 'PON · 軽量コーギー', direction: [1.7, .75, 2.2] },
   'corgi-chibi': { label: 'PON Mini · ちびコーギー', direction: [1.7, .75, 2.2] },
   dog: { label: 'MUGI · 軽量ローポリ犬', direction: [1.7, .75, 2.2] },

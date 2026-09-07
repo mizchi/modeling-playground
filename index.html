@@ -55,15 +55,20 @@
           <p id="ik-status" role="status" class="intro"></p>
           <p class="intro">再生中は一時停止すると目印を表示。丸は手足、青は膝・肘の曲がる方向です。編集は一時的で、再生・シークすると解除されます。</p>
         </section>
+        <section id="expression-panel" hidden aria-label="表情">
+          <label class="eyebrow" for="expression-select">EXPRESSION</label>
+          <select id="expression-select" aria-label="表情を選択"></select>
+          <label class="toggle"><span>表情を自動再生</span><input type="checkbox" id="expression-demo" /></label>
+        </section>
         <section id="animation-panel" hidden aria-label="アニメーション">
           <label class="eyebrow" for="clip-select">ANIMATION</label>
           <select id="clip-select" aria-label="アニメーションを選択"></select>
           <div class="playback-row"><button id="play-pause">一時停止</button><select id="playback-speed" aria-label="再生速度"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div>
           <label class="range-label" for="timeline">再生位置 <output id="animation-time">0.00 / 0.00 s</output></label>
           <input id="timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="再生位置" />
-          <label class="toggle"><span>骨格を表示</span><input type="checkbox" id="skeleton" /></label>
         </section>
         <section class="settings"><span class="eyebrow">DISPLAY</span>
+          <label class="toggle"><span>骨格を表示</span><input type="checkbox" id="skeleton" /></label>
           <label class="toggle"><span>ワイヤーフレーム</span><input type="checkbox" id="wireframe" /></label>
           <label class="toggle"><span>グリッド</span><input type="checkbox" id="grid" /></label>
           <label class="toggle"><span>自動回転</span><input type="checkbox" id="rotate" /></label>

@@ -14,7 +14,7 @@ test:
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character walk ik suzu raven bastion strix ashley wyvern dog corgi corgi-chibi test render
+all: build character walk ik suzu raven bastion strix ashley wyvern dog corgi corgi-chibi fes256 aster test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -57,7 +57,7 @@ raven:
     node scripts/build_raven.mjs
 
 # Three.js authoring path; Python/Blender assets remain usable without regeneration.
-models-js: suzu raven bastion strix ashley wyvern dog corgi corgi-chibi
+models-js: suzu raven bastion strix ashley wyvern dog corgi corgi-chibi fes256 aster
 
 # Generate the ground-heavy robot with 11 interchangeable module sockets.
 bastion:
@@ -86,6 +86,14 @@ corgi:
 # More stylized proportions, sharing the same canine mesh and rig generator.
 corgi-chibi:
     node scripts/build_dog.mjs corgi-chibi
+
+# FES-inspired three-head-tall character; relaxed budget prioritizes cheek/hair volume.
+fes256:
+    node scripts/build_fes256.mjs
+
+# Independent long-limbed study; keep LILA unchanged for comparison.
+aster:
+    node scripts/build_aster.mjs
 
 # Deterministic indexed-pixel walk study, with shared 3D pose and 8 directions.
 sprite-walk:

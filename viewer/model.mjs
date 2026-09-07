@@ -56,6 +56,8 @@ export function validateGlb(bytes) {
 
 /** Prefer author-supplied focus groups; otherwise use the top-level model part. */
 export function focusTarget(object, root) {
+  const named=typeof object.userData.focusTargetName==='string'?root.getObjectByName(object.userData.focusTargetName):null;
+  if(named?.userData.focusTarget)return named;
   for (let ancestor = object; ancestor && ancestor !== root; ancestor = ancestor.parent) {
     if (ancestor.userData.focusTarget && ancestor.parent !== root) return ancestor;
   }

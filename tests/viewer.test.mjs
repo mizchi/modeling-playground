@@ -64,4 +64,8 @@ test('focus groups support character parts and arbitrary model roots without tow
   assert.equal(focusTarget(finger, scene), arm);
   delete arm.userData.focusTarget;
   assert.equal(focusTarget(finger, scene), arm);
+  arm.name='Head';arm.userData.focusTarget=true;
+  const hair=new Mesh(new BoxGeometry(),new MeshBasicMaterial());scene.add(hair);
+  hair.userData.focusTargetName='Head';assert.equal(focusTarget(hair,scene),arm);
+  hair.userData.focusTargetName='Missing';assert.equal(focusTarget(hair,scene),hair);
 });
