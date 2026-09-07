@@ -4,13 +4,14 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { catalog, defaultModel } from './catalog.mjs';
-import { frameModel, inspectModel, validateGlb, modelMaterials, disposeModel, focusTarget } from './model.mjs';
+import { frameModel, inspectModel, validateGlb, disposeModel, focusTarget } from './model.mjs';
 import { AnimationPlayer, animationBounds, updateSkinBounds } from './animation.mjs';
 import { IKPose } from './ik.mjs';
 import { IKEditor } from './ik-editor.mjs';
 import { bindAsset } from '../runtime/asset.mjs';
 import { createAssemblyPanel } from './assembly.mjs';
 import { createExpressionPanel } from './expressions.mjs';
+import { setModelWireframe, updateQuadWires } from './quad-wire.mjs';
 
 const $ = id => document.getElementById(id);
 const viewport = $('viewport');
@@ -19,7 +20,7 @@ const state = { model: null, info: null, request: 0, view: 'perspective', select
 const assembly=createAssemblyPanel(()=>{
   if(!state.model)return;
   state.info=inspectModel(state.model);
-  for(const material of modelMaterials(state.model))material.wireframe=$('wireframe').checked;
+  setModelWireframe(state.model,$('wireframe').checked);
   $('meshes').textContent=state.info.meshes.toLocaleString('ja-JP');
   $('triangles').textContent=Math.round(state.info.triangles).toLocaleString('ja-JP');
   $('dimensions').textContent=`${state.info.size.toArray().map(n=>n.toFixed(2)).join(' × ')} m`;
@@ -87,6 +88,7 @@ function invalidate() {
     controls.update();
     if (state.ikEditor) state.ikEditor.layer.hidden = Boolean(state.player?.playing) || !$('ik-visible').checked;
     state.ikEditor?.update();
+    updateQuadWires(state.model);
     renderer.render(scene, camera);
     if (controls.autoRotate || state.player?.playing || expressions.playing) invalidate();
   });
@@ -251,7 +253,8 @@ async function loadModel(getBytes, filename, source) {
       if (object.isMesh) { object.castShadow = !object.userData.effect; object.receiveShadow = !object.userData.effect; }
       if (object.isSkinnedMesh) object.frustumCulled = false;
     });
-    for (const material of modelMaterials(candidate)) material.wireframe = $('wireframe').checked;
+    if(source.defaultWireframe!==undefined)$('wireframe').checked=source.defaultWireframe;
+    setModelWireframe(candidate,$('wireframe').checked);
     const candidateIK = IKPose.fromModel(candidate);
     state.ikEditor?.dispose();
     state.ikEditor = null;
@@ -407,7 +410,7 @@ $('model-select').addEventListener('change', event => loadCatalogModel(catalog.f
 $('reset').addEventListener('click', () => setView('perspective'));
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
 $('wireframe').addEventListener('change', event => {
-  if (state.model) for (const material of modelMaterials(state.model)) material.wireframe = event.target.checked;
+  if (state.model) setModelWireframe(state.model,event.target.checked);
   invalidate();
 });
 $('grid').addEventListener('change', event => { if (grid) grid.visible = event.target.checked; invalidate(); });

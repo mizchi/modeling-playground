@@ -2,6 +2,8 @@
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
+  base45: { label: 'BASE-45 · 顔テクスチャ用素体', direction: [1, .65, 2.4], defaultWireframe: true },
+  'base45-face-check': { label: 'BASE-45 · 仮の目／顔形状チェック', direction: [1.4, .35, 2.4] },
   aster: { label: 'ASTER · 金髪ロングの4等身', direction: [1.3, 1.35, 2.4] },
   fes256: { label: 'LILA-256 · 表情付き3等身', direction: [.8, .28, 2.4] },
   corgi: { label: 'PON · 軽量コーギー', direction: [1.7, .75, 2.2] },
@@ -19,12 +21,12 @@ const metadata = {
   'traveler-ik': { label: 'Milo · IKポーズ', direction: [.9, .28, 2.2] },
 };
 
-/** @type {Array<{id: string, label: string, filename: string, url: string, definitionUrl?: string, direction: number[]}>} */
+/** @type {Array<{id: string, label: string, filename: string, url: string, definitionUrl?: string, direction: number[], defaultWireframe?: boolean}>} */
 export const catalog = Object.entries(files).map(([path, url]) => {
   const filename = path.split('/').at(-1);
   const id = filename.slice(0, -4);
   return { id, filename, url, definitionUrl: definitions[`../output/${id}.asset.json`],
-    label: metadata[id]?.label ?? filename, direction: metadata[id]?.direction ?? [1, .55, 1.8] };
+    label: metadata[id]?.label ?? filename, direction: metadata[id]?.direction ?? [1, .55, 1.8], defaultWireframe: metadata[id]?.defaultWireframe };
 }).sort((a, b) => a.id.localeCompare(b.id));
 
 export const defaultModel = catalog.find(model => model.id === 'raven') ?? catalog.find(model => model.id === 'suzu') ?? catalog[0];
