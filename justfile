@@ -14,7 +14,7 @@ test:
     pnpm test
     python3 -m unittest discover -s tests -p 'test_*.py'
 
-all: build character walk ik suzu raven bastion strix ashley test render
+all: build character walk ik suzu raven bastion strix ashley wyvern test render
 
 # Open http://127.0.0.1:5188 to inspect GLB models.
 dev:
@@ -57,7 +57,7 @@ raven:
     node scripts/build_raven.mjs
 
 # Three.js authoring path; Python/Blender assets remain usable without regeneration.
-models-js: suzu raven bastion strix ashley
+models-js: suzu raven bastion strix ashley wyvern
 
 # Generate the ground-heavy robot with 11 interchangeable module sockets.
 bastion:
@@ -70,6 +70,10 @@ strix:
 # Generate the textured low-poly Ashley study and the editable PNG atlas.
 ashley:
     node scripts/build_ashley.mjs
+
+# Generate the low-poly wyvern with a weighted Hover loop and Rest pose.
+wyvern:
+    node scripts/build_wyvern.mjs
 
 # Deterministic indexed-pixel walk study, with shared 3D pose and 8 directions.
 sprite-walk:

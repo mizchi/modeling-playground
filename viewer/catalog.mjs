@@ -2,6 +2,7 @@
 const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', import: 'default' });
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
+  wyvern: { label: 'CINDERWING · ローポリワイバーン', direction: [1.2, .65, 2.7] },
   bastion: { label: 'BASTION-06 · 重装モジュール機', direction: [1.3, .65, 2.5] },
   strix: { label: 'STRIX-04 · 四脚歩行機', direction: [1.3, .80, 2.3] },
   ashley: { label: 'Ashley Riot · ローポリ研究', direction: [.7, .13, 2.4] },

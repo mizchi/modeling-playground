@@ -26,6 +26,15 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 `just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
 
+## CINDERWING — 大翼のローポリワイバーン
+
+翼を前肢とする二脚型。青灰色の皮膚と黄土色の翼膜、細い胴、S字の首、長い尾を持つ29ボーンのリグ付きモデルです。静止時の翼幅約14.6 m、3,362三角形。正面だけでなく側面・背面にも胸郭と翼の奥行きを残しています。
+
+- [ローカルで表示](http://127.0.0.1:5188/?model=wyvern) / [GLB](output/wyvern.glb) / [斜め](output/wyvern-quarter.png) / [側面](output/wyvern-side.png) / [背面](output/wyvern-back.png)
+- `just wyvern`で再生成。配色と比率は`models/wyvern-definition.mjs`、造形は`models/wyvern.mjs`。
+- `Hover`は1.8秒周期の空中羽ばたき。肩が先に動き、翼爪から先の翼全体が少し遅れて上下します。左右4本ずつの翼指は中ほどから軽くしなり、翼膜も追従。胴の上下動、脚の引き込み、首と尾の揺れを含みます。`Rest`で元の地上姿勢に戻せます。
+- [羽ばたき](output/wyvern-hover-up.png) / [打ち下ろし](output/wyvern-hover-down.png) / [骨格](output/wyvern-hover-rig.png) / [造形・検証・制約](docs/wyvern-study.md)。前進・離着陸・歩行・IKは未実装です。
+
 ## STRIX-04 — 四脚リグ・歩行
 
 鋭角ヘッド、青灰色の装甲、双肩砲を持つ四脚型。28ボーンの剛体リグで、右前＋左後／左前＋右後を交互に持ち上げる対角ペア歩行。腰を低くし、静止時の膝も約83°に折り畳んでいます。
