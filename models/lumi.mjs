@@ -13,12 +13,12 @@ export function createLumi() {
     const region=data.regions[i];
     const painted=/Head\.(Left|Right)(Orbit|Lid|Eye)$/.test(region)||(region==='Head'&&face.every(v=>data.positions[v][2]>.1&&data.positions[v][1]<1.99));
     const center=face.reduce((a,v)=>a.map((n,k)=>n+data.positions[v][k]/face.length),[0,0,0]);
-    const tile=painted?'face':center[1]>1.62||Math.abs(center[0])>.89?'skin':center[1]<.16?'boots':'suit';
+    const tile=region.endsWith('Ear.Bowl')?'ear':painted?'face':center[1]>1.62||Math.abs(center[0])>.89?'skin':center[1]<.16?'boots':'suit';
     faces.push(face.map(v=>{
       const key=`${v}:${tile}`;
       if(!mapping.has(key)) {
         mapping.set(key,sourceVertices.length);sourceVertices.push(v);
-        uv.push(...(painted?lumiFaceUV(data.positions[v]):tile==='skin'?[.15,.02]:tile==='boots'?[.09,.02]:[.025,.02]));
+        uv.push(...(painted?lumiFaceUV(data.positions[v]):tile==='ear'?[.215,.02]:tile==='skin'?[.15,.02]:tile==='boots'?[.09,.02]:[.025,.02]));
       }
       return mapping.get(key);
     }));

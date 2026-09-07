@@ -1,6 +1,6 @@
 import { Bone, Skeleton, SkinnedMesh, MeshStandardMaterial, Vector3 } from 'three';
 import { compactMesh } from '../modeling/compact-mesh.mjs';
-import { LUMI_FRINGE, lumiForeheadZ } from './lumi-hair-definition.mjs';
+import { LUMI_FRINGE, LUMI_TENDRIL, lumiForeheadZ } from './lumi-hair-definition.mjs';
 import { createLumiHairTexture } from './lumi-hair-texture.mjs';
 
 const ORIGIN=1.76,local=p=>[p[0],p[1]-ORIGIN,p[2]];
@@ -15,14 +15,16 @@ export function createLumiHair(data,sourceGeometry) {
     const points=[[x*.295,2.075,z*.315],[x*.244,1.925,z*.275],[x*.19,1.765+Math.abs(x)*.025,z*.225]];
     // Preserve the existing bone rest positions. The single skin now carries
     // the outer envelope previously supplied by another overlapping lock.
+    const earSide=i===0||i===6;
     chains.push({name:`LumiBack${i}`,theta:t,width:.112,depth:.025,points,
       rows:[[x*.045,2.31,z*.065],[x*.225,2.245,z*.24],
-        [x*.335,2.065,z*.337],[x*.267,1.925,z*.291],points[2]]});
+        [x*.335,2.065,z*.337],[x*.267,1.925,z*.291-(earSide?.155:0),earSide?.65:1],points[2]]});
   }
   for(const side of [1,-1]) {
     const points=[[side*.265,2.08,.142],[side*.233,1.94,.13],[side*.195,1.82,.11]];
     chains.push({name:side===1?'LumiSideLeft':'LumiSideRight',theta:side*Math.PI/2,width:.075,depth:.035,points,
-      rows:[[side*.060,2.31,.028],[side*.22,2.245,.123],...points]});
+      rows:[[side*.060,2.31,.028],[side*.22,2.245,.123],points[0],
+        [side*.248,1.94,-.09],[side*.195,1.82,-.10]]});
   }
   chains.push({name:'LumiAhoge',theta:0,width:.018,depth:.010,points:[[.015,2.31,-.025],[.035,2.445,-.008],[.135,2.485,.022]]});
   for(const c of chains) {
@@ -36,7 +38,7 @@ export function createLumiHair(data,sourceGeometry) {
   // Preserve the skull's curvature but build a larger hair envelope in all axes.
   // Locks run from the crown over this underlayer, hiding a horizontal cap rim.
   const cap=data.faces.filter((f,i)=>{
-    if(!data.regions[i].startsWith('Head')||!f.every(v=>data.positions[v][1]>=1.985))return false;
+    if(!data.regions[i].startsWith('Head')||data.regions[i].includes('Ear')||!f.every(v=>data.positions[v][1]>=1.985))return false;
     const front=f.reduce((sum,v)=>sum+data.positions[v][2],0)/f.length>.10;
     // The cap ends behind the fringe roots, never across the visible forehead.
     return !front||f.every(v=>data.positions[v][1]>=2.045);
@@ -70,7 +72,7 @@ export function createLumiHair(data,sourceGeometry) {
     builder.surface(frontSupport,[[a,b,c],[b,d,c]],GOLD,'LumiHairAnchor');
   }
 
-  function lock(rows,theta,width,depth,name,fitCrown=false,lift=.022) {
+  function lock(rows,theta,width,depth,name,fitCrown=false,lift=.022,thin=false) {
     // Flatten individual locks without shrinking their coverage or the skull
     // envelope. The ahoge keeps its thin, independently controlled silhouette.
     if(name!=='LumiAhoge')depth*=.55;
@@ -79,7 +81,7 @@ export function createLumiHair(data,sourceGeometry) {
     for(let i=1;i<rows.length;i++)lengths.push(lengths[i-1]+new Vector3(...rows[i].slice(0,3)).distanceTo(new Vector3(...rows[i-1].slice(0,3))));
     // Keep the visible ridge and both silhouette edges. One inner ridge closes
     // the underside; the last guide is a single sealed tip, not a tiny ring.
-    const section=[[-1,0],[0,-.6],[1,0],[0,1]],sides=section.length;
+    const section=thin?[[-1,0],[1,0],[0,1]]:[[-1,0],[0,-.6],[1,0],[0,1]],sides=section.length;
     rows.forEach((p,row)=>{
       const taper=p[3]??(row===rows.length-1?.035:row===0?.28:1);
       const thickness=depth*(row===rows.length-1?.10:1);
@@ -103,15 +105,18 @@ export function createLumiHair(data,sourceGeometry) {
     for(let i=1;i<sides-1;i++)builder.surface(points,[[0,i+1,i]],GOLD,weights,uvs);
   }
   for(const c of chains)lock(c.rows??c.points,c.theta,c.width,c.depth,c.name);
-  // Face framing stops above the jaw: silhouette must work without long hair.
+  // Short front locks leave room for separate ear-front, side-facing locks.
   for(const side of [-1,1])lock([
     [side*.20,2.23,.18],
     [side*.255,2.10,.18],
-    [side*.232,1.98,.18],
-    [side*.206,1.87,.175],
-    [side*.180,1.86,.16,.70],
-    [side*.155,1.81,.14],
+    [side*.207,1.98,.18,.50],
+    [side*.193,1.935,.16],
   ],0,.045,.045);
+  for(const side of [-1,1]) {
+    const {rows,width,depth}=LUMI_TENDRIL;
+    lock(rows.map(([x,...rest])=>[side*x,...rest]),side*Math.PI/2,width,depth,
+      side===1?'LumiSideLeft':'LumiSideRight',false,.022,true);
+  }
   // A single ear-side accent preserves the backward sweep without a second tier.
   for(const side of [-1,1])lock([
     [side*.261,2.12,.12,.60],

@@ -20,7 +20,7 @@ test('cheek turn continues the facial slope instead of restarting with a flat li
 
 const headPoints=()=>{
   const data=createBase45Topology();
-  const indices=new Set(data.faces.flatMap((f,i)=>data.regions[i].startsWith('Head')?f:[]));
+  const indices=new Set(data.faces.flatMap((f,i)=>data.regions[i].startsWith('Head')&&!data.regions[i].includes('Ear')?f:[]));
   return [...indices].map(i=>data.positions[i]);
 };
 test('lower lip has an upright plane before the rounded chin turn, with modest nose relief',()=>{
@@ -78,7 +78,7 @@ test('continuous contour strips support both cheek-to-temple turns down through 
     const cheek=points.filter(v=>v[1]>1.94&&v[1]<1.98&&v[2]>=-.001);
     assert.ok(cheek.length>=4,'Side turn is not a single flat polygon');
   }
-  assert.ok(d.positions.length<=628);assert.ok(d.faces.length<=626);
+  assert.ok(d.positions.length<=654);assert.ok(d.faces.length<=652);
 });
 test('lower cheek does not form a sharp shelf and the underside has a curved transition row',()=>{
   const d=createBase45Topology();

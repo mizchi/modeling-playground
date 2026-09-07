@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { Raycaster, Vector3 } from 'three';
 import validator from 'gltf-validator';
 import { readFile } from 'node:fs/promises';
-import { createBase45 } from '../models/base45.mjs';
+import { createBase45, createBase45Topology } from '../models/base45.mjs';
 import { createLumi } from '../models/lumi.mjs';
 import { exportGlb } from '../scripts/export_glb.mjs';
 import { createLumiTexture, lumiFaceUV, LUMI_EYE_CENTER_X } from '../models/lumi-texture.mjs';
@@ -12,7 +12,7 @@ import { LUMI_FRINGE, lumiForeheadZ } from '../models/lumi-hair-definition.mjs';
 test('simplified fringe uses five broad locks without secondary root overlays',()=>{
   assert.equal(LUMI_FRINGE.length,5);
   const hair=createLumi().getObjectByName('Hair');
-  assert.ok(hair.geometry.index.count/3<=700);
+  assert.ok(hair.geometry.index.count/3<=720);
 });
 
 test('fringe ridges stay shallow above the shared hair envelope',()=>{
@@ -84,7 +84,7 @@ test('independent fitted short hair has a cap, layered locks and a rigged ahoge'
   const root=createLumi(),hair=root.getObjectByName('Hair'),g=hair.geometry;
   assert.ok(hair.isSkinnedMesh);assert.ok(hair.skeleton.bones.some(b=>b.name==='LumiAhogeTip'));
   // Side/back overlap is now explicit geometry, rather than long flat sheets.
-  assert.ok(g.index.count/3<=700,'Unified back and fringe locks must stay within 700 hair triangles');
+  assert.ok(g.index.count/3<=720,'Simplified hair including loose cheek strands must stay within 720 triangles');
   assert.ok(Math.min(...Array.from({length:g.attributes.position.count},(_,i)=>g.attributes.position.getY(i)))>=1.75,'Short cut must leave the neck exposed');
   assert.ok(hair.userData.capClearance>=.012);
   const target=hair.skeleton.bones.find(b=>b.name==='LumiSideLeftMid'),joint=hair.skeleton.bones.indexOf(target);
@@ -136,15 +136,19 @@ test('hair uses a subtle opaque flow texture instead of alternating palette stri
   assert.ok(range>10&&range<38,`Texture contrast must remain restrained: ${range}`);
 });
 
-test('simplified side and back hair retain opaque near-side coverage from high and low',()=>{
+test('side and back hair retain coverage except for the intentional ear and temple openings',()=>{
   const root=createLumi();root.updateMatrixWorld(true);
-  const hair=root.getObjectByName('Hair');
+  const hair=root.getObjectByName('Hair'),body=root.getObjectByName('BaseBody'),data=createBase45Topology();
   for(const y of [2.00,2.10,2.20])for(const pitch of [-25,0,25])for(let yaw=60;yaw<=300;yaw+=10) {
     const a=yaw*Math.PI/180,b=pitch*Math.PI/180;
     const direction=new Vector3(Math.sin(a)*Math.cos(b),Math.sin(b),Math.cos(a)*Math.cos(b));
     const origin=new Vector3(0,y,0).add(direction);
-    const hit=new Raycaster(origin,direction.negate()).intersectObject(hair,false)[0];
-    assert.ok(hit&&hit.distance<.96,`Near-side hair gap at y ${y}, yaw ${yaw}, pitch ${pitch}`);
+    const ray=new Raycaster(origin,direction.negate()),hit=ray.intersectObject(hair,false)[0];
+    if(hit&&hit.distance<.96)continue;
+    const skin=ray.intersectObject(body,false)[0],region=data.regions[Math.floor(skin?.faceIndex/2)];
+    const earWindow=(yaw<=100||yaw>=260)&&skin&&skin.point.y>1.88&&skin.point.y<2.01&&Math.abs(skin.point.x)>.175
+      &&/^Head\.(Left|Right)(Contour|Ear\.(Root|Rim|Bowl))$/.test(region);
+    assert.ok(earWindow,`Unintended hair gap at y ${y}, yaw ${yaw}, pitch ${pitch}`);
   }
 });
 
@@ -156,9 +160,9 @@ test('hair volume surrounds the face in width and depth, not just a front silhou
   assert.ok(span('z')>.50,`Front/back volume too shallow: ${span('z')}`);
 });
 
-test('temple locks hug the outer cheek instead of leaving a hollow frame',()=>{
+test('short front temple locks remain close to the face',()=>{
   const root=createLumi(),hair=root.getObjectByName('Hair');root.updateMatrixWorld(true);
-  for(const side of [-1,1])for(const [x,y] of [[.225,1.98],[.205,1.90]]) {
+  for(const side of [-1,1])for(const [x,y] of [[.225,1.98]]) {
     const ray=new Raycaster(new Vector3(side*x,y,1),new Vector3(0,0,-1));
     const hit=ray.intersectObject(hair,false)[0];
     assert.ok(hit&&hit.point.z>.15&&hit.point.z<.26,`Missing close face-framing hair at ${side*x},${y}`);

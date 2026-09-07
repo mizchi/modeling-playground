@@ -50,6 +50,7 @@ export function createLumiTexture() {
   line([[-.022,1.819],[0,1.814],[.023,1.820]],'#96675c',2);
   // Isolated constant-color samples: plain training suit, boots and skin.
   p.rect(0,0,16,16,'#284c59');p.rect(16,0,16,16,'#273847');
+  p.rect(48,0,16,16,'#e3bfa4'); // Subtle ear bowl tint; painted facial features stay intact.
   const texture=p.texture('LUMI face / neutral');texture.magFilter=LinearFilter;texture.minFilter=LinearFilter;
   return texture;
 }

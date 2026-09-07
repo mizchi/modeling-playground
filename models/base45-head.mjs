@@ -1,6 +1,7 @@
 import { appendBase45Eyes, base45FaceDepth } from './base45-eyes.mjs';
 import { appendContourColumns, bridgeContour } from './base45-contour.mjs';
 import { base45JawPosition, base45NeckAttachmentY } from './base45-jaw.mjs';
+import { appendBase45Ear } from './base45-ears.mjs';
 
 /** Head-only shape authoring. Keep body proportions, sockets and shared neck intact. */
 export function appendBase45Head(builder, torsoLoop) {
@@ -40,6 +41,7 @@ export function appendBase45Head(builder, torsoLoop) {
     {role:'crown',y:2.185,side:2.187,backY:2.187,w:.083,front:.053,back:.115},
   ];
   const eyeRows=[];
+  const earRows=new Map();
   const neckLoop=last;let contour;
   for(const row of rows) {
     const eyePatch=['nose','eye','brow'].includes(row.role);
@@ -63,7 +65,9 @@ export function appendBase45Head(builder, torsoLoop) {
       if(row.role==='brow'&&column===1)z=base45FaceDepth(x*row.w,y)+.001;
       return vertex([x*row.w,y,z],'Head');
     });
-    bridge(last,current,row===rows[0]?'Head.UnderJaw':'Head',[2,9,...(eyePatch?[0,1,10,11]:[])]);
+    const earOpening=['nose','eye'].includes(row.role);
+    bridge(last,current,row===rows[0]?'Head.UnderJaw':'Head',[2,9,...(eyePatch?[0,1,10,11]:[]),...(earOpening?[3,8]:[])]);
+    if(['mouth','nose','eye'].includes(row.role))earRows.set(row.role,current);
     const nextContour=appendContourColumns(builder,current);
     bridgeContour(builder,contour,nextContour,neckLoop);contour=nextContour;
     if(eyePatch||row.role==='mouth')eyeRows.push(current);
@@ -71,4 +75,9 @@ export function appendBase45Head(builder, torsoLoop) {
   }
   cap(contour.perimeter,'Head','Head',[0,2.20,-.03]);
   appendBase45Eyes(builder,eyeRows);
+  for(const side of [1,-1]) {
+    const [front,back]=side===1?[3,4]:[9,8];
+    const low=earRows.get('mouth'),mid=earRows.get('nose'),high=earRows.get('eye');
+    appendBase45Ear(builder,[low[front],low[back],mid[back],high[back],high[front],mid[front]],side);
+  }
 }

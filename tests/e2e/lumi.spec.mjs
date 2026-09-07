@@ -27,7 +27,7 @@ test('LUMI face and fitted hair are inspected from all sides, high and low',asyn
     ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
   await page.reload();await expect(page.locator('#model-name')).toHaveText('lumi.glb',{timeout:15_000});
   const box=await canvas.boundingBox();
-  for(const [yaw,pitch,name] of [[0,0,'face-front'],[40,0,'face-quarter'],[-40,0,'face-right'],[90,0,'face-side'],[145,20,'hair-back-high'],[180,0,'hair-back'],[145,-25,'hair-back-low'],[180,-25,'hair-under-back'],[40,25,'face-high'],[40,-30,'face-low']]) {
+  for(const [yaw,pitch,name] of [[0,0,'face-front'],[40,0,'face-quarter'],[-40,0,'face-right'],[90,0,'face-side'],[-90,0,'face-left-side'],[145,20,'hair-back-high'],[180,0,'hair-back'],[145,-25,'hair-back-low'],[180,-25,'hair-under-back'],[40,25,'face-high'],[40,-30,'face-low']]) {
     await page.getByRole('button',{name:'正面',exact:true}).click();
     const x=box.x+box.width/2,y=box.y+box.height/2;
     await page.mouse.move(x,y);await page.mouse.down();

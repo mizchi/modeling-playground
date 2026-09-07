@@ -16,8 +16,8 @@ const bands=[
   {y:2.125,edges:[-.275,-.180,-.075,.055,.170,.275]},
   {y:2.025,edges:[-.252,-.170,-.062,.085,.180,.253]},
 ];
-const tips=[[-.205,1.880,.185],[-.130,1.947,.210],[.028,1.943,.218],
-  [.125,1.985,.225],[.215,1.900,.180]];
+const tips=[[-.185,1.950,.185],[-.130,1.947,.210],[.028,1.943,.218],
+  [.125,1.985,.225],[.185,1.950,.180]];
 
 export const LUMI_FRINGE=tips.map((tip,i)=>({
   width:1,
@@ -26,3 +26,10 @@ export const LUMI_FRINGE=tips.map((tip,i)=>({
     return [x,y,lumiForeheadZ(x,y),(edges[i+1]-edges[i])/2];
   }),[...tip,0]],
 }));
+
+/** Ear-front side lock. Mirror X; its width runs along Z so it covers the
+ * side cheek in profile, rather than sitting on the anterior face edge. */
+export const LUMI_TENDRIL={width:.040,depth:.009,rows:[
+  [.232,2.055,.100,.50],[.223,1.975,.108,1],[.203,1.900,.105,1],
+  [.185,1.830,.103,.75],[.176,1.795,.115,.35],[.195,1.780,.135,0],
+]};
