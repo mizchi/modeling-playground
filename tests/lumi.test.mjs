@@ -7,6 +7,32 @@ import { createBase45 } from '../models/base45.mjs';
 import { createLumi } from '../models/lumi.mjs';
 import { exportGlb } from '../scripts/export_glb.mjs';
 import { createLumiTexture, lumiFaceUV, LUMI_EYE_CENTER_X } from '../models/lumi-texture.mjs';
+import { LUMI_FRINGE, lumiForeheadZ } from '../models/lumi-hair-definition.mjs';
+
+test('simplified fringe uses five broad locks without secondary root overlays',()=>{
+  assert.equal(LUMI_FRINGE.length,5);
+  const hair=createLumi().getObjectByName('Hair');
+  assert.ok(hair.geometry.index.count/3<=700);
+});
+
+test('fringe ridges stay shallow above the shared hair envelope',()=>{
+  const p=createLumi().getObjectByName('Hair').geometry.attributes.position;
+  let maxRelief=-Infinity;
+  for(let i=0;i<p.count;i++) {
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i),surface=lumiForeheadZ(x,y);
+    if(y>2.12&&y<2.28&&Math.abs(x)<.145&&z>.15&&surface!==undefined)maxRelief=Math.max(maxRelief,z-surface);
+  }
+  assert.ok(maxRelief>.01&&maxRelief<.026,`Hair ridge is too inflated: ${maxRelief}`);
+});
+
+test('five fringe locks share ordered boundaries instead of crossing each other',()=>{
+  for(let row=0;row<4;row++)for(let i=1;i<LUMI_FRINGE.length;i++) {
+    const left=LUMI_FRINGE[i-1],right=LUMI_FRINGE[i];
+    const a=left.rows[row],b=right.rows[row];
+    assert.equal(a[1],b[1],'Adjacent guides must share the same height');
+    assert.ok(Math.abs(a[0]+left.width*a[3]-(b[0]-right.width*b[3]))<1e-8,'Fringe borders must meet without overlap or a gap');
+  }
+});
 
 test('painted irises have tonal depth and small specular highlights',()=>{
   const {data,width}=createLumiTexture().image;
@@ -58,7 +84,7 @@ test('independent fitted short hair has a cap, layered locks and a rigged ahoge'
   const root=createLumi(),hair=root.getObjectByName('Hair'),g=hair.geometry;
   assert.ok(hair.isSkinnedMesh);assert.ok(hair.skeleton.bones.some(b=>b.name==='LumiAhogeTip'));
   // Side/back overlap is now explicit geometry, rather than long flat sheets.
-  assert.ok(g.index.count/3<1500,'Keep the short hair plus additional front locks locally budgeted');
+  assert.ok(g.index.count/3<=700,'Unified back and fringe locks must stay within 700 hair triangles');
   assert.ok(Math.min(...Array.from({length:g.attributes.position.count},(_,i)=>g.attributes.position.getY(i)))>=1.75,'Short cut must leave the neck exposed');
   assert.ok(hair.userData.capClearance>=.012);
   const target=hair.skeleton.bones.find(b=>b.name==='LumiSideLeftMid'),joint=hair.skeleton.bones.indexOf(target);
@@ -67,6 +93,59 @@ test('independent fitted short hair has a cap, layered locks and a rigged ahoge'
   const at=()=>hair.applyBoneTransform(sample,new Vector3().fromBufferAttribute(g.attributes.position,sample));
   const before=at();target.rotation.x=.3;root.updateMatrixWorld(true);assert.ok(before.distanceTo(at())>.005);
   for(let i=0;i<g.attributes.position.count;i++)assert.ok(Number.isFinite(g.attributes.position.getX(i)));
+});
+
+test('simplified hair preserves the approved multi-angle envelope',()=>{
+  // Support distances from cd08a51, excluding the independently rigged ahoge.
+  const reference=[.27553,.3392,.34903,.32974,.32974,.32974,.33495,.32786,.32786,.32786,.34903,.3392,
+    .31883,.33956,.37214,.35306,.35306,.35306,.35396,.35217,.35217,.35217,.34981,.33129,
+    .33111,.35035,.36428,.32334,.31661,.32308,.32767,.32308,.31973,.32334,.3616,.35035];
+  const p=createLumi().getObjectByName('Hair').geometry.attributes.position;
+  let sample=0;
+  for(const pitch of [-30,0,30])for(let yaw=0;yaw<360;yaw+=30) {
+    const a=yaw*Math.PI/180,b=pitch*Math.PI/180;
+    const direction=new Vector3(Math.sin(a)*Math.cos(b),Math.sin(b),Math.cos(a)*Math.cos(b));
+    let extent=-Infinity;
+    for(let i=0;i<p.count;i++) {
+      const v=new Vector3().fromBufferAttribute(p,i);if(v.y>2.32)continue;
+      extent=Math.max(extent,v.sub(new Vector3(0,2.04,0)).dot(direction));
+    }
+    const delta=extent-reference[sample++];
+    // The requested flatter fringe may recede slightly; never enlarge the
+    // approved outline, and keep the original side/back tolerance unchanged.
+    const shrink=yaw<=30||yaw>=330?.035:.025;
+    assert.ok(delta> -shrink&&delta<.025,`Envelope changed at yaw ${yaw}, pitch ${pitch}: ${extent}`);
+  }
+});
+
+test('hair uses a subtle opaque flow texture instead of alternating palette stripes',()=>{
+  const hair=createLumi().getObjectByName('Hair'),g=hair.geometry,texture=hair.material.map;
+  assert.ok(texture,'Hair needs its own embedded texture');
+  assert.equal(hair.material.vertexColors,false);
+  assert.equal(hair.material.transparent,false);
+  assert.equal(g.attributes.uv.count,g.attributes.position.count);
+  for(const n of g.attributes.uv.array)assert.ok(Number.isFinite(n)&&n>=0&&n<=1);
+  const {data,width,height}=texture.image;
+  assert.ok(width<=128&&height<=128);
+  const luma=[];
+  for(let i=0;i<data.length;i+=4) {
+    assert.equal(data[i+3],255);
+    luma.push(.2126*data[i]+.7152*data[i+1]+.0722*data[i+2]);
+  }
+  const range=Math.max(...luma)-Math.min(...luma);
+  assert.ok(range>10&&range<38,`Texture contrast must remain restrained: ${range}`);
+});
+
+test('simplified side and back hair retain opaque near-side coverage from high and low',()=>{
+  const root=createLumi();root.updateMatrixWorld(true);
+  const hair=root.getObjectByName('Hair');
+  for(const y of [2.00,2.10,2.20])for(const pitch of [-25,0,25])for(let yaw=60;yaw<=300;yaw+=10) {
+    const a=yaw*Math.PI/180,b=pitch*Math.PI/180;
+    const direction=new Vector3(Math.sin(a)*Math.cos(b),Math.sin(b),Math.cos(a)*Math.cos(b));
+    const origin=new Vector3(0,y,0).add(direction);
+    const hit=new Raycaster(origin,direction.negate()).intersectObject(hair,false)[0];
+    assert.ok(hit&&hit.distance<.96,`Near-side hair gap at y ${y}, yaw ${yaw}, pitch ${pitch}`);
+  }
 });
 
 test('hair volume surrounds the face in width and depth, not just a front silhouette',()=>{
@@ -106,7 +185,7 @@ test('swept fringe leaves both painted pupils visible from the front',()=>{
   }
 });
 
-test('lower forehead remains visible below the added front locks',()=>{
+test('lower forehead remains visible below the broad front locks',()=>{
   const root=createLumi();root.updateMatrixWorld(true);
   for(const x of [-.10,.06]) {
     const ray=new Raycaster(new Vector3(x,1.975,1),new Vector3(0,0,-1));
@@ -115,11 +194,22 @@ test('lower forehead remains visible below the added front locks',()=>{
   }
 });
 
-test('additional front locks cover the former straight forehead boundary',()=>{
+test('broad front locks cover the former straight forehead boundary',()=>{
   const root=createLumi();root.updateMatrixWorld(true);
   for(const x of [-.10,.06]) {
     const hit=new Raycaster(new Vector3(x,2.055,1),new Vector3(0,0,-1)).intersectObject(root.getObjectByName('Hair'),false)[0];
     assert.ok(hit&&hit.point.z>.255,`Missing raised fringe lock over the old boundary at ${x}`);
+  }
+});
+
+test('five-lock fringe hides the support rim between the center and right sweep',()=>{
+  const root=createLumi();root.updateMatrixWorld(true);
+  for(const x of [.045,.060,.075,.09]) {
+    const hit=new Raycaster(new Vector3(x,2.105,1),new Vector3(0,0,-1)).intersectObject(root.getObjectByName('Hair'),false)[0];
+    assert.ok(hit&&hit.point.z>.26,`Missing raised fringe at ${x}: ${hit?.point.z}`);
+    // Support faces sample one constant texel; swept locks have varying UVs.
+    const uv=hit.object.geometry.attributes.uv;
+    assert.ok([hit.face.a,hit.face.b,hit.face.c].some(i=>uv.getX(i)!==.5||uv.getY(i)!==.5),`Support, not a lock, is visible at ${x}`);
   }
 });
 
@@ -136,7 +226,8 @@ test('LUMI is deterministic and exports an embedded face texture and both skelet
   const report=await validator.validateBytes(new Uint8Array(bytes));
   assert.equal(report.issues.numErrors,0,JSON.stringify(report.issues));assert.equal(report.issues.numWarnings,0,JSON.stringify(report.issues));
   const json=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString());
-  assert.equal(json.skins.length,2);assert.equal(json.images.length,1);assert.ok(Number.isInteger(json.images[0].bufferView));
+  assert.equal(json.skins.length,2);assert.equal(json.images.length,2);
+  assert.ok(json.images.every(image=>Number.isInteger(image.bufferView)));
   assert.deepEqual(bytes,await readFile(new URL('../output/lumi.glb',import.meta.url)));
   assert.ok(bytes.length<180*1024);
 });

@@ -1,9 +1,10 @@
 import { Bone, Skeleton, SkinnedMesh, MeshStandardMaterial, Vector3 } from 'three';
 import { compactMesh } from '../modeling/compact-mesh.mjs';
 import { LUMI_FRINGE, lumiForeheadZ } from './lumi-hair-definition.mjs';
+import { createLumiHairTexture } from './lumi-hair-texture.mjs';
 
 const ORIGIN=1.76,local=p=>[p[0],p[1]-ORIGIN,p[2]];
-const GOLD='#c9a653',LIGHT='#e6c776',DARK='#ae8740';
+const GOLD='#ffffff';
 
 /** Independent Head-local hair: fitted scalp plus overlapping volumetric locks.
  * Bones are deformation controls, not a running physics simulation. */
@@ -12,8 +13,11 @@ export function createLumiHair(data,sourceGeometry) {
   for(const [i,degrees] of [85,115,145,180,215,245,275].entries()) {
     const t=degrees*Math.PI/180,x=Math.sin(t),z=Math.cos(t);
     const points=[[x*.295,2.075,z*.315],[x*.244,1.925,z*.275],[x*.19,1.765+Math.abs(x)*.025,z*.225]];
-    chains.push({name:`LumiBack${i}`,theta:t,width:.102,depth:.030,points,
-      rows:[[x*.045,2.31,z*.065],[x*.215,2.245,z*.23],...points]});
+    // Preserve the existing bone rest positions. The single skin now carries
+    // the outer envelope previously supplied by another overlapping lock.
+    chains.push({name:`LumiBack${i}`,theta:t,width:.112,depth:.025,points,
+      rows:[[x*.045,2.31,z*.065],[x*.225,2.245,z*.24],
+        [x*.335,2.065,z*.337],[x*.267,1.925,z*.291],points[2]]});
   }
   for(const side of [1,-1]) {
     const points=[[side*.265,2.08,.142],[side*.233,1.94,.13],[side*.195,1.82,.11]];
@@ -67,26 +71,36 @@ export function createLumiHair(data,sourceGeometry) {
   }
 
   function lock(rows,theta,width,depth,name,fitCrown=false,lift=.022) {
-    const points=[],links=new Map(),tangent=[Math.cos(theta),0,-Math.sin(theta)],out=[Math.sin(theta),0,Math.cos(theta)];
+    // Flatten individual locks without shrinking their coverage or the skull
+    // envelope. The ahoge keeps its thin, independently controlled silhouette.
+    if(name!=='LumiAhoge')depth*=.55;
+    const points=[],uvs=[],links=new Map(),tangent=[Math.cos(theta),0,-Math.sin(theta)],out=[Math.sin(theta),0,Math.cos(theta)];
+    const lengths=[0];
+    for(let i=1;i<rows.length;i++)lengths.push(lengths[i-1]+new Vector3(...rows[i].slice(0,3)).distanceTo(new Vector3(...rows[i-1].slice(0,3))));
+    // Keep the visible ridge and both silhouette edges. One inner ridge closes
+    // the underside; the last guide is a single sealed tip, not a tiny ring.
+    const section=[[-1,0],[0,-.6],[1,0],[0,1]],sides=section.length;
     rows.forEach((p,row)=>{
       const taper=p[3]??(row===rows.length-1?.035:row===0?.28:1);
       const thickness=depth*(row===rows.length-1?.10:1);
-      for(const [u,v] of [[-1,0],[-.75,-.6],[.75,-.6],[1,0],[0,1]]) {
+      for(const [u,v] of row===rows.length-1?[[0,0]]:section) {
         const q=local(p).map((n,k)=>n+tangent[k]*u*width*taper+out[k]*v*thickness);
-        if(fitCrown&&p[1]>2.08) {
+        if(fitCrown&&p[1]>2.0) {
           const surface=lumiForeheadZ(q[0],p[1]);
           if(Number.isFinite(surface))q[2]=surface+lift+v*thickness;
         }
         const joint=!name||row<rows.length-2?'LumiHairAnchor':name+(row===rows.length-1?'Tip':'Mid');
         links.set(q.join(','),[[joint,1]]);points.push(q);
+        uvs.push([.01+.98*(u+1)/2,.01+.98*lengths[row]/lengths.at(-1)]);
       }
     });
     const weights=p=>links.get(p.join(','));
-    for(let r=1;r<rows.length;r++)for(let i=0;i<5;i++) {
-      const a=(r-1)*5+i,b=(r-1)*5+(i+1)%5,c=r*5+i,d=r*5+(i+1)%5;
-      builder.surface(points,[[a,b,c],[b,d,c]],i===3?LIGHT:i===1?DARK:GOLD,weights);
+    for(let r=1;r<rows.length;r++)for(let i=0;i<sides;i++) {
+      const a=(r-1)*sides+i,b=(r-1)*sides+(i+1)%sides,c=r*sides+i,d=r*sides+(i+1)%sides;
+      const faces=r===rows.length-1?[[a,b,r*sides]]:[[a,b,c],[b,d,c]];
+      builder.surface(points,faces,GOLD,weights,uvs);
     }
-    for(const start of [0,(rows.length-1)*5])for(let i=1;i<4;i++)builder.surface(points,[start===0?[start,start+i+1,start+i]:[start,start+i,start+i+1]],GOLD,weights);
+    for(let i=1;i<sides-1;i++)builder.surface(points,[[0,i+1,i]],GOLD,weights,uvs);
   }
   for(const c of chains)lock(c.rows??c.points,c.theta,c.width,c.depth,c.name);
   // Face framing stops above the jaw: silhouette must work without long hair.
@@ -98,26 +112,16 @@ export function createLumiHair(data,sourceGeometry) {
     [side*.180,1.86,.16,.70],
     [side*.155,1.81,.14],
   ],0,.045,.045);
-  // Two shingled layers around the occiput. Each short solid blade sweeps
-  // around the head rather than hanging straight down like a curtain.
-  for(const c of chains.filter(c=>c.name.startsWith('LumiBack')))for(const tier of [0,1]) {
-    const t=c.theta;
-    const polar=(angle,radius,y)=>[Math.sin(angle)*radius,y,Math.cos(angle)*radius];
-    lock([
-      [...polar(t-.10,tier===0?.283:.309,2.16-tier*.14),.65],
-      [...polar(t+.015,tier===0?.337:.291,2.055-tier*.14),1],
-      polar(t+.15,tier===0?.316:.267,1.985-tier*.14),
-    ],t,.065,.017,c.name);
-  }
-  // Ear-side blades travel diagonally backwards in profile, at two heights.
-  for(const side of [-1,1])for(const tier of [0,1])lock([
-    [side*.261,2.12-tier*.11,.12,.60],
-    [side*(tier===0?.307:.273),2.025-tier*.11,.035,1],
-    [side*(tier===0?.29:.243),1.965-tier*.11,-.060],
+  // A single ear-side accent preserves the backward sweep without a second tier.
+  for(const side of [-1,1])lock([
+    [side*.261,2.12,.12,.60],
+    [side*.307,2.025,.035,1],
+    [side*.29,1.965,-.060],
   ],side*Math.PI/2,.047,.015,side===1?'LumiSideLeft':'LumiSideRight');
-  for(const {rows,width,depth=.022,lift=.022} of LUMI_FRINGE)lock(rows,0,width,depth,undefined,true,lift);
+  for(const {rows,width,depth=.014,lift=.016} of LUMI_FRINGE)lock(rows,0,width,depth,undefined,true,lift);
   const geometry=builder.finish();geometry.computeVertexNormals();
-  const mesh=new SkinnedMesh(geometry,new MeshStandardMaterial({vertexColors:true,roughness:.9}));
+  geometry.deleteAttribute('color');
+  const mesh=new SkinnedMesh(geometry,new MeshStandardMaterial({map:createLumiHairTexture(),roughness:.85}));
   mesh.name='Hair';mesh.frustumCulled=false;
   mesh.userData={capClearance:.018,hairDynamics:{version:1,space:'Head-local',solver:false,
     chains:chains.map(c=>({joints:['Root','Mid','Tip'].map(s=>c.name+s),pinned:1}))}};

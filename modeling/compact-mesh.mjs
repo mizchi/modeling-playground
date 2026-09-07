@@ -3,8 +3,9 @@ import { BufferGeometry, Float32BufferAttribute, Uint8BufferAttribute, Color, Ve
 /** Indexed, palette-colored geometry. Omit normals for glTF's flat-shading path. */
 export function compactMesh(boneNames, transform = point => point) {
   const positions = [], colors = [], joints = [], weights = [], indices = [], cache = new Map();
+  const uvs = []; let hasUV = false;
   const boneIds = new Map(boneNames.map((name, i) => [name, i]));
-  function vertex(point, color, influences) {
+  function vertex(point, color, influences, uv) {
     const links = typeof influences === 'function' ? influences(point) : [[influences, 1]];
     const packed = links.map(([name, weight]) => [boneIds.get(name), Math.round(weight * 255)]);
     if (packed.some(([id]) => id === undefined) || packed.length > 4) throw new Error('Invalid compact mesh bone weights');
@@ -13,17 +14,18 @@ export function compactMesh(boneNames, transform = point => point) {
     packed.forEach(([id, weight], i) => { skin[i] = weight ? id : 0; blend[i] = weight; });
     const rgb = new Color(color).toArray().map(v => Math.round(v * 255));
     const xyz = transform(point).map(v => Math.round(v * 1e6) / 1e6);
-    const key = [...xyz, ...rgb, ...skin, ...blend].join(',');
+    const key = [...xyz, ...rgb, ...skin, ...blend, ...(uv ?? [])].join(',');
     if (!cache.has(key)) {
       cache.set(key, positions.length / 3); positions.push(...xyz); colors.push(...rgb); joints.push(...skin); weights.push(...blend);
+      uvs.push(...(uv ?? [.5,.5])); if(uv)hasUV=true;
     }
     return cache.get(key);
   }
-  function surface(points, faces, color, influences) {
+  function surface(points, faces, color, influences, textureCoordinates) {
     for (const face of faces) {
       const center = [0, 1, 2].map(axis => face.reduce((sum, i) => sum + points[i][axis], 0) / 3);
       const tint = typeof color === 'function' ? color(center) : color;
-      indices.push(...face.map(i => vertex(points[i], tint, influences)));
+      indices.push(...face.map(i => vertex(points[i], tint, influences, textureCoordinates?.[i])));
     }
   }
   function loft(rows, sides, color, influences, phase = 0) {
@@ -78,6 +80,7 @@ export function compactMesh(boneNames, transform = point => point) {
     geometry.setAttribute('color', new Uint8BufferAttribute(colors, 3, true));
     geometry.setAttribute('skinIndex', new Uint8BufferAttribute(joints, 4));
     geometry.setAttribute('skinWeight', new Uint8BufferAttribute(weights, 4, true));
+    if(hasUV)geometry.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
     return geometry;
   }
   return { loft, surface, convex, polygon, finish };
