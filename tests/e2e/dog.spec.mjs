@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-for(const model of ['dog','corgi'])test(`${model} reads from all sides and plays the shared lightweight idle`,async({page})=>{
+for(const model of ['dog','corgi','corgi-chibi'])test(`${model} reads from all sides and plays the shared lightweight idle`,async({page})=>{
   test.setTimeout(60_000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`/?model=${model}`);

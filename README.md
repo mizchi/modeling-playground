@@ -26,6 +26,13 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 `just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
 
+## PON Mini — さらにデフォルメしたコーギー
+
+頭と目を大きく、胴を短く幅広に、脚をさらに短くした別プリセット。元のPONはそのまま残しています。618三角形・約22.2 KiB、17ボーンと待機モーションは共通です。
+
+- [ローカルで表示](http://127.0.0.1:5188/?model=corgi-chibi) / [GLB](output/corgi-chibi.glb) / [斜め](output/corgi-chibi-quarter.png) / [側面](output/corgi-chibi-side.png)
+- `just corgi-chibi`で再生成。[体型差分の設計](docs/dog-study.md)。
+
 ## PON — 共通素体から作るコーギー
 
 短い脚・長い胴・大きな耳・短い尾を持つ、590三角形・約21 KiBのコーギー。MUGIと同じ生成コード・17ボーン・待機モーションを使い、体型と配色のプリセットだけで作り分けています。

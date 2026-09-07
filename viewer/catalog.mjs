@@ -3,6 +3,7 @@ const files = import.meta.glob('../output/*.glb', { eager: true, query: '?url', 
 const definitions = import.meta.glob('../output/*.asset.json', { eager: true, query: '?url', import: 'default' });
 const metadata = {
   corgi: { label: 'PON · 軽量コーギー', direction: [1.7, .75, 2.2] },
+  'corgi-chibi': { label: 'PON Mini · ちびコーギー', direction: [1.7, .75, 2.2] },
   dog: { label: 'MUGI · 軽量ローポリ犬', direction: [1.7, .75, 2.2] },
   wyvern: { label: 'CINDERWING · ローポリワイバーン', direction: [1.2, .65, 2.7] },
   bastion: { label: 'BASTION-06 · 重装モジュール機', direction: [1.3, .65, 2.5] },

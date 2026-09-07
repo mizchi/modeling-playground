@@ -22,7 +22,14 @@ export const CORGI = freeze({
   tailRows: [[0,.73,-.47,.10,.10],[0,.77,-.59,.075,.075],[0,.80,-.65,.026,.026]],
   tailBlend: [.73,.07], tailTip: [0,.78,-.60],
 });
-export const DOG_PRESETS = Object.freeze({ dog: DOG, corgi: CORGI });
+export const CORGI_CHIBI = freeze({
+  ...CORGI,
+  id: 'corgi-chibi', name: 'PON Mini', meshName: 'PonMini', title: 'PON Mini · chibi corgi',
+  shape: { bodyLength: 1.15, bodyWidth: 1.3, legHeight: .42,
+    headScale: [1.4,1.25,1.05], earScale: [1.25,1.1,1], pawScale: [1.25,.8,1] },
+  face: { eyeHeight: 1.5, depthOffset: 0 },
+});
+export const DOG_PRESETS = Object.freeze({ dog: DOG, corgi: CORGI, 'corgi-chibi': CORGI_CHIBI });
 
 /** Piece-specific morph in bind space. Colors/weights stay in the shared authoring coordinates. */
 export function dogPoint(preset, region, point) {
@@ -31,6 +38,8 @@ export function dogPoint(preset, region, point) {
   const body = [x*s.bodyWidth, y-drop, z*s.bodyLength];
   const head = p => [p[0]*s.headScale[0], .83-drop+(p[1]-.83)*s.headScale[1], .49*s.bodyLength+(p[2]-.49)*s.headScale[2]];
   if (region === 'head') return head(point);
+  // Enlarge the eyes along their face plane, without lifting them off the surface.
+  if (region === 'eyes') return head(preset.face ? [x,1.10+(y-1.10)*preset.face.eyeHeight,z] : point);
   if (region === 'ears') return head([
     Math.sign(x)*.20+(x-Math.sign(x)*.20)*s.earScale[0], 1.16+(y-1.16)*s.earScale[1], .53+(z-.53)*s.earScale[2],
   ]);

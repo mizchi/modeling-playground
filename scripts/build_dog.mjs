@@ -5,7 +5,7 @@ import { dogClips } from '../models/dog-motion.mjs';
 import { exportGlb } from './export_glb.mjs';
 
 const preset=DOG_PRESETS[process.argv[2]??'dog'];
-if(!preset)throw new Error('Unknown dog preset; choose dog or corgi');
+if(!preset)throw new Error(`Unknown dog preset; choose ${Object.keys(DOG_PRESETS).join(', ')}`);
 const root=createDog(preset),bytes=await exportGlb(root,dogClips()),mesh=root.getObjectByName(preset.meshName);
 const triangles=mesh.geometry.index.count/3;
 if(triangles>preset.triangleBudget||bytes.byteLength>preset.byteBudget)throw new Error(`Dog budget exceeded: ${triangles} triangles / ${bytes.byteLength} bytes`);
