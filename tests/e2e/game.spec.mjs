@@ -7,7 +7,9 @@ test.use({deviceScaleFactor:process.env.CI ? 0.5 : 1});
 const state=page=>page.locator('#pilot-telemetry').evaluate(node=>({x:Number(node.dataset.x),z:Number(node.dataset.z),yaw:Number(node.dataset.yaw),speed:Number(node.dataset.speed),boost:Number(node.dataset.boost)}));
 
 test('IRON YARD: real GLBs, mouse-look, WASD, boost, pause, resume and reset',async({page})=>{
-  test.setTimeout(90_000);
+  // This full scenario includes loading, several live movement phases and reset/resume.
+  // Software WebGL can exceed 90 s overall; keep each behavior's existing assertion deadline.
+  test.setTimeout(180_000);
   const errors=[],assets=[];
   page.on('pageerror',error=>errors.push(error.message));
   page.on('response',response=>{if(response.url().includes('.glb'))assets.push(response.url());});
