@@ -23,8 +23,8 @@ dev:
 viewer-build:
     pnpm build
 
-test-e2e:
-    pnpm test:e2e
+test-e2e *args:
+    pnpm test:e2e {{args}}
 
 # Character workshop: http://127.0.0.1:5188/human-viewer.html
 human-viewer:

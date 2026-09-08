@@ -17,23 +17,24 @@ async function inspectAngle(page,yaw,pitch) {
   return canvas;
 }
 
-test('jaw underside is inspected in opposing low angles, profile and rear quarters',async({page})=>{
-  test.setTimeout(90_000);
-  const stage=process.env.BASE45_REVIEW_STAGE==='before'?'before':'after';
-  const bytes=Buffer.from(await exportGlb(createBase45Inspection()));
-  await page.route('**/output/base45.glb*',route=>route.request().resourceType()==='fetch'
-    ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
-  await page.goto('/?model=base45');
-  await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
-  for(const [yaw,pitch,name] of [[35,-35,'reference-low'],[-55,-25,'right-low'],[55,-25,'left-low'],[-90,0,'profile'],[90,-25,'side-low'],[-135,-20,'rear-low'],[0,-45,'under-chin']]) {
+for(const [yaw,pitch,name] of [[35,-35,'reference-low'],[-55,-25,'right-low'],[55,-25,'left-low'],[-90,0,'profile'],[90,-25,'side-low'],[-135,-20,'rear-low'],[0,-45,'under-chin']]) {
+  test(`jaw underside: ${name} wire and clay`,async({page})=>{
+    const stage=process.env.BASE45_REVIEW_STAGE==='before'?'before':'after';
+    const bytes=Buffer.from(await exportGlb(createBase45Inspection()));
+    await page.route('**/output/base45.glb*',route=>route.request().resourceType()==='fetch'
+      ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
+    await page.goto('/?model=base45');
+    await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
     const canvas=await inspectAngle(page,yaw,pitch);
     await canvas.screenshot({path:`output/base45-jaw-${stage}-${name}-wire.png`});
     await page.getByLabel('ワイヤーフレーム',{exact:true}).uncheck();
     await canvas.screenshot({path:`output/base45-jaw-${stage}-${name}.png`});
     await page.getByLabel('ワイヤーフレーム',{exact:true}).check();
-  }
-  if(stage==='after') {
-    await page.unroute('**/output/base45.glb*');
+  });
+}
+
+test('jaw underside: delivered body low angle',async({page})=>{
+  if(process.env.BASE45_REVIEW_STAGE!=='before') {
     await page.goto('/?model=base45');
     await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
     await page.getByLabel('ワイヤーフレーム',{exact:true}).uncheck();
@@ -42,41 +43,39 @@ test('jaw underside is inspected in opposing low angles, profile and rear quarte
   }
 });
 
-test('head contour is inspected at fixed oblique angles with wire and clay',async({page})=>{
-  test.setTimeout(90_000);
-  const bytes=Buffer.from(await exportGlb(createBase45Inspection()));
-  await page.route('**/output/base45.glb*',route=>route.request().resourceType()==='fetch'
-    ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
-  await page.goto('/?model=base45');
-  await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
-  for(const [yaw,pitch,name] of [[35,0,'left-35'],[55,0,'left-55'],[-35,0,'right-35'],[-55,0,'right-55'],[45,15,'high-45'],[45,-15,'low-45']]) {
+for(const [yaw,pitch,name] of [[35,0,'left-35'],[55,0,'left-55'],[-35,0,'right-35'],[-55,0,'right-55'],[45,15,'high-45'],[45,-15,'low-45']]) {
+  test(`head contour: ${name} wire and clay`,async({page})=>{
+    const bytes=Buffer.from(await exportGlb(createBase45Inspection()));
+    await page.route('**/output/base45.glb*',route=>route.request().resourceType()==='fetch'
+      ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
+    await page.goto('/?model=base45');
+    await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
     const canvas=await inspectAngle(page,yaw,pitch);
     await canvas.screenshot({path:`output/base45-contour-${name}.png`});
     await page.getByLabel('ワイヤーフレーム',{exact:true}).uncheck();
     await canvas.screenshot({path:`output/base45-contour-${name}-clay.png`});
     await page.getByLabel('ワイヤーフレーム',{exact:true}).check();
-  }
-});
+  });
+}
 
-test('painted eyes and a UV grid are checked on the same delivered head surface',async({page})=>{
-  test.setTimeout(90_000);
-  const errors=[];page.on('pageerror',error=>errors.push(error.message));
-  for(const surface of ['eyes','grid']) {
-    if(surface==='grid') {
-      const bytes=Buffer.from(await exportGlb(createBase45Inspection({surface})));
-      await page.route('**/output/base45-face-check.glb*',route=>route.request().resourceType()==='fetch'
-        ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
-    }
-    await page.goto('/?model=base45-face-check');
-    await expect(page.locator('#model-name')).toHaveText('base45-face-check.glb',{timeout:15_000});
-    await expect(page.locator('#status')).toHaveText('表示中');
-    for(const [yaw,pitch,name] of [[0,0,'front'],[35,0,'35'],[55,0,'55'],[45,15,'high'],[45,-15,'low'],[180,0,'back']]) {
+for(const surface of ['eyes','grid']) {
+  for(const [yaw,pitch,name] of [[0,0,'front'],[35,0,'35'],[55,0,'55'],[45,15,'high'],[45,-15,'low'],[180,0,'back']]) {
+    test(`head surface: ${surface} ${name}`,async({page})=>{
+      const errors=[];page.on('pageerror',error=>errors.push(error.message));
+      if(surface==='grid') {
+        const bytes=Buffer.from(await exportGlb(createBase45Inspection({surface})));
+        await page.route('**/output/base45-face-check.glb*',route=>route.request().resourceType()==='fetch'
+          ?route.fulfill({status:200,contentType:'model/gltf-binary',body:bytes}):route.continue());
+      }
+      await page.goto('/?model=base45-face-check');
+      await expect(page.locator('#model-name')).toHaveText('base45-face-check.glb',{timeout:15_000});
+      await expect(page.locator('#status')).toHaveText('表示中');
       const canvas=await inspectAngle(page,yaw,pitch);
       await canvas.screenshot({path:`output/base45-${surface}-${name}.png`});
-    }
+      expect(errors).toEqual([]);
+    });
   }
-  expect(errors).toEqual([]);
-});
+}
 
 test('base45 loads with editable quad wires and is inspected from every side',async({page})=>{
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -130,10 +129,10 @@ test('shoulder elbow hip and knee bend survive GLB round-trip with quad overlay'
   expect(served).toBe(1);
 });
 
-test('egg-shaped face and neck are inspected in close profile and quarters',async({page})=>{
-  await page.goto('/?model=base45');await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
-  const canvas=page.locator('#viewport canvas'),box=await canvas.boundingBox();
-  for(const [label,name] of [['正面','face-front'],['側面','face-side'],['斜め','face-quarter'],['背面','face-back']]) {
+for(const [label,name] of [['正面','face-front'],['側面','face-side'],['斜め','face-quarter'],['背面','face-back']]) {
+  test(`egg-shaped face and neck: ${name}`,async({page})=>{
+    await page.goto('/?model=base45');await expect(page.locator('#model-name')).toHaveText('base45.glb',{timeout:15_000});
+    const canvas=page.locator('#viewport canvas'),box=await canvas.boundingBox();
     await page.getByRole('button',{name:label,exact:true}).click();
     await page.mouse.move(box.x+box.width*.5,box.y+box.height*.5);await page.mouse.down({button:'right'});
     await page.mouse.move(box.x+box.width*.5,box.y+box.height*.5+220,{steps:15});await page.mouse.up({button:'right'});
@@ -142,5 +141,5 @@ test('egg-shaped face and neck are inspected in close profile and quarters',asyn
     await page.getByLabel('ワイヤーフレーム',{exact:true}).uncheck();
     await canvas.screenshot({path:`output/base45-${name}-clay.png`});
     await page.getByLabel('ワイヤーフレーム',{exact:true}).check();
-  }
-});
+  });
+}
