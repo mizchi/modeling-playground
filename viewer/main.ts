@@ -17,6 +17,7 @@ import { IKEditor } from './ik-editor.ts';
 import { bindAsset } from '../runtime/asset.ts';
 import { createAssemblyPanel } from './assembly.ts';
 import { createExpressionPanel } from './expressions.ts';
+import { createFingerPanel } from './fingers.ts';
 import { setModelWireframe, updateQuadWires } from './quad-wire.ts';
 
 const $ = elementLookup<PageElements>();
@@ -24,6 +25,7 @@ type ModelSource = Partial<CatalogEntry> & {file?: File};
 interface ViewerState {model: THREE.Object3D | null; info: ModelInfo | null; request: number; view: string; selected: THREE.Object3D | null; source: ModelSource | null; player: AnimationPlayer | null; skeleton: THREE.SkeletonHelper | null; ik: IKPose | null; ikEditor: IKEditor | null; ikEditing: boolean; binding: ReturnType<typeof bindAsset> | null}
 const viewport = $('viewport');
 const expressions=createExpressionPanel(invalidate);
+const fingers=createFingerPanel(invalidate);
 const state: ViewerState = { model: null, info: null, request: 0, view: 'perspective', selected: null, source: null, player: null, skeleton: null, ik: null, ikEditor: null, ikEditing: false, binding: null };
 const assembly=createAssemblyPanel(()=>{
   if(!state.model)return;
@@ -92,6 +94,7 @@ function invalidate() {
     lastFrame = now;
     if (state.player?.playing) { state.player.update(delta); updatePlaybackUI(); }
     expressions.update(delta);
+    fingers.update();
     if (state.ik && !state.ikEditing && state.player?.duration) state.ik.follow();
     controls.update();
     if (state.ikEditor) state.ikEditor.layer.hidden = Boolean(state.player?.playing) || !$('ik-visible').checked;
@@ -286,6 +289,7 @@ async function loadModel(getBytes: ()=>Promise<ArrayBuffer>, filename: string, s
     scene.add(candidate);
     assembly.setModel(candidate);
     expressions.setModel(candidate);
+    fingers.setModel(candidate);
     setupPlayback();
     setupIK();
     prepareStage(info);

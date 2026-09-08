@@ -8,6 +8,12 @@ __pycache__/
 motion/output/
 human/models/lumi-meshy-v2/output/
 human/models/lumi-meshy-v2/src/input/
+human/models/lumi-tripo/output/
+human/models/lumi-tripo/src/input/
+human/models/lumi-tripo-girl/output/
+human/models/lumi-tripo-girl/src/input/
+human/models/lumi-tripo-rig/output/
+human/models/lumi-tripo-rig/src/input/
 .env
 .env.*
 !.env.example

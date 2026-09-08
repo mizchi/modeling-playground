@@ -4,6 +4,11 @@ const files = import.meta.glob<string>(['../human/models/*/output/*.glb', '../ro
 const definitions = import.meta.glob<string>(['../human/models/*/output/*.asset.json', '../robot/models/*/output/*.asset.json', '../models/*/output/*.asset.json'], { eager: true, query: '?url', import: 'default' });
 const metadata: Record<string, Pick<CatalogEntry,'label' | 'direction' | 'defaultWireframe'>> = {
   lumi: { label: 'LUMI · BASE-45＋顔・レイヤーショート', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-tripo': { label: 'LUMI Tripo H3.1 · 生成比較（リグなし）', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-tripo-rig': { label: 'LUMI Tripo · Meshyリグ', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-tripo-rig-walking': { label: 'LUMI Tripo · Meshy歩行（比較用）', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-tripo-jump': { label: 'LUMI Tripo · HY-Motionジャンプ', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-tripo-girl': { label: 'LUMI Tripo · 女の子の頭部＋元の胴体', direction: [1.2,.55,2.4], defaultWireframe: false },
   'lumi-meshy-v2-relaxed': { label: 'LUMI Meshy v2 · 軽く握った手（標準形状）', direction: [1.2,.55,2.4], defaultWireframe: false },
   'lumi-meshy-v2-walking-relaxed': { label: 'LUMI Meshy v2 · 歩行／軽く握った手', direction: [1.2,.55,2.4], defaultWireframe: false },
   'lumi-meshy-v2-running-relaxed': { label: 'LUMI Meshy v2 · 走行／軽く握った手', direction: [1.2,.55,2.4], defaultWireframe: false },

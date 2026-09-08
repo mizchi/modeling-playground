@@ -43,9 +43,32 @@ motion-generate *args:
 human-meshy-v2 *args:
     node --env-file-if-exists=.env human/models/lumi-meshy-v2/src/generate.ts {{args}}
 
-# Local-only relaxed finger shape; preserves original rig and animations.
+# Local-only relaxed fingers + finger rig; preserves original body rig and animations.
 human-meshy-v2-hands:
     node human/models/lumi-meshy-v2/src/build-relaxed-hands.ts
+
+# Tripo H3.1 via fal.ai; only submit --execute incurs generation cost.
+human-tripo *args:
+    node --env-file-if-exists=.env human/models/lumi-tripo/src/generate.ts {{args}}
+
+# Head-only generation; assembly is local and never calls the API.
+human-tripo-girl *args:
+    node --env-file-if-exists=.env human/models/lumi-tripo-girl/src/generate.ts {{args}}
+
+human-tripo-girl-build:
+    node human/models/lumi-tripo-girl/src/build.ts
+
+# Input-only check: no uploads or paid API calls; does not claim rig/retarget success.
+tripo-jump-preflight *args:
+    pnpm exec playwright test tests/e2e/tripo-jump-preflight.spec.ts {{args}}
+
+# Tripo geometry → Meshy rig via fal; only submit --execute is paid.
+human-tripo-rig *args:
+    node --env-file-if-exists=.env human/models/lumi-tripo-rig/src/generate.ts {{args}}
+
+# Requires local viewer on 5188; reuses existing HY jump, never calls fal.
+human-tripo-jump:
+    node human/models/lumi-tripo-rig/src/build-jump.ts
 
 motion-check:
     pnpm typecheck:native
