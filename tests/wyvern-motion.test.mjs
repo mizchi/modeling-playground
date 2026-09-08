@@ -7,6 +7,17 @@ import { createWyvernRig } from '../models/wyvern-rig.mjs';
 import { createWyvern } from '../models/wyvern.mjs';
 import { WYVERN_FLIGHT, wyvernPose, wyvernClips } from '../models/wyvern-motion.mjs';
 
+test('baked wing hinges retain exactly zero Y rotation-axis components', () => {
+  const hover = wyvernClips().find(clip => clip.name === 'Hover');
+  const hinges = hover.tracks.filter(track => /(?:Fan|Rib[0-3])\.quaternion$/.test(track.name));
+  assert.equal(hinges.length, 10);
+  for (const track of hinges) {
+    for (let i = 1; i < track.values.length; i += 4) {
+      assert.ok(track.values[i] === 0, `${track.name} frame ${(i - 1) / 4}: no Euler round-trip noise`);
+    }
+  }
+});
+
 test('wingbeat is periodic, mirrored, articulated and keeps its hover position', () => {
   const duration = WYVERN_FLIGHT.duration;
   const start = wyvernPose('Hover', 0), end = wyvernPose('Hover', duration);

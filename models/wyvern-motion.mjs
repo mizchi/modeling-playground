@@ -11,6 +11,14 @@ export function wyvernPose(clip, time) {
   const rotations = Object.fromEntries(joints.map(name => [name, [0, 0, 0]]));
   if (clip === 'Rest') return { position: [0, 0, 0], rotations };
   if (clip !== 'Hover') throw new Error(`Unknown wyvern clip: ${clip}`);
+  const quaternions = {};
+  const hinge = (name, axis, angle) => {
+    const quaternion = new Quaternion().setFromAxisAngle(axis, angle);
+    // Preserve authored axes when baking: an Euler round trip leaves platform-dependent
+    // cancellation noise in the zero Y component. Keep Euler poses for live consumers.
+    quaternions[name] = quaternion.toArray();
+    rotations[name] = new Euler().setFromQuaternion(quaternion).toArray().slice(0, 3);
+  };
   const phase = time / WYVERN_FLIGHT.duration * Math.PI * 2;
   // A second harmonic gives a sharper powered downstroke and a softer recovery.
   const stroke = Math.cos(phase) + .12 * Math.sin(2 * phase);
@@ -28,7 +36,7 @@ export function wyvernPose(clip, time) {
     rotations[`${side}Wrist`] = [.025 * Math.sin(phase - .65), 0, 0];
     const fanStroke = .52 * Math.cos(phase - .38) + .04 * Math.sin(2 * phase - .76);
     const fanAxis = new Vector3(.35, 0, sign).normalize();
-    rotations[`${side}Fan`] = new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(fanAxis, fanStroke)).toArray().slice(0, 3);
+    hinge(`${side}Fan`, fanAxis, fanStroke);
     for (let rib = 0; rib < 4; rib++) {
       const curl = Math.pow((1 + Math.cos(phase - (1.50 + rib * .045) * Math.PI)) / 2, 2);
       const direction = new Vector3(...WYVERN.fingers[rib]).sub(new Vector3(...WYVERN.wrist));
@@ -36,13 +44,13 @@ export function wyvernPose(clip, time) {
       // Bend the outer rib toward the underside, perpendicular to its own ray.
       const axis = direction.cross(new Vector3(0, -1, 0)).normalize();
       const angle = (.26 + rib * .035) * curl;
-      rotations[`${side}Rib${rib}`] = new Euler().setFromQuaternion(new Quaternion().setFromAxisAngle(axis, angle)).toArray().slice(0, 3);
+      hinge(`${side}Rib${rib}`, axis, angle);
     }
     rotations[`${side}Hip`] = [.63 + .035 * Math.sin(phase - .6), 0, -sign * .09];
     rotations[`${side}Knee`] = [-.88, 0, 0];
     rotations[`${side}Ankle`] = [.50 + .025 * Math.sin(phase - .9), 0, 0];
   }
-  return { position: [0, WYVERN_FLIGHT.height + .13 * Math.sin(phase - .65), 0], rotations };
+  return { position: [0, WYVERN_FLIGHT.height + .13 * Math.sin(phase - .65), 0], rotations, quaternions };
 }
 
 export function wyvernClips() {
