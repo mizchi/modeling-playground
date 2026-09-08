@@ -5,3 +5,7 @@ test-results/
 playwright-report/
 **/output/*.png[0-9][0-9][0-9][0-9].png
 __pycache__/
+motion/output/
+.env
+.env.*
+!.env.example

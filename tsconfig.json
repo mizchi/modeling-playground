@@ -13,6 +13,6 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx"
   },
-  "include": ["contracts/**/*.ts", "modeling/**/*.ts", "human/**/*.ts", "robot/**/*.ts", "models/**/*.ts", "runtime/**/*.ts", "viewer/**/*.ts", "sprites/**/*.ts", "game/**/*.ts", "game/**/*.tsx", "*.config.ts", "tests/types/**/*.ts"],
+  "include": ["contracts/**/*.ts", "modeling/**/*.ts", "human/**/*.ts", "motion/**/*.ts", "robot/**/*.ts", "models/**/*.ts", "runtime/**/*.ts", "viewer/**/*.ts", "sprites/**/*.ts", "game/**/*.ts", "game/**/*.tsx", "*.config.ts", "tests/types/**/*.ts"],
   "exclude": ["**/output/**"]
 }

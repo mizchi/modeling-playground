@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "prompt": "A person stands upright, bends both knees slightly, then jumps straight upward once from both feet while swinging the arms naturally. The person lands on both feet, bends the knees to absorb the impact, and returns to a relaxed standing pose.",
+  "duration": 3,
+  "seed": 42,
+  "guidanceScale": 5
+}

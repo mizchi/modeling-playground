@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "prompt": "A person walks forward at a relaxed pace, with natural arm swings.",
+  "duration": 3,
+  "seed": 42,
+  "guidanceScale": 5
+}

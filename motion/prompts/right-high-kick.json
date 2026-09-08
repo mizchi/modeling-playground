@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "prompt": "A person starts in a diagonal martial arts fighting stance, torso half-turned about 45 degrees, left foot forward and right foot behind, hands raised in guard. Keeping the left foot planted as the supporting foot, the person lifts the right knee and performs one high front kick, extending the right foot upward and forward to face height. The torso leans back slightly for balance. The person retracts the right knee, lowers the right foot and returns to the original fighting stance. One controlled right-leg kick only, without jumping or spinning.",
+  "duration": 3,
+  "seed": 42,
+  "guidanceScale": 5
+}

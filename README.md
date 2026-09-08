@@ -25,12 +25,17 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 - `modeling/`：共通の形状部品・骨格生成・モーション焼き込み・GLB/PNG出力・出力先解決。
 - `runtime/`：DOMに依存しない再生・IK・横薙ぎ計算・ソケット追従・時間イベント。
 - `viewer/`：共通Viewerの表示と入力。
+- `motion/`：動画参照・キーフレーム編集、人体リグ接続、外部モーション取り込み。
 
 生成コードはTypeScriptで、Node.js 24が `.ts` を直接実行します（`tsx` / `ts-node` 不要）。`pnpm typecheck` でstrict型検査、`just test` で型検査と回帰テストを実行します。
 
 `just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
 
 モデルのコピー・派生追加・出力先の規則は[モデル単位の構成](docs/model-layout.md)を参照してください。
+
+## MOTION — モーション専用エディタ
+
+`just motion-editor` で [モーション制作画面](http://127.0.0.1:5188/motion-editor.html) を起動。動画のIN/OUT・同期コマ送り、全身IK/FK、キー登録・移動・削除、Undo/Redo、編集JSON・モーションGLBの出力に対応します。BASE-45 / 女性素体 / LUMIを切り替えられます。Hunyuan MotionのSMPL-H FBX取り込みは実験対応。`just motion-generate --help` でfal用ローカル生成CLIの使い方を表示。送信は `--execute` 必須で、APIキーをブラウザに渡しません。動画の自動姿勢推定は未実装です。`just motion-check` で検証。[操作・構成・制限](docs/motion-editor.md)。
 
 ## BASE-45 — キャラクター制作前の共通素体
 

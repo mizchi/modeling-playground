@@ -31,6 +31,19 @@ test-e2e *args:
 human-viewer:
     pnpm dev --open /human-viewer.html
 
+# Local reference video + keyframe authoring; no external API calls.
+motion-editor:
+    pnpm dev --open /motion-editor.html
+
+# plan is offline; submit requires an explicit --execute flag.
+motion-generate *args:
+    node motion/generation/cli.ts {{args}}
+
+motion-check:
+    pnpm typecheck:native
+    node --test tests/motion-*.test.ts
+    pnpm exec playwright test tests/e2e/motion.spec.ts
+
 human-check:
     node --test tests/quad-normals.test.ts tests/lumi.test.ts
     node --test tests/human.test.ts tests/human-female.test.ts tests/human-side-tail.test.ts tests/human-body-shape.test.ts tests/human-proportions.test.ts tests/base45-cheek.test.ts tests/base45-head.test.ts tests/base45-neck.test.ts tests/base45-ears.test.ts
