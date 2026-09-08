@@ -9,5 +9,12 @@
     "faceWidth": 0,
     "eyeSpacing": 0
   },
+  "bodyShape": {
+    "chestSize": 0,
+    "waistWidth": 0,
+    "muscularity": 0,
+    "legLength": 0,
+    "height": 0
+  },
   "rig": null
 }

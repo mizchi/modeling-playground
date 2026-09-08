@@ -9,4 +9,12 @@ test('human viewer builds at the production subdirectory without root-relative a
   await expect(page.locator('#model-stats')).toContainText('1,320 triangles');expect(errors).toEqual([]);
   await page.locator('#body-type').selectOption('female');await expect(page.locator('#model-title')).toHaveText('BASE-45 F');
   await expect(page.locator('#hair')).toHaveValue('none');await expect(page.locator('#error')).toBeHidden();expect(errors).toEqual([]);
+  await page.locator('#chestSize').fill('0.7');await page.locator('#chestSize').dispatchEvent('change');
+  await page.locator('#muscularity').fill('0.5');await page.locator('#muscularity').dispatchEvent('change');
+  await expect(page.locator('#chestSize-value')).toHaveText('0.70');
+  await page.locator('#legLength').fill('0.8');await page.locator('#legLength').dispatchEvent('change');
+  await page.locator('#height').fill('0.6');await page.locator('#height').dispatchEvent('change');
+  await page.reload();await expect(page.locator('#muscularity')).toHaveValue('0.5');
+  await expect(page.locator('#height')).toHaveValue('0.6');await expect(page.locator('#legLength')).toHaveValue('0.8');
+  await expect(page.locator('#error')).toBeHidden();expect(errors).toEqual([]);
 });

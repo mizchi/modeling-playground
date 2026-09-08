@@ -30,6 +30,8 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 女性素体 **BASE-45 F** をhuman-viewerへ追加しました。「体型」で男性／女性を切り替え、髪・顔・編集値を維持できます。共通の頭・首・四角面・22ボーンを使い、身体は1,320三角形のまま。`just human-female` で再生成。[GLB](output/human-female.glb) / [OBJ](output/human-female.obj) / [正面](output/human-female-front.png) / [側面](output/human-female-side.png)。
 
+「体型の調整」で **胸の大きさ・腰の太さ（ウエスト）・筋肉量・脚の長さ・身長** を男女共通のスライダーで編集できます。値0は既存体型。脚は足首〜股関節を70〜130%、身長は全身を75〜125%に比例変更し、髪・骨格・表示も追従します。設定の保存・取り消し・旧JSONの読み込み・GLB出力に対応し、身体のポリゴン数は維持します。`just human-check` で体型とモーションを検証。
+
 髪の選択に **黄色のサイドテール** を追加。前髪を保ち、高い片側の結び目から肩の後ろへ流れるロングです。追加288三角形、男女共用。`just human-side-tail` で [モーション付きGLB](output/human-side-tail.glb) と [設定JSON](output/human-side-tail.recipe.json) を再生成。[正面](output/human-side-tail-front.png) / [背面](output/human-side-tail-back.png)。髪の物理演算は未実装です。
 
 人体の編集は [HUMAN専用Viewer](http://127.0.0.1:5188/human-viewer.html) へ。`human/` でBASE-45 / LUMIの髪・顔・骨格・モーションを組み替え、鼻の高さ・顔の長さと幅・目の間隔を調整できます。`just human-viewer` で起動、`just human-check` で検証。[構成・互換性と制限](docs/human-workshop.md)。既存モデルの生成コード・GLBは保持します。

@@ -6,6 +6,8 @@ import { validateRecipe } from './contract.mjs';
 import { shapePoint } from './shape.mjs';
 import { shapeBodyPoint } from './body.mjs';
 import { attachSideTail } from './side-tail.mjs';
+import { applyBodyShape } from './body-shape.mjs';
+import { applyProportions } from './proportions.mjs';
 
 /** Adapter boundary: existing authored assets stay untouched. A future topology
  * can supply another adapter without changing the editor's recipe/state layer. */
@@ -20,8 +22,12 @@ export function createHuman(input) {
     body.material.map.dispose();body.material.dispose();body.material=new MeshStandardMaterial({color:'#b9c5ca',roughness:.86});
   }
   if(recipe.hair==='lumi-side-tail')attachSideTail(root);
-  const restPoint=(p,kind)=>shapePoint(shapeBodyPoint(p,recipe.model,kind),recipe.shape,kind);
-  const edited=recipe.model==='base45-female'||recipe.rig||Object.values(recipe.shape).some(v=>v!==0);
+  const restPoint=(p,kind)=>{
+    const preset=shapeBodyPoint(p,recipe.model,kind);
+    const shaped=applyBodyShape(preset,recipe.bodyShape,kind,recipe.model);
+    return applyProportions(shapePoint(shaped,recipe.shape,kind),recipe.bodyShape,kind);
+  };
+  const edited=recipe.model==='base45-female'||recipe.rig||[...Object.values(recipe.shape),...Object.values(recipe.bodyShape)].some(v=>v!==0);
   if(edited) {
     root.updateMatrixWorld(true);
     const bones=[],rest=new Map(),target=new Map(),rig=new Map(recipe.rig?.bones.map(b=>[b.name,b.position])??[]);

@@ -31,8 +31,8 @@ human-viewer:
     pnpm dev --open /human-viewer.html
 
 human-check:
-    node --test tests/human.test.mjs tests/human-female.test.mjs tests/human-side-tail.test.mjs
-    pnpm exec playwright test tests/e2e/human.spec.mjs tests/e2e/human-side-tail.spec.mjs
+    node --test tests/human.test.mjs tests/human-female.test.mjs tests/human-side-tail.test.mjs tests/human-body-shape.test.mjs tests/human-proportions.test.mjs
+    pnpm exec playwright test tests/e2e/human.spec.mjs tests/e2e/human-side-tail.spec.mjs tests/e2e/human-body-shape.spec.mjs tests/e2e/human-proportions.spec.mjs
 
 # Compatible female body preset; preserve approved BASE-45 / LUMI assets.
 human-female:
