@@ -2,6 +2,7 @@ import { Bone, Skeleton, SkinnedMesh, MeshStandardMaterial, Vector3 } from 'thre
 import { compactMesh } from '../modeling/compact-mesh.mjs';
 import { LUMI_FRINGE, LUMI_TENDRIL, lumiForeheadZ } from './lumi-hair-definition.mjs';
 import { createLumiHairTexture } from './lumi-hair-texture.mjs';
+import { lumiCapFaces } from './lumi-cap.mjs';
 
 const ORIGIN=1.76,local=p=>[p[0],p[1]-ORIGIN,p[2]];
 const GOLD='#ffffff';
@@ -37,12 +38,7 @@ export function createLumiHair(data,sourceGeometry) {
   const builder=compactMesh(bones.map(b=>b.name));
   // Preserve the skull's curvature but build a larger hair envelope in all axes.
   // Locks run from the crown over this underlayer, hiding a horizontal cap rim.
-  const cap=data.faces.filter((f,i)=>{
-    if(!data.regions[i].startsWith('Head')||data.regions[i].includes('Ear')||!f.every(v=>data.positions[v][1]>=1.985))return false;
-    const front=f.reduce((sum,v)=>sum+data.positions[v][2],0)/f.length>.10;
-    // The cap ends behind the fringe roots, never across the visible forehead.
-    return !front||f.every(v=>data.positions[v][1]>=2.045);
-  });
+  const cap=lumiCapFaces(data);
   const capPoints=data.positions.map((p,i)=>{
     const q=new Vector3(...p).addScaledVector(new Vector3().fromBufferAttribute(sourceGeometry.attributes.normal,i),.018);
     // At the forehead the underlayer returns to the skin. Raising its open

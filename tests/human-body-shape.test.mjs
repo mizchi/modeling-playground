@@ -49,7 +49,7 @@ test('all body parameter corners preserve topology, binding and motion triangle 
     const root=createHuman({...presetRecipe(model),bodyShape:{chestSize,waistWidth,muscularity}}),mesh=root.getObjectByName('BaseBody');
     const p=mesh.geometry.attributes.position,d=createBase45Topology();
     d.positions=Array.from({length:p.count},(_,i)=>new Vector3().fromBufferAttribute(p,i).toArray());validateBaseTopology(d);
-    assert.equal(p.count,662);assert.equal(mesh.geometry.index.count/3,1320);
+    assert.equal(p.count,722);assert.equal(mesh.geometry.index.count/3,1440);
     root.updateMatrixWorld(true);mesh.skeleton.update();
     for(let i=0;i<p.count;i++){const v=new Vector3(...d.positions[i]);assert.ok(mesh.applyBoneTransform(i,v.clone()).distanceTo(v)<1e-6);}
     const mixer=new AnimationMixer(root);

@@ -3,6 +3,7 @@ import { BASE45, BASE45_BONES } from './base45-definition.mjs';
 import { createTopologyBuilder, orientTopology } from '../modeling/quad-topology.mjs';
 import { validateBaseTopology } from '../contracts/base-topology.mjs';
 import { appendBase45Head } from './base45-head.mjs';
+import { computeQuadNormals } from '../modeling/quad-normals.mjs';
 
 const mix=(a,b,t)=>t<=0?[[a,1]]:t>=1?[[b,1]]:[[a,1-t],[b,t]];
 const outline=Array.from({length:12},(_,i)=>[Math.sin(i*Math.PI/6),Math.cos(i*Math.PI/6)]);
@@ -86,7 +87,7 @@ export function createBase45() {
   geometry.setAttribute('position',new Float32BufferAttribute(data.positions.flat(),3));geometry.setIndex(indices);
   const names=[...bones.keys()],skinIndices=[],skinWeights=[];
   for(const weights of data.weights){for(let i=0;i<4;i++){skinIndices.push(weights[i]?names.indexOf(weights[i][0]):0);skinWeights.push(weights[i]?.[1]??0);}}
-  geometry.setAttribute('skinIndex',new Uint16BufferAttribute(skinIndices,4));geometry.setAttribute('skinWeight',new Float32BufferAttribute(skinWeights,4));geometry.computeVertexNormals();
+  geometry.setAttribute('skinIndex',new Uint16BufferAttribute(skinIndices,4));geometry.setAttribute('skinWeight',new Float32BufferAttribute(skinWeights,4));computeQuadNormals(geometry,data.faces);
   const material=new MeshStandardMaterial({color:'#b9c5ca',roughness:.86});material.name='Neutral clay';
   const skin=new SkinnedMesh(geometry,material);skin.name='BaseBody';skin.frustumCulled=false;
   // Runtime wire rendering uses authoring edges, never the triangle diagonals.

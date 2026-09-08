@@ -8,6 +8,7 @@ import { shapeBodyPoint } from './body.mjs';
 import { attachSideTail } from './side-tail.mjs';
 import { applyBodyShape } from './body-shape.mjs';
 import { applyProportions } from './proportions.mjs';
+import { computeQuadNormals } from '../modeling/quad-normals.mjs';
 
 /** Adapter boundary: existing authored assets stay untouched. A future topology
  * can supply another adapter without changing the editor's recipe/state layer. */
@@ -51,7 +52,10 @@ export function createHuman(input) {
         }
         p.setXYZ(i,...point);
       }
-      p.needsUpdate=true;g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();
+      p.needsUpdate=true;
+      if(mesh===body)computeQuadNormals(g,mesh.userData.quadTopology.faces,mesh.userData.sourceVertices);
+      else g.computeVertexNormals();
+      g.computeBoundingBox();g.computeBoundingSphere();
     });
     for(const bone of bones) {
       // Hair anchor's parent is an identity socket under Head.

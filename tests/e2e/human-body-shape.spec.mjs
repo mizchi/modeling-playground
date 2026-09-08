@@ -50,6 +50,6 @@ test('body sliders preserve parts, migrate settings, undo, persist and export sh
   expect(json.animations).toHaveLength(3);expect(json.skins).toHaveLength(3);
   await page.locator('#play').click();await expect(page.locator('#play')).toHaveText('一時停止');
   await set('chestSize',.5);await expect(page.locator('#play')).toHaveText('一時停止');
-  await page.locator('#play').click();await expect(page.locator('#model-stats')).toContainText('2,318 triangles');
+  await page.locator('#play').click();await expect(page.locator('#model-stats')).toContainText('2,438 triangles');
   await expect(page.locator('#error')).toBeHidden();expect(errors).toEqual([]);
 });

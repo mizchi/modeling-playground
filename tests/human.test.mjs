@@ -10,6 +10,22 @@ import { fitMotion, createMotions } from '../human/motion.mjs';
 import { createHistory } from '../human/state.mjs';
 import { inspectMotionGlb } from '../human/io.mjs';
 
+test('body edits keep smooth normals across painted face and ear UV seams',()=>{
+  for(const model of ['base45','base45-female','lumi']){
+    const recipe=presetRecipe(model);recipe.face='lumi';recipe.shape.faceWidth=.3;
+    const root=createHuman(recipe),body=root.getObjectByName('BaseBody'),n=body.geometry.attributes.normal,seen=new Map();
+    let duplicates=0;
+    body.userData.sourceVertices.forEach((source,i)=>{
+      const value=[n.getX(i),n.getY(i),n.getZ(i)];
+      if(seen.has(source)){
+        duplicates++;assert.ok(Math.hypot(...value.map((v,k)=>v-seen.get(source)[k]))<1e-6,'UV splits must not become shading seams');
+      }
+      seen.set(source,value);
+    });
+    assert.ok(duplicates>20);disposeHuman(root);
+  }
+});
+
 test('human recipes are versioned, bounded and limited to registered models',()=>{
   assert.equal(presetRecipe('base45').hair,'none');
   assert.equal(presetRecipe('lumi').face,'lumi');

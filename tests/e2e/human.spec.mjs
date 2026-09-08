@@ -20,9 +20,9 @@ test('human workshop edits, switches modules, preserves history and exports a GL
     await page.getByRole('button',{name:view,exact:true}).click();await canvas.screenshot({path:`output/human-${name}.png`});
   }
   await page.getByRole('button',{name:'BASE-45 素体 / ニュートラル',exact:true}).click();
-  await expect(page.locator('#model-title')).toHaveText('BASE45');await expect(page.locator('#model-stats')).toContainText('1,320 triangles');
+  await expect(page.locator('#model-title')).toHaveText('BASE45');await expect(page.locator('#model-stats')).toContainText('1,440 triangles');
   await page.locator('#hair').selectOption('lumi-short');await page.locator('#face').selectOption('lumi');
-  await expect(page.locator('#model-stats')).toContainText('2,030 triangles');
+  await expect(page.locator('#model-stats')).toContainText('2,150 triangles');
   await page.locator('#wireframe').check();await page.locator('#skeleton').check();
   await page.getByRole('button',{name:'斜め',exact:true}).click();await page.screenshot({path:'output/human-workshop.png'});
   await page.reload();await expect(page.locator('#hair')).toHaveValue('lumi-short');

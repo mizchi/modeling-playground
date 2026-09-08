@@ -1,5 +1,5 @@
 /** Broad gently curved front surface, shared by cheek boundary and texture beds. */
-export const base45FaceDepth=(x,y)=>.184-.95*x*x+.018*(y-1.932);
+export const base45FaceDepth=(x,y)=>.184-1.6*x*x+.018*(y-1.932);
 
 /** Local ten-sided loops remain editable guides for painted eyes. No modeled
  * eyeball bulge or deep socket: all rings follow one continuous face surface. */

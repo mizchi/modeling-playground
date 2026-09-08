@@ -48,5 +48,5 @@ test('neck stands nearly upright in profile, with a slight forward rise toward t
   assert.ok(back(upper)>back(lower)-.01,'Only a shallow rear flare begins above the upright neck shaft');
   assert.ok(front(upper)<.07,'Keep the throat behind the jaw, not directly beneath the chin');
   assert.ok(center(upper)<.02,'Keep the attachment behind the ear center');
-  assert.equal(d.positions.length,662);assert.equal(d.faces.length,660);
+  assert.equal(d.positions.length,722);assert.equal(d.faces.length,720);
 });

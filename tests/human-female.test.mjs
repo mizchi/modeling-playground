@@ -14,7 +14,7 @@ test('female base is a neutral compatible preset, not a replacement for existing
   const r=presetRecipe('base45-female');assert.equal(r.hair,'none');assert.equal(r.face,'clay');
   assert.deepEqual(validateRecipe(JSON.parse(JSON.stringify(r))),r);
   const male=createHuman(presetRecipe('base45')),female=createHuman(r),m=male.getObjectByName('BaseBody').geometry,f=female.getObjectByName('BaseBody').geometry;
-  assert.equal(f.attributes.position.count,662);assert.deepEqual(f.index.array,m.index.array);
+  assert.equal(f.attributes.position.count,722);assert.deepEqual(f.index.array,m.index.array);
   assert.deepEqual(f.attributes.skinWeight.array,m.attributes.skinWeight.array);
   assert.deepEqual(f.attributes.skinIndex.array,m.attributes.skinIndex.array);
   for(let i=0;i<m.attributes.position.count;i++)if(m.attributes.position.getY(i)>=1.65)for(const axis of ['getX','getY','getZ'])assert.equal(f.attributes.position[axis](i),m.attributes.position[axis](i),'Preserve head and neck');
@@ -78,7 +78,7 @@ test('delivered female GLB and quad source match the independent preset and vali
   assert.deepEqual(bytes,Buffer.from(await exportGlb(root)));
   const report=await validateBytes(bytes);assert.equal(report.issues.numErrors,0);
   const d=JSON.parse(await readFile(new URL('../output/human-female.topology.json',import.meta.url),'utf8'));validateBaseTopology(d);
-  assert.equal(d.faces.length,660);assert.equal(d.bones.length,22);assert.deepEqual(d.bones,exportRig(root).bones);
+  assert.equal(d.faces.length,720);assert.equal(d.bones.length,22);assert.deepEqual(d.bones,exportRig(root).bones);
   const p=root.getObjectByName('BaseBody').geometry.attributes.position;
   assert.deepEqual(d.positions,Array.from({length:p.count},(_,i)=>[p.getX(i),p.getY(i),p.getZ(i)]));
   disposeHuman(root);

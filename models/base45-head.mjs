@@ -3,6 +3,8 @@ import { appendContourColumns, bridgeContour } from './base45-contour.mjs';
 import { base45JawPosition, base45NeckAttachmentY } from './base45-jaw.mjs';
 import { appendBase45Ear } from './base45-ears.mjs';
 import { shapeBase45Nape } from './base45-nape.mjs';
+import { relaxBase45Cheek } from './base45-cheek.mjs';
+import { appendPostauricularColumns, bridgePostauricular } from './base45-postauricular.mjs';
 
 /** Head-only shape authoring. Keep body proportions, sockets and shared neck intact. */
 export function appendBase45Head(builder, torsoLoop) {
@@ -37,19 +39,20 @@ export function appendBase45Head(builder, torsoLoop) {
   const rows=[
     {role:'chin'},
     {role:'jaw'},
-    {role:'lowerCheek',y:1.81,side:1.848,backY:1.862,w:.146,front:.184,back:.196,columns:[.177,.164]},
+    {role:'lowerCheek',y:1.81,side:1.848,backY:1.862,w:.146,front:.184,back:.196,columns:[.173,.153]},
     {role:'mouth',y:1.825,side:1.865,backY:1.875,w:.161,front:.177,back:.21,mouth:.006},
     {role:'nose',y:1.89,side:1.935,backY:1.925,w:.201,front:.18,back:.24,nose:.050},
     {role:'eye',y:1.935,side:1.975,backY:1.975,w:.211,front:.178,back:.245,nose:.014},
     {role:'brow',y:1.985,side:2.01,backY:2.02,w:.218,front:.195,back:.245},
-    {role:'forehead',y:2.049,side:2.057,backY:2.061,w:.211,front:.187,back:.236,columns:[.177,.145]},
+    {role:'forehead',y:2.049,side:2.057,backY:2.061,w:.211,front:.187,back:.236,columns:[.169,.130]},
     // Shorter forehead with a rounded shoulder, not a long conical slope.
-    {role:'upperForehead',y:2.10,side:2.105,backY:2.11,w:.192,front:.166,back:.213,columns:[.155,.124]},
+    {role:'upperForehead',y:2.10,side:2.105,backY:2.11,w:.192,front:.166,back:.213,columns:[.151,.118]},
+    {role:'domeShoulder',y:2.151,side:2.155,backY:2.158,w:.153,front:.124,back:.171,columns:[.111,.083]},
     {role:'crown',y:2.185,side:2.187,backY:2.187,w:.083,front:.053,back:.115},
   ];
   const eyeRows=[];
   const earRows=new Map();
-  const neckLoop=last;let contour;
+  const neckLoop=last;let contour,postauricular,perimeter;
   for(const row of rows) {
     const eyePatch=['nose','eye','brow'].includes(row.role);
     const current=Array.from({length:12},(_,i)=>{
@@ -73,18 +76,22 @@ export function appendBase45Head(builder, torsoLoop) {
       return vertex(shapeBase45Nape(row.role,[x*row.w,y,z],column,[0,row.backY,-row.back]),'Head');
     });
     const earOpening=['nose','eye'].includes(row.role);
-    bridge(last,current,row===rows[0]?'Head.UnderJaw':'Head',[2,9,...(eyePatch?[0,1,10,11]:[]),...(earOpening?[3,8]:[])]);
-    if(['mouth','nose','eye'].includes(row.role))earRows.set(row.role,current);
+    bridge(last,current,row===rows[0]?'Head.UnderJaw':'Head',[2,3,8,9,...(eyePatch?[0,1,10,11]:[])]);
+    const nextPostauricular=appendPostauricularColumns(builder,current);
+    bridgePostauricular(builder,postauricular,nextPostauricular,neckLoop,earOpening);postauricular=nextPostauricular;
+    if(['mouth','nose','eye'].includes(row.role))earRows.set(row.role,{current,postauricular});
     const nextContour=appendContourColumns(builder,current);
     bridgeContour(builder,contour,nextContour,neckLoop);contour=nextContour;
+    perimeter=contour.perimeter.flatMap(id=>id===current[3]?[id,...postauricular.positive.slice(1,3)]:id===current[8]?[id,...postauricular.negative.slice(1,3)]:[id]);
     if(eyePatch||row.role==='mouth')eyeRows.push(current);
     last=current;
   }
-  cap(contour.perimeter,'Head','Head',[0,2.20,-.03]);
+  cap(perimeter,'Head','Head',[0,2.20,-.03]);
   appendBase45Eyes(builder,eyeRows);
   for(const side of [1,-1]) {
-    const [front,back]=side===1?[3,4]:[9,8];
+    const [front,key,back]=side===1?[3,'positive',1]:[9,'negative',2];
     const low=earRows.get('mouth'),mid=earRows.get('nose'),high=earRows.get('eye');
-    appendBase45Ear(builder,[low[front],low[back],mid[back],high[back],high[front],mid[front]],side);
+    appendBase45Ear(builder,[low.current[front],low.postauricular[key][back],mid.postauricular[key][back],high.postauricular[key][back],high.current[front],mid.current[front]],side);
   }
+  relaxBase45Cheek(builder.data);
 }

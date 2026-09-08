@@ -23,6 +23,13 @@ const headPoints=()=>{
   const indices=new Set(data.faces.flatMap((f,i)=>data.regions[i].startsWith('Head')&&!data.regions[i].includes('Ear')?f:[]));
   return [...indices].map(i=>data.positions[i]);
 };
+test('upper skull has a curved shoulder between forehead and crown, without raising the apex',()=>{
+  const p=headPoints();
+  const shoulder=p.filter(([x,y,z])=>Math.abs(x)<1e-8&&y>2.13&&y<2.17&&z>.08);
+  assert.equal(shoulder.length,1,'Break the long straight forehead-to-crown span');
+  assert.ok(shoulder[0][2]>.115,'The added row must bow outward, not just subdivide the old cone');
+  assert.equal(Math.max(...p.map(v=>v[1])),2.20);
+});
 test('lower lip has an upright plane before the rounded chin turn, with modest nose relief',()=>{
   const p=headPoints();
   const at=y=>p.find(v=>Math.abs(v[0])<1e-8&&Math.abs(v[1]-y)<1e-8&&v[2]>.1);
@@ -44,10 +51,10 @@ test('crown closes as a shallow dome and continues the contour columns',()=>{
   const apex=p.findIndex(v=>Math.abs(v[1]-2.20)<1e-6);
   const capFaces=data.faces.filter(f=>f.includes(apex));
   const rim=[...new Set(capFaces.flat())].filter(i=>i!==apex).map(i=>p[i]);
-  assert.equal(rim.length,16);
+  assert.equal(rim.length,20);
   assert.ok(rim.every(v=>2.20-v[1]<=.02),'Upper rim sits close enough to the apex to remove the peak');
   assert.ok(Math.max(...rim.map(v=>Math.abs(v[0])))<.09,'Do not flatten a broad disk across the top');
-  assert.equal(capFaces.length,8,'Only the four contour columns extend across the crown');
+  assert.equal(capFaces.length,10,'Cheek and posterior ear columns continue into the crown');
 });
 test('eye loops remain a shallow continuous texture bed, not a socket or eyeball',()=>{
   const d=createBase45Topology();
@@ -71,14 +78,14 @@ test('continuous contour strips support both cheek-to-temple turns down through 
   const d=createBase45Topology();
   for(const side of ['Left','Right']) {
     const f=d.faces.filter((_,i)=>d.regions[i]===`Head.${side}Contour`);
-    assert.equal(f.length,29,'Three strips across nine rows and two neck transition quads');
+    assert.equal(f.length,32,'Three strips across ten rows and two neck transition quads');
     const points=[...new Set(f.flat())].map(i=>d.positions[i]);
     assert.ok(Math.min(...points.map(v=>v[1]))<1.79,'Contour continues into the chin/neck junction');
     assert.ok(Math.max(...points.map(v=>v[1]))>2.18,'Contour continues over the temple into the crown');
     const cheek=points.filter(v=>v[1]>1.94&&v[1]<1.98&&v[2]>=-.001);
     assert.ok(cheek.length>=4,'Side turn is not a single flat polygon');
   }
-  assert.ok(d.positions.length<=666);assert.ok(d.faces.length<=664);
+  assert.ok(d.positions.length<=722);assert.ok(d.faces.length<=720);
 });
 test('lower cheek does not form a sharp shelf and the underside has a curved transition row',()=>{
   const d=createBase45Topology();

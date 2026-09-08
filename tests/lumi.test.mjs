@@ -8,6 +8,29 @@ import { createLumi } from '../models/lumi.mjs';
 import { exportGlb } from '../scripts/export_glb.mjs';
 import { createLumiTexture, lumiFaceUV, LUMI_EYE_CENTER_X } from '../models/lumi-texture.mjs';
 import { LUMI_FRINGE, lumiForeheadZ } from '../models/lumi-hair-definition.mjs';
+import { lumiCapFaces } from '../models/lumi-cap.mjs';
+
+test('scalp LOD keeps one open rim without cracks when skull-only columns and dome rows are omitted',()=>{
+  const data=createBase45Topology(),before=structuredClone(data),faces=lumiCapFaces(data),edges=new Map();
+  for(const f of faces){
+    assert.equal(f.length,4);
+    for(const tri of [[f[0],f[1],f[2]],[f[0],f[2],f[3]]]){
+      const[a,b,c]=tri.map(i=>new Vector3(...data.positions[i]));
+      assert.ok(b.sub(a).cross(c.sub(a)).length()>1e-7);
+    }
+    f.forEach((a,i)=>{const b=f[(i+1)%4],key=[a,b].sort((x,y)=>x-y).join();const list=edges.get(key)??[];list.push([a,b]);edges.set(key,list);});
+  }
+  const rim=new Map();
+  for(const e of edges.values()){
+    assert.ok(e.length===1||e.length===2);
+    if(e.length===2)assert.deepEqual(e[0],e[1].toReversed(),'Shared edges must face opposite ways');
+    else{assert.ok(!rim.has(e[0][0]));rim.set(...e[0]);}
+  }
+  const first=rim.keys().next().value,seen=new Set();let id=first;
+  do{assert.ok(rim.has(id)&&!seen.has(id));seen.add(id);id=rim.get(id);}while(id!==first);
+  assert.equal(seen.size,rim.size,'Only the intended lower opening remains');
+  assert.deepEqual(data,before);assert.equal(createLumi().getObjectByName('Hair').geometry.index.count/3,710);
+});
 
 test('simplified fringe uses five broad locks without secondary root overlays',()=>{
   assert.equal(LUMI_FRINGE.length,5);
