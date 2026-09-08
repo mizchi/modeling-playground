@@ -1,6 +1,6 @@
 # IRON YARD — ロボットTPSの移動・戦闘基盤
 
-[公開版でプレイ](https://mizchi.github.io/modeling-playground/game.html) / [ローカルで操作](http://127.0.0.1:5188/game.html) / [TPS画面](../output/game-tps.png) / [出撃メニュー](../output/game-deployment.png)
+[公開版でプレイ](https://mizchi.github.io/modeling-playground/game.html) / [ローカルで操作](http://127.0.0.1:5188/game.html) / [TPS画面](../robot/output/game-tps.png) / [出撃メニュー](../robot/output/game-deployment.png)
 
 STRIXを操作機、BASTIONを3機の敵として使用する、React Three Fiber製の別ページ。既存のモデルビューア・パーツ交換・モーション編集は変更せず、生成済みGLBを共用する。移動・ジャンプ・空中ブースト・射撃・マルチロックミサイルに加え、敵AIの索敵・移動・反撃、自機AP・撃破・再出撃に対応。出撃メニューで従来の静止標的モードも選択できる。
 
@@ -50,7 +50,7 @@ Spaceの押し始めに上向き8 m/sを与え、重力18 m/s²でジャンプ�
 - BASTIONは各180 AP。HPが0になると爆発表示の後ではなく命中時点で描画・衝突・ロック候補から除去する。残存弾は寿命で消え、撃破済み標的へ向けた未発射弾はキャンセルする。
 - ロック枠、HP、再装填、命中数、撃破数、曳光弾・煙跡・爆発を表示。Esc・blurなどの停止ではロックと未発射の斉射予約を破棄し、再開だけで勝手に発射しない。
 
-[ロック画面](../output/game-lock.png) / [ミサイルの打ち上げ](../output/game-missiles.png) / [空中ブースト](../output/game-air-boost.png)
+[ロック画面](../robot/output/game-lock.png) / [ミサイルの打ち上げ](../robot/output/game-missiles.png) / [空中ブースト](../robot/output/game-air-boost.png)
 
 ## 責務と次の接続先
 
@@ -85,7 +85,7 @@ Spaceの押し始めに上向き8 m/sを与え、重力18 m/s²でジャンプ�
 
 これは地上移動と単発射撃のAI。部隊連携、敵ミサイル、被弾方向推定、屋上への追跡、動的な群衆経路探索、二脚歩行・武器の独立した上下照準リグは対象外。狭い通路で敵同士が接近すると、重なりを避けて停止する場合がある。
 
-[敵AIとの交戦画面](../output/game-enemy-ai.png)
+[敵AIとの交戦画面](../robot/output/game-enemy-ai.png)
 
 ## 検証
 

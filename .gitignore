@@ -3,5 +3,5 @@ node_modules/
 dist/
 test-results/
 playwright-report/
-output/*.png[0-9][0-9][0-9][0-9].png
+**/output/*.png[0-9][0-9][0-9][0-9].png
 __pycache__/

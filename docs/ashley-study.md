@@ -4,7 +4,7 @@
 
 次の制作で先に読むもの：[リテイク再発防止ガイド](modeling-retake-guide.md)。このノートは時系列の試行記録であり、途中で戻した深さ・幅の数値を推奨値として扱わない。ユーザーから特に指摘された教訓は、正面の帳尻合わせで側面の厚みを後回しにしないことと、背筋のモデリングが立体的な深みを生んだこと。
 
-[ローカル Viewer](http://127.0.0.1:5188/?model=ashley) / [GLB](../output/ashley.glb) / [テクスチャ](../output/ashley-atlas.png) / [正面](../output/ashley-front.png) / [顔](../output/ashley-face.png) / [横顔](../output/ashley-profile.png) / [背面](../output/ashley-back.png) / [斜め後ろ](../output/ashley-rear-quarter.png)
+[ローカル Viewer](http://127.0.0.1:5188/?model=ashley) / [GLB](../human/models/ashley/output/ashley.glb) / [テクスチャ](../human/models/ashley/output/ashley-atlas.png) / [正面](../human/models/ashley/output/ashley-front.png) / [顔](../human/models/ashley/output/ashley-face.png) / [横顔](../human/models/ashley/output/ashley-profile.png) / [背面](../human/models/ashley/output/ashley-back.png) / [斜め後ろ](../human/models/ashley/output/ashley-rear-quarter.png)
 
 ## 何を再現するか
 
@@ -31,10 +31,10 @@
 5. 薄い胴体を横だけ引き伸ばしても強く見えない。胸郭の奥行きを初稿比約 28%、肩幅は約 6% 増やした。その後、胸の前側へさらに厚みを足し、上腕は増量した状態から約 10% 細くした。腰は控えめな調整に留めた。
 6. 横顔では、頭部の下端を水平に切ると顎がヘルメットのようになり、垂直な首も違和感を強める。顎先から耳下へ上がる下顎、少し前へ傾いた首へ修正。顎先と横幅も絞った。
 7. 胴体の断面中心を高さごとにずらし、胸郭の後方への張り、腰の前方へのくびれ、骨盤の後方への戻りを作った。自然な立位での S 字であり、資料の構えポーズを焼き込んだものではない。
-8. 顎を絞る調整が強すぎ、細い顎先と耳下へ急上昇する輪郭になった。追加の顔アップに合わせ、顎先の幅と平たい下面を戻し、下顎の角を低くして輪郭の傾斜を緩和した。顎下面の中心頂点も持ち上げ、顎の下に不要な尖りが出ないようにした。[斜めからの顎の確認](../output/ashley-jaw-quarter.png)。
-9. 首の中央が前へくびれすぎ、薄い頭を細い支柱で支えたように見えた。顔・顎の前面は変えず、頭蓋と頭髪の後方成分を 35% 増やした（頭全体の奥行きは約 16% 増）。首の後ろに厚みを戻し、付け根の断面を上背部と揃えた。`ASHLEY.occiputDepthScale` で頭髪と頭蓋を一緒に調整し、髪から頭蓋が突き出すことを防ぐ。長い跳ね毛は引き伸ばさない。[頭から肩までの側面](../output/ashley-neck-profile.png)。
+8. 顎を絞る調整が強すぎ、細い顎先と耳下へ急上昇する輪郭になった。追加の顔アップに合わせ、顎先の幅と平たい下面を戻し、下顎の角を低くして輪郭の傾斜を緩和した。顎下面の中心頂点も持ち上げ、顎の下に不要な尖りが出ないようにした。[斜めからの顎の確認](../human/models/ashley/output/ashley-jaw-quarter.png)。
+9. 首の中央が前へくびれすぎ、薄い頭を細い支柱で支えたように見えた。顔・顎の前面は変えず、頭蓋と頭髪の後方成分を 35% 増やした（頭全体の奥行きは約 16% 増）。首の後ろに厚みを戻し、付け根の断面を上背部と揃えた。`ASHLEY.occiputDepthScale` で頭髪と頭蓋を一緒に調整し、髪から頭蓋が突き出すことを防ぐ。長い跳ね毛は引き伸ばさない。[頭から肩までの側面](../human/models/ashley/output/ashley-neck-profile.png)。
 10. 首と胴体を別々の閉じた形状にしていたことで、付け根に襟状の段差と陰影の継ぎ目が出た。両方の断面を同じ 12 頂点へ揃え、内部の蓋を除去し、境界の法線を共有した。首の紐も首・胴体の両面へ投影する。
-11. 顔の精悍さを眉の線と頬の濃い多角形だけで表そうとしていたため、記号的に見えた。眉骨の下を凹ませ、頬骨を張り出し、鼻を中央だけの尖りから側面を持つ稜線へ修正。テクスチャの頬の一枚塗りを細かな濃淡に置き換え、眼窩の影、鼻筋の側面、暗めの白目、小さい虹彩の反射、控えめな唇で調整した。`ashley-face.mjs` の顔の基準点を造形とピクセル描画で共有する。
+11. 顔の精悍さを眉の線と頬の濃い多角形だけで表そうとしていたため、記号的に見えた。眉骨の下を凹ませ、頬骨を張り出し、鼻を中央だけの尖りから側面を持つ稜線へ修正。テクスチャの頬の一枚塗りを細かな濃淡に置き換え、眼窩の影、鼻筋の側面、暗めの白目、小さい虹彩の反射、控えめな唇で調整した。`ashley-face.ts` の顔の基準点を造形とピクセル描画で共有する。
 12. 追加の側面資料に合わせ、鼻先を約 10 mm、鼻筋を約 7 mm 前へ出し、鼻根へなだらかにつないだ。鼻の側面も少し広げ、先端だけが尖らないようにする。眼窩はさらに約 4 mm 深く、眉骨は約 2 mm 前へ調整し、テクスチャの眼窩と鼻側面の影も控えめに強めた。顎・首・後頭部の形状は維持。鼻の突出量の上限と、眉骨・頬骨に対する眼窩の深さをテストする。
 
 13. ズボンと肌を独立した断面で重ねたため、裾で交差し、底面の蓋も脚を横切っていた。肌を裾の位置で終端し、同じ断面から少し外へ広げた布へ環状の裾で接続する構造に変更。背面の大きな三角形の切り抜きもやめ、脚周りは全周を覆う。腰中央の露出・紐・革パネルは維持した。裾の一致、底面の蓋がないこと、複数の高さと 32 方向での被覆をテストする。
@@ -80,14 +80,14 @@
 
 ## コードとテクスチャの分離
 
-- `models/ashley.mjs`：体型、顔と頭蓋の組み立て、房の折れ線、衣服の位置。`createAshley()` は DOM / Node I/O に依存しない。
-- `models/ashley-texture.mjs`：`ASHLEY_TILES` が領域の契約。`createAshleyAtlas()` が目・眉・素材のピクセルを描く。スクリーンショットを切り貼りした画像ではない。
-- `models/ashley-face.mjs`：顔の基準点、眼窩・眉骨・頬骨の起伏、正面向きの眼球表面、顔の濃淡と細部。身体・装備のアトラスを変えずに顔だけ調整できる。
-- `models/ashley-topology.mjs`：顔の UV 空間上の頂点、四角面、三角面、左右の目・口のループ。頂点の位置・陰影とは独立した接続構造の契約。
-- `modeling/pixel-atlas.mjs`：整数の領域 `[left, top, width, height]`、UV の検証とピクセル描画。UV は半テクセル内側へ寄せ、隣の領域を拾わない。
-- `modeling/lowpoly.mjs`：UV 付きの断面リング、板、帯、折れた髪束。アシュレイ以外にも利用できる。
-- `scripts/png.mjs`：RGBA8 → PNG の Node 専用境界。行方向・透過・入力サイズを検証する。
-- `scripts/export_glb.mjs`：DataTexture を PNG として GLB に埋め込む。Three.js の exporter writer を使う小さなアダプターをここへ隔離し、更新時はテストで確認する。現時点の対応入力は RGBA8 DataTexture であり、任意の DOM 画像・圧縮画像・浮動小数点テクスチャに対応するものではない。
+- `human/models/ashley/src/model.ts`：体型、顔と頭蓋の組み立て、房の折れ線、衣服の位置。`createAshley()` は DOM / Node I/O に依存しない。
+- `human/models/ashley/src/texture.ts`：`ASHLEY_TILES` が領域の契約。`createAshleyAtlas()` が目・眉・素材のピクセルを描く。スクリーンショットを切り貼りした画像ではない。
+- `human/models/ashley/src/face.ts`：顔の基準点、眼窩・眉骨・頬骨の起伏、正面向きの眼球表面、顔の濃淡と細部。身体・装備のアトラスを変えずに顔だけ調整できる。
+- `human/models/ashley/src/topology.ts`：顔の UV 空間上の頂点、四角面、三角面、左右の目・口のループ。頂点の位置・陰影とは独立した接続構造の契約。
+- `modeling/pixel-atlas.ts`：整数の領域 `[left, top, width, height]`、UV の検証とピクセル描画。UV は半テクセル内側へ寄せ、隣の領域を拾わない。
+- `modeling/lowpoly.ts`：UV 付きの断面リング、板、帯、折れた髪束。アシュレイ以外にも利用できる。
+- `modeling/png.ts`：RGBA8 → PNG の Node 専用境界。行方向・透過・入力サイズを検証する。
+- `modeling/export-glb.ts`：DataTexture を PNG として GLB に埋め込む。Three.js の exporter writer を使う小さなアダプターをここへ隔離し、更新時はテストで確認する。現時点の対応入力は RGBA8 DataTexture であり、任意の DOM 画像・圧縮画像・浮動小数点テクスチャに対応するものではない。
 
 ```sh
 just ashley       # GLB と確認用 atlas PNG を同時生成
@@ -99,7 +99,7 @@ just test-pages
 
 生成後は Viewer の「再読み込み」。正面・側面・背面で比較し、頭をダブルクリックすると顔と髪にフォーカスできる。「ワイヤーフレーム」で三角形分割後のループを確認できる。
 
-`output/ashley-atlas.png` は確認用の生成物。PNG を直接編集しても `just ashley` はその変更を取り込まない。現段階では描画元の `ashley-texture.mjs` を編集する。外部で手描きした PNG を差し込むインポート経路は別途追加する必要がある。
+`human/models/ashley/output/ashley-atlas.png` は確認用の生成物。PNG を直接編集しても `just ashley` はその変更を取り込まない。現段階では描画元の `ashley-texture.ts` を編集する。外部で手描きした PNG を差し込むインポート経路は別途追加する必要がある。
 
 ## 現在の仕様と限界
 

@@ -2,7 +2,7 @@
 
 BASTIONの保存済み初稿（`49b370c`）とは別機体。添付された青い四脚メカの画像から、低い四脚シャシー、斜めに張り出した脚、尖った頭部、双肩砲、青灰色の積層装甲を参考にした。公式機体の精密複製ではなく、生成コードによるオリジナルの造形・歩行研究。
 
-[ローカルで再生](http://127.0.0.1:5188/?model=strix) / [GLB](../output/strix.glb) / [骨格・クリップ規格](../output/strix.asset.json)
+[ローカルで再生](http://127.0.0.1:5188/?model=strix) / [GLB](../robot/models/strix/output/strix.glb) / [骨格・クリップ規格](../robot/models/strix/output/strix.asset.json)
 
 ## 造形
 
@@ -13,9 +13,9 @@ BASTIONの保存済み初稿（`49b370c`）とは別機体。添付された青�
 
 Idleの静止時は約4.78 × 3.46 × 4.76 m、6,324三角形、205メッシュ、28ボーン、約1.77 MiB。主噴射・浮上噴射のノズルと4本の噴射専用ボーンを含む。関節と装甲を別物として確認しやすい分割を優先し、ゲーム向けの描画呼出し最適化は未実施。
 
-腰の基準高さは初稿の2.12 mから1.58 mへ変更。上節・下節は各1.62 mを保ち、接地点を左右±2.00 m／前後±1.65 mへ少し寄せ、膝の内角を約83.5°にした。静止時から腰より膝が高い、折り畳んだ構えにする。[変更前の斜め](../output/strix-before-trot-quarter.png) / [変更前の側面](../output/strix-before-trot-side.png)。
+腰の基準高さは初稿の2.12 mから1.58 mへ変更。上節・下節は各1.62 mを保ち、接地点を左右±2.00 m／前後±1.65 mへ少し寄せ、膝の内角を約83.5°にした。静止時から腰より膝が高い、折り畳んだ構えにする。[変更前の斜め](../robot/models/strix/output/strix-before-trot-quarter.png) / [変更前の側面](../robot/models/strix/output/strix-before-trot-side.png)。
 
-[斜め](../output/strix-quarter.png) / [正面](../output/strix-front.png) / [側面](../output/strix-side.png) / [背面](../output/strix-back.png) / [上面](../output/strix-top.png) / [骨格](../output/strix-rig.png)
+[斜め](../robot/models/strix/output/strix-quarter.png) / [正面](../robot/models/strix/output/strix-front.png) / [側面](../robot/models/strix/output/strix-side.png) / [背面](../robot/models/strix/output/strix-back.png) / [上面](../robot/models/strix/output/strix-top.png) / [骨格](../robot/models/strix/output/strix-rig.png)
 
 ## リグ・動作
 
@@ -47,7 +47,7 @@ Motion（車体の小さな上下・前進）
 
 初稿の一脚ずつの歩行に合わせた大きな左右・前後への重心移動は除去し、車体を中央に保つ。上下約2.2 cmと上半身の小さな傾きで、対角ペアの交代を表現する。2脚支持では旧版の「3足の支持三角形内に車体中心がある」という検査は適用しない。今回も武器などの質量を積分した実重心・慣性・動力学の計算やバランス制御は実施しておらず、実機の動的安定性を保証するものではない。
 
-[右前＋左後の遊脚](../output/strix-walk-74.png) / [左前＋右後の遊脚](../output/strix-walk-194.png)。
+[右前＋左後の遊脚](../robot/models/strix/output/strix-walk-74.png) / [左前＋右後の遊脚](../robot/models/strix/output/strix-walk-194.png)。
 
 ## 前方ブーストと編集用IK
 
@@ -62,13 +62,13 @@ Motion（車体の小さな上下・前進）
 
 噴射は半透明の外炎と明るい芯を持つメッシュを、専用ボーンのスケールで伸縮させる。非噴射時は0.001倍へ縮め、行列を特異にせず視覚的に消す。噴射ソケットは伸縮しない本体ボーンへ取り付け、外部ランタイム用のemitter windowもGLBのsidecarに定義する。Viewerは噴射メッシュを表示し、パーティクルや熱歪みは実行しない。
 
-[巡航・側面](../output/strix-boost-side.png) / [巡航・斜め](../output/strix-boost-quarter.png) / [背面](../output/strix-boost-back.png) / [上面](../output/strix-boost-top.png) / [浮上](../output/strix-boost-55.png) / [着地](../output/strix-boost-285.png)。
+[巡航・側面](../robot/models/strix/output/strix-boost-side.png) / [巡航・斜め](../robot/models/strix/output/strix-boost-quarter.png) / [背面](../robot/models/strix/output/strix-boost-back.png) / [上面](../robot/models/strix/output/strix-boost-top.png) / [浮上](../robot/models/strix/output/strix-boost-55.png) / [着地](../robot/models/strix/output/strix-boost-285.png)。
 
 Viewerで`Boost`を選択して再生する。一時停止すると4足のターゲット、4膝のポール、腰の計9ハンドルを操作できる。`IKハンドルを表示`で表示を切り替え、各ターゲットはドラッグまたはXYZスライダーで移動する。`しゃがむ`は現在の足先を保持して腰を12 cm下げる。到達できない目標は脚長の範囲で制限し、残った距離を表示する。
 
 編集を始めたフレームのルート移動・関節の向き・噴射スケールを取得してからIKへ引き継ぐ。原点の立ち姿へ戻して解かない。`FK`では関節を直接回せる。`ポーズをリセット`は選択中クリップの現在時刻へ戻り、再生・シーク・クリップ変更も一時編集を解除する。編集ポーズのファイル保存・追加クリップへの焼き込みは今回の対象外。
 
-[ブースト中のIK編集](../output/strix-boost-ik.png)。
+[ブースト中のIK編集](../robot/models/strix/output/strix-boost-ik.png)。
 
 ## 制作時に修正したこと
 
@@ -82,7 +82,7 @@ Viewerで`Boost`を選択して再生する。一時停止すると4足のター
 
 ## 再生成・検証・制約
 
-`just strix`で`output/strix.glb`と`strix.asset.json`を再生成する。定義・足先軌道とIK・ブースト演出曲線・造形・出力を`strix-definition.mjs`、`strix-motion.mjs`、`strix-boost.mjs`、`strix.mjs`、`scripts/build_strix.mjs`に分離。RAVENと同じ剛体スキニング・モーション焼き込み・アセット契約を使用する。
+`just strix`で`robot/models/strix/output/strix.glb`と`strix.asset.json`を再生成する。定義・足先軌道とIK・ブースト演出曲線・造形・出力を`strix-definition.ts`、`strix-motion.ts`、`strix-boost.ts`、`strix.ts`、`robot/models/strix/src/build.ts`に分離。RAVENと同じ剛体スキニング・モーション焼き込み・アセット契約を使用する。
 
 Nodeテストは全周期の対角ペアの接地・高さ・位相の一致、ペア交代と4本接地の重なり、低い腰と静止時の鋭角の膝、関節長、非クランプ、前進と組み合わせた接地足の非滑り、ループ、回転の連続性を検査する。Boostも120 Hzで軌道・接地時の非滑り・関節の連続性を検査。再読込GLBでは足先誤差2 mm以内、接地中の足裏水平（Boost飛行中のみ足首ピッチを許可）、全頂点の床貫通3 mm以内、剛体ウェイト、validator、生成物と原本の一致を確認。IKメタデータの再読込、足・ポール・腰操作、到達制限、ブーストからの姿勢引継ぎ、繰返しリセット、噴射ソケットも検査する。Playwrightは5方向表示・対角ペア歩行に加え、Boostの複数角度と時刻、IKドラッグ、FK、リセット前後の画像一致、終端保持と再生を確認する。
 

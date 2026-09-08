@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["node", "vite/client"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx"
+  },
+  "include": ["contracts/**/*.ts", "modeling/**/*.ts", "human/**/*.ts", "robot/**/*.ts", "models/**/*.ts", "runtime/**/*.ts", "viewer/**/*.ts", "sprites/**/*.ts", "game/**/*.ts", "game/**/*.tsx", "*.config.ts", "tests/types/**/*.ts"],
+  "exclude": ["**/output/**"]
+}

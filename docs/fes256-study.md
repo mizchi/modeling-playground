@@ -27,7 +27,7 @@ Root → Body → Head（共通の取付ボーン・Viewerの拡大対象）
 
 頭と髪を独立メッシュにすることで、髪の拡縮・非表示・差し替えが顔素体を変更しない。顔と髪を別GLBファイルに分割したという意味ではない。頭の回転には3メッシュとも追従する。
 
-`models/fes256-head.mjs`が頬・目元・鼻筋・顎の列と断面を定義する。眼窩を深く掘らず、幅広い目元と小さな鼻の突出を保つ。肌だけは滑らかな法線、髪と服は面の角を残す。テクスチャ貼付面は肌の実際の三角形を使用し、頬や口元に別の平板を浮かせない。
+`human/models/fes256/src/head.ts`が頬・目元・鼻筋・顎の列と断面を定義する。眼窩を深く掘らず、幅広い目元と小さな鼻の突出を保つ。肌だけは滑らかな法線、髪と服は面の角を残す。テクスチャ貼付面は肌の実際の三角形を使用し、頬や口元に別の平板を浮かせない。
 
 ## 参考記事から採用したこと
 
@@ -42,7 +42,7 @@ Root → Body → Head（共通の取付ボーン・Viewerの拡大対象）
 Viewerの「表情」で通常・笑顔・怒り・驚き・まばたき・ウインクを選択する。「表情を自動再生」は1秒ごとに切り替える。モーフ補間・標準glTFアニメーションクリップではなく、明示的なUV切り替えである。
 
 ```js
-import { ExpressionAtlas } from './runtime/expression-atlas.mjs';
+import { ExpressionAtlas } from './runtime/expression-atlas.ts';
 const expressions = new ExpressionAtlas(gltf.scene.getObjectByName('Face'));
 expressions.set('Wink');
 expressions.set('Neutral');
@@ -56,11 +56,11 @@ expressions.set('Neutral');
 
 ```sh
 just fes256
-node --test tests/fes256.test.mjs
-pnpm exec playwright test tests/e2e/fes256.spec.mjs
+node --test tests/fes256.test.ts
+pnpm exec playwright test tests/e2e/fes256.spec.ts
 ```
 
-[Viewer](http://127.0.0.1:5188/?model=fes256) / [GLB](../output/fes256.glb) / [アトラス](../output/fes256-expressions.png) / [顔](../output/fes256-face.png) / [ワイヤー](../output/fes256-face-wire.png) / [斜め](../output/fes256-quarter.png) / [側面](../output/fes256-side.png) / [ウインク](../output/fes256-wink.png)。初稿の[斜め](../output/fes256-blockout-quarter.png)・[側面](../output/fes256-blockout-side.png)も比較用に保存。
+[Viewer](http://127.0.0.1:5188/?model=fes256) / [GLB](../human/models/fes256/output/fes256.glb) / [アトラス](../human/models/fes256/output/fes256-expressions.png) / [顔](../human/models/fes256/output/fes256-face.png) / [ワイヤー](../human/models/fes256/output/fes256-face-wire.png) / [斜め](../human/models/fes256/output/fes256-quarter.png) / [側面](../human/models/fes256/output/fes256-side.png) / [ウインク](../human/models/fes256/output/fes256-wink.png)。初稿の[斜め](../human/models/fes256/output/fes256-blockout-quarter.png)・[側面](../human/models/fes256/output/fes256-blockout-side.png)も比較用に保存。
 
 単体テストは面数・側面の厚み・鼻と目元の対比・頭と髪の独立性・頭回転への追従・切替時の頂点不変・UV復帰・6タイルの画像差・PNG/GLBの再生成一致・GLB Validatorを検査する。実際の画像読込と表情切り替え、各方向・拡大・ワイヤー・モバイル・旧モデルへの切り替えはPlaywrightで確認する。
 

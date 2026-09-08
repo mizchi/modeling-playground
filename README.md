@@ -16,23 +16,29 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 ## 生成コードの構成
 
-新規モデルはThree.jsを基本にし、モデル固有の造形・演出と、共通の生成・実行処理を分離しています。RAVENを移行済みで、既存のPython/Blender製モデルはそのまま利用できます。
+モデルごとに `src/`（形状・骨格・動作・生成スクリプト）と `output/`（GLB・テクスチャ・確認画像・Blenderファイル）を分離しています。生成物の名前・内容と Viewer の `?model=` は維持しています。
 
-- `models/`：モデル固有の形状・骨格仕様・動作。
+- `human/models/<モデル>/`：BASE-45、LUMI、Suzu、Ashley、ASTER、FES-256、旅人。`human/` 直下は共通人体編集と専用 Viewer。
+- `robot/models/<モデル>/`：RAVEN、BASTION、STRIX。
+- `models/<モデル>/`：犬（犬種プリセットを含む）、ワイバーン、町、歩行スプライト。
 - `contracts/`：付随する設定JSONの型と厳密な実行時検証。
-- `modeling/`：共通の形状部品・骨格生成・剛体ウェイト付け・モーション焼き込み。
+- `modeling/`：共通の形状部品・骨格生成・モーション焼き込み・GLB/PNG出力・出力先解決。
 - `runtime/`：DOMに依存しない再生・IK・横薙ぎ計算・ソケット追従・時間イベント。
 - `viewer/`：共通Viewerの表示と入力。
 
+生成コードはTypeScriptで、Node.js 24が `.ts` を直接実行します（`tsx` / `ts-node` 不要）。`pnpm typecheck` でstrict型検査、`just test` で型検査と回帰テストを実行します。
+
 `just models-js`でThree.js製モデルをまとめて再生成できます。[設計とゲーム側への接続方法](docs/asset-architecture.md)。
+
+モデルのコピー・派生追加・出力先の規則は[モデル単位の構成](docs/model-layout.md)を参照してください。
 
 ## BASE-45 — キャラクター制作前の共通素体
 
-女性素体 **BASE-45 F** をhuman-viewerへ追加しました。「体型」で男性／女性を切り替え、髪・顔・編集値を維持できます。共通の頭・首・四角面・22ボーンを使い、身体は1,440三角形のまま。`just human-female` で再生成。[GLB](output/human-female.glb) / [OBJ](output/human-female.obj) / [正面](output/human-female-front.png) / [側面](output/human-female-side.png)。
+女性素体 **BASE-45 F** をhuman-viewerへ追加しました。「体型」で男性／女性を切り替え、髪・顔・編集値を維持できます。共通の頭・首・四角面・22ボーンを使い、身体は1,440三角形のまま。`just human-female` で再生成。[GLB](human/models/base45/output/human-female.glb) / [OBJ](human/models/base45/output/human-female.obj) / [正面](human/models/base45/output/human-female-front.png) / [側面](human/models/base45/output/human-female-side.png)。
 
 「体型の調整」で **胸の大きさ・腰の太さ（ウエスト）・筋肉量・脚の長さ・身長** を男女共通のスライダーで編集できます。値0は既存体型。脚は足首〜股関節を70〜130%、身長は全身を75〜125%に比例変更し、髪・骨格・表示も追従します。設定の保存・取り消し・旧JSONの読み込み・GLB出力に対応し、身体のポリゴン数は維持します。`just human-check` で体型とモーションを検証。
 
-髪の選択に **黄色のサイドテール** を追加。前髪を保ち、高い片側の結び目から肩の後ろへ流れるロングです。追加288三角形、男女共用。`just human-side-tail` で [モーション付きGLB](output/human-side-tail.glb) と [設定JSON](output/human-side-tail.recipe.json) を再生成。[正面](output/human-side-tail-front.png) / [背面](output/human-side-tail-back.png)。髪の物理演算は未実装です。
+髪の選択に **黄色のサイドテール** を追加。前髪を保ち、高い片側の結び目から肩の後ろへ流れるロングです。追加288三角形、男女共用。`just human-side-tail` で [モーション付きGLB](human/models/lumi/output/human-side-tail.glb) と [設定JSON](human/models/lumi/output/human-side-tail.recipe.json) を再生成。[正面](human/models/lumi/output/human-side-tail-front.png) / [背面](human/models/lumi/output/human-side-tail-back.png)。髪の物理演算は未実装です。
 
 人体の編集は [HUMAN専用Viewer](http://127.0.0.1:5188/human-viewer.html) へ。`human/` でBASE-45 / LUMIの髪・顔・骨格・モーションを組み替え、鼻の高さ・顔の長さと幅・目の間隔を調整できます。`just human-viewer` で起動、`just human-check` で検証。[構成・互換性と制限](docs/human-workshop.md)。既存モデルの生成コード・GLBは保持します。
 
@@ -40,7 +46,7 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 [顔テクスチャ確認用Viewer](https://mizchi.github.io/modeling-playground/?model=base45-face-check)では、同じ頂点・面・法線から切り出した頭部に、256pxの仮の目と口を貼って確認できます。診断用の正面投影UVであり、完成した顔デザインや全身用UVではありません。`just base45`で素体と確認用GLBを一緒に再生成します。
 
-[ローカルで表示](http://127.0.0.1:5188/?model=base45) / [Blender編集用](output/base45.blend) / [四角面OBJ](output/base45.obj) / [リグ付きGLB](output/base45.glb) / [仕様・再利用手順](docs/base45-study.md)。`just base45`で再生成、`just base45-blend`でネイティブBlenderファイルも再生成できます。
+[ローカルで表示](http://127.0.0.1:5188/?model=base45) / [Blender編集用](human/models/base45/output/base45.blend) / [四角面OBJ](human/models/base45/output/base45.obj) / [リグ付きGLB](human/models/base45/output/base45.glb) / [仕様・再利用手順](docs/base45-study.md)。`just base45`で再生成、`just base45-blend`でネイティブBlenderファイルも再生成できます。
 
 顔改訂では、口の下に立った面を挟んでから顎先へ丸め、鼻先を少し前へ出しています。さらに共通素体へ耳輪と浅いくぼみを持つ耳を追加（左右合計52三角形増）。LUMIにも同じ素体を反映しています。
 
@@ -48,34 +54,34 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 素体の初回チェックポイントは `29e4571`。現在は上記の顎・鼻・耳の改訂済みBASE-45を使い、LUMI側では顔・身体の頂点位置と法線を変えずに256pxの顔テクスチャと、独立した金髪レイヤーショート＋アホ毛を追加。目には上アイライン、青緑の虹彩グラデーション、大小の反射光を描画。頭頂に量感を持たせ、サイドと後頭部には後ろへ流れる毛束を配置。重複する束・断面・毛先を簡略化した髪に、頬から顎へ沿う独立したおくれ毛2束を追加し、髪は710三角形。前髪は幅広い5束に整理。強い縞状の頂点カラーは128pxの柔らかい毛流れテクスチャに置き換えています。主な横髪を耳の後ろへ流し、手前のおくれ毛で顔の輪郭を部分的に覆う構成。全体2,150三角形・約110.9 KiB。身体22＋髪31ボーン。髪には将来の物理制御用ボーンがありますが、物理ソルバーは未実装です。
 
-[ローカルで表示](http://127.0.0.1:5188/?model=lumi) / [GLB](output/lumi.glb) / [斜め](output/lumi-face-quarter.png) / [斜め下](output/lumi-face-low.png) / [後頭部](output/lumi-hair-back-high.png) / [仕様](docs/lumi-study.md)。`just lumi`で再生成。BASE-45の生成済みファイルは上書きしません。
+[ローカルで表示](http://127.0.0.1:5188/?model=lumi) / [GLB](human/models/lumi/output/lumi.glb) / [斜め](human/models/lumi/output/lumi-face-quarter.png) / [斜め下](human/models/lumi/output/lumi-face-low.png) / [後頭部](human/models/lumi/output/lumi-hair-back-high.png) / [仕様](docs/lumi-study.md)。`just lumi`で再生成。BASE-45の生成済みファイルは上書きしません。
 
 ## ASTER — 長い手足の4等身モデル
 
 LILAを残した独立試作。小さい顔、短い首、束の稜線をメッシュに作り込んだ金髪ロング＋アホ毛。頭と髪は独立して生成します。888三角形・約39.6 KiB、身体16＋髪16ボーン。髪の5系統を曲げる制御と物理接続用設定を用意。物理ソルバー・歩行・IKは未実装。
 
-[ローカルで表示](http://127.0.0.1:5188/?model=aster) / [GLB](output/aster.glb) / [斜め](output/aster-quarter.png) / [顔](output/aster-face.png) / [曲げ確認](output/aster-pose.png)。`just aster`で再生成。[仕様と参考資料](docs/aster-study.md)。
+[ローカルで表示](http://127.0.0.1:5188/?model=aster) / [GLB](human/models/aster/output/aster.glb) / [斜め](human/models/aster/output/aster-quarter.png) / [顔](human/models/aster/output/aster-face.png) / [曲げ確認](human/models/aster/output/aster-pose.png)。`just aster`で再生成。[仕様と参考資料](docs/aster-study.md)。
 
 ## LILA — FES風の表情付きデフォルメ
 
 約3等身、丸い頬と尖った前髪、左右の髪束を持つキャラクター。頭と髪を独立させ、目と口は256×256のテクスチャアトラスで表現。表情を変えても顔の形は変わりません。
 
-- [ローカルで表示](http://127.0.0.1:5188/?model=fes256) / [GLB](output/fes256.glb) / [斜め](output/fes256-quarter.png) / [ウインク](output/fes256-wink.png)
+- [ローカルで表示](http://127.0.0.1:5188/?model=fes256) / [GLB](human/models/fes256/output/fes256.glb) / [斜め](human/models/fes256/output/fes256-quarter.png) / [ウインク](human/models/fes256/output/fes256-wink.png)
 - 426三角形・約17.5 KiB。上限緩和後の版であり、厳密な256三角形以内ではありません。
-- 通常・笑顔・怒り・驚き・まばたき・ウインクを専用UIで切り替え。[表情アトラス](output/fes256-expressions.png)。`just fes256`で再生成。[構成・使い方・参考記事](docs/fes256-study.md)。
+- 通常・笑顔・怒り・驚き・まばたき・ウインクを専用UIで切り替え。[表情アトラス](human/models/fes256/output/fes256-expressions.png)。`just fes256`で再生成。[構成・使い方・参考記事](docs/fes256-study.md)。
 
 ## PON Mini — さらにデフォルメしたコーギー
 
 頭と目を大きく、胴を短く幅広に、脚をさらに短くした別プリセット。元のPONはそのまま残しています。618三角形・約22.2 KiB、17ボーンと待機モーションは共通です。
 
-- [ローカルで表示](http://127.0.0.1:5188/?model=corgi-chibi) / [GLB](output/corgi-chibi.glb) / [斜め](output/corgi-chibi-quarter.png) / [側面](output/corgi-chibi-side.png)
+- [ローカルで表示](http://127.0.0.1:5188/?model=corgi-chibi) / [GLB](models/dog/output/corgi-chibi.glb) / [斜め](models/dog/output/corgi-chibi-quarter.png) / [側面](models/dog/output/corgi-chibi-side.png)
 - `just corgi-chibi`で再生成。[体型差分の設計](docs/dog-study.md)。
 
 ## PON — 共通素体から作るコーギー
 
 短い脚・長い胴・大きな耳・短い尾を持つ、590三角形・約21 KiBのコーギー。MUGIと同じ生成コード・17ボーン・待機モーションを使い、体型と配色のプリセットだけで作り分けています。
 
-- [ローカルで表示](http://127.0.0.1:5188/?model=corgi) / [GLB](output/corgi.glb) / [斜め](output/corgi-quarter.png) / [側面](output/corgi-side.png)
+- [ローカルで表示](http://127.0.0.1:5188/?model=corgi) / [GLB](models/dog/output/corgi.glb) / [斜め](models/dog/output/corgi-quarter.png) / [側面](models/dog/output/corgi-side.png)
 - `just corgi`で再生成。メッシュ／材質各1個、テクスチャなし。元のMUGIのGLBは変更せず維持しています。
 - [共通化と犬種差分](docs/dog-study.md)。`Idle`／`Rest`付き。歩行・走行・IKは未実装です。
 
@@ -83,7 +89,7 @@ LILAを残した独立試作。小さい顔、短い首、束の稜線をメッ�
 
 立ち耳・白い口元と足先・巻き尾で特徴を出した柴犬風。630三角形、メッシュ／材質各1個、17ボーンと待機モーション込みで約22 KiB。テクスチャなし、共有頂点と8ビット色・ウェイトで小さくしています。
 
-- [ローカルで表示](http://127.0.0.1:5188/?model=dog) / [GLB](output/dog.glb) / [斜め](output/dog-quarter.png) / [側面](output/dog-side.png) / [骨格](output/dog-rig.png)
+- [ローカルで表示](http://127.0.0.1:5188/?model=dog) / [GLB](models/dog/output/dog.glb) / [斜め](models/dog/output/dog-quarter.png) / [側面](models/dog/output/dog-side.png) / [骨格](models/dog/output/dog-rig.png)
 - `Idle`で小さな首かしげと尻尾振り、`Rest`で静止。四脚・首・尾のリグ付き。歩行・走行・IKは未実装。
 - `just dog`で再生成。[軽量化・構成・制約](docs/dog-study.md)。800三角形・32 KiBを上限としてテストします。
 
@@ -91,16 +97,16 @@ LILAを残した独立試作。小さい顔、短い首、束の稜線をメッ�
 
 翼を前肢とする二脚型。青灰色の皮膚と黄土色の翼膜、細い胴、S字の首、長い尾を持つ29ボーンのリグ付きモデルです。静止時の翼幅約14.6 m、3,362三角形。正面だけでなく側面・背面にも胸郭と翼の奥行きを残しています。
 
-- [ローカルで表示](http://127.0.0.1:5188/?model=wyvern) / [GLB](output/wyvern.glb) / [斜め](output/wyvern-quarter.png) / [側面](output/wyvern-side.png) / [背面](output/wyvern-back.png)
-- `just wyvern`で再生成。配色と比率は`models/wyvern-definition.mjs`、造形は`models/wyvern.mjs`。
+- [ローカルで表示](http://127.0.0.1:5188/?model=wyvern) / [GLB](models/wyvern/output/wyvern.glb) / [斜め](models/wyvern/output/wyvern-quarter.png) / [側面](models/wyvern/output/wyvern-side.png) / [背面](models/wyvern/output/wyvern-back.png)
+- `just wyvern`で再生成。配色と比率は`models/wyvern/src/definition.ts`、造形は`models/wyvern/src/model.ts`。
 - `Hover`は1.8秒周期の空中羽ばたき。肩が先に動き、翼爪から先の翼全体が少し遅れて上下します。左右4本ずつの翼指は中ほどから軽くしなり、翼膜も追従。胴の上下動、脚の引き込み、首と尾の揺れを含みます。`Rest`で元の地上姿勢に戻せます。
-- [羽ばたき](output/wyvern-hover-up.png) / [打ち下ろし](output/wyvern-hover-down.png) / [骨格](output/wyvern-hover-rig.png) / [造形・検証・制約](docs/wyvern-study.md)。前進・離着陸・歩行・IKは未実装です。
+- [羽ばたき](models/wyvern/output/wyvern-hover-up.png) / [打ち下ろし](models/wyvern/output/wyvern-hover-down.png) / [骨格](models/wyvern/output/wyvern-hover-rig.png) / [造形・検証・制約](docs/wyvern-study.md)。前進・離着陸・歩行・IKは未実装です。
 
 ## STRIX-04 — 四脚リグ・歩行
 
 鋭角ヘッド、青灰色の装甲、双肩砲を持つ四脚型。28ボーンの剛体リグで、右前＋左後／左前＋右後を交互に持ち上げる対角ペア歩行。腰を低くし、静止時の膝も約83°に折り畳んでいます。
 
-- [ローカルで再生](http://127.0.0.1:5188/?model=strix) / [GLB](output/strix.glb) / [斜め](output/strix-quarter.png) / [骨格](output/strix-rig.png)
+- [ローカルで再生](http://127.0.0.1:5188/?model=strix) / [GLB](robot/models/strix/output/strix.glb) / [斜め](robot/models/strix/output/strix-quarter.png) / [骨格](robot/models/strix/output/strix-rig.png)
 - `Idle`は待機、`Walk`はその場歩行、`Advance`は約1.16 m前進する一回再生。2.4秒周期で、床に対する足の接地は`Advance`で確認できます。
 - `Boost`は浮上・前傾加速・着地まで3.2秒で4.8 m前進。Viewerで一時停止して足先・膝・腰をIK操作できます。
 - 対角ペアが同期し、切替時には4本接地。足裏水平・固定脚長を維持します。2ボーンIKの結果を60 Hzで焼き込み、普通のGLBアニメーションとして再生します。
@@ -120,9 +126,9 @@ React Three Fiber／React／TypeScript製。`just game-check`で検証。[操作
 
 RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、油圧機構、幅広い接地脚、左右非対称の銃器・肩武装を持つオリーブドラブの機体です。
 
-- [ローカルで表示・交換](http://127.0.0.1:5188/?model=bastion) / [GLB](output/bastion.glb) / [斜め](output/bastion-quarter.png) / [側面](output/bastion-side.png) / [背面](output/bastion-back.png)
+- [ローカルで表示・交換](http://127.0.0.1:5188/?model=bastion) / [GLB](robot/models/bastion/output/bastion.glb) / [斜め](robot/models/bastion/output/bastion-quarter.png) / [側面](robot/models/bastion/output/bastion-side.png) / [背面](robot/models/bastion/output/bastion-back.png)
 - 頭・胴・左右の腕／脚・背部・左右の手／肩武装の11モジュールをViewerで交換。「構成をGLBで保存」で書き出し、再び開いて編集できます。
-- `just bastion`で標準構成と[接続規格JSON](output/bastion.parts.json)を再生成。約15,200三角形、テクスチャ内包。
+- `just bastion`で標準構成と[接続規格JSON](robot/models/bastion/output/bastion.parts.json)を再生成。約15,200三角形、テクスチャ内包。
 - [造形・交換規格・検証・制約](docs/bastion-study.md)。現段階は静止アセンブリで、リグ・歩行アニメーション・任意の外部パーツ読込は未実装です。
 
 ## Pixel Motion Lab — 歩行素体から実ピクセルへ
@@ -139,7 +145,7 @@ RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、
 
 『ベイグラントストーリー』の添付資料をもとに、アシュレイ・ライオットを Three.js で再構成した静止モデル。3,182 三角形・約 212 KB。256×256 の描画コード製テクスチャを GLB に埋め込み、別ファイルなしで表示できます。
 
-- [ローカル Viewer](http://127.0.0.1:5188/?model=ashley) / [GLB](output/ashley.glb) / [アトラス PNG](output/ashley-atlas.png) / [顔](output/ashley-face.png) / [横顔](output/ashley-profile.png) / [背面](output/ashley-back.png) / [斜め後ろ](output/ashley-rear-quarter.png)
+- [ローカル Viewer](http://127.0.0.1:5188/?model=ashley) / [GLB](human/models/ashley/output/ashley.glb) / [アトラス PNG](human/models/ashley/output/ashley-atlas.png) / [顔](human/models/ashley/output/ashley-face.png) / [横顔](human/models/ashley/output/ashley-profile.png) / [背面](human/models/ashley/output/ashley-back.png) / [斜め後ろ](human/models/ashley/output/ashley-rear-quarter.png)
 - 額に落ちる折れた前髪、後方へ流れる跳ね毛、襟足へ絞る後頭部。低い眉・太い上まぶた・暗い瞳で目元を調整。顎から耳への傾斜、前傾する首、胸郭・腰・骨盤が作る S 字を立体化しています。
 - 肩・胸郭の厚みと細い腰の対比、前後で異なる白布、腰の革パネルと暗い手甲。UV 領域とピクセル描画を分け、形状と表面を独立して修正できます。
 - `just ashley` で GLB と確認用 PNG を再生成。共通 Viewer の「再読み込み」で更新、「背面」ボタンで後ろから比較できます。
@@ -149,12 +155,12 @@ RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、
 
 鋭角のセラミック装甲、青黒い内部フレーム、背面の双発ブースター、脚底ノズル、右腕のブレード、左腕の小型シールドを持つ人型ロボット。Three.jsで生成した26ボーンのリグ付きGLBです。
 
-- [ローカルViewer](http://127.0.0.1:5188/?model=raven) / [GLB](output/raven.glb) / [浮遊姿勢](output/raven-hover.png) / [側面](output/raven-side.png) / [構え](output/raven-windup.png) / [振り抜き](output/raven-followthrough.png)
+- [ローカルViewer](http://127.0.0.1:5188/?model=raven) / [GLB](robot/models/raven/output/raven.glb) / [浮遊姿勢](robot/models/raven/output/raven-hover.png) / [側面](robot/models/raven/output/raven-side.png) / [構え](robot/models/raven/output/raven-windup.png) / [振り抜き](robot/models/raven/output/raven-followthrough.png)
 - `Hover`：2.0秒のループ。床から浮いた姿勢で上下動し、ブースターの噴射長が脈動します。
 - `Boost`：2.4秒。前傾・噴射増大・加速・減速を伴い、+Z方向へ4.8 m移動するルートモーションです。
 - `BladeSlash`：2.1秒・60 fps。低い溜めから噴射を強め、左右の脚を開いて約3.55 m前方へ飛び込み、右外側から前方を大きく横薙ぎします。腰と胴体を斬撃方向へひねり、肩装甲を開いて肘を下げ、刃と切断面は水平に保ちます。振り抜き後は移動先で減速して浮遊姿勢に戻り、開始位置へは巻き戻しません。
 - 装甲は各頂点を1本のボーンへ100%ウェイト付けした実際のSkinnedMeshです。関節は動きますが金属は曲がりません。噴射はボーンのスケールで変化する形状で、流体・粒子シミュレーションや攻撃の当たり判定はありません。IK操作は未実装です。
-- `models/raven-definition.mjs`が骨格・ソケット・判定形状・噴射・攻撃時間を定義し、`models/raven.mjs`が形状、`models/raven-motion.mjs`が時間に対する姿勢を担当。`just raven`で[GLB](output/raven.glb)と[付随設定](output/raven.asset.json)を同時生成します。実際のゲーム用衝突処理・粒子描画はまだ実装していません。
+- `robot/models/raven/src/definition.ts`が骨格・ソケット・判定形状・噴射・攻撃時間を定義し、`robot/models/raven/src/model.ts`が形状、`robot/models/raven/src/motion.ts`が時間に対する姿勢を担当。`just raven`で[GLB](robot/models/raven/output/raven.glb)と[付随設定](robot/models/raven/output/raven.asset.json)を同時生成します。実際のゲーム用衝突処理・粒子描画はまだ実装していません。
 - `extras.groundLevel`を共通Viewerが読み、浮いたモデルとは独立した床を配置します。`extras.animationModes`により加速と斬撃は1回再生して停止し、「再生」で最初からやり直せます。他のGLB Viewerではループ設定を別途指定してください。
 - GLB検証、ウェイト、全フレームの有限な頂点・床との隙間、ホバリングのループ接続、加速距離、実際のブレード頂点の移動と剛性を自動テストしています。横薙ぎは生成前のモデルと再読込したGLBの両方を120 Hzでサンプルし、刃の水平と大きな弧、右前腕・ブレードと他の装甲の非交差を各部品の有向境界ボックスで検査します（接続する右上腕・右手は除外）。
 
@@ -162,11 +168,11 @@ RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、
 
 濃紺のボブヘア、紫の瞳、藤色のワンピース、アイボリーの襟と靴下、星の髪飾り。高さ約1.66 mの静止モデルです。Miloとは別のキャラクターで、**Blender・Pythonを使わずThree.jsだけで生成**しています。
 
-- [Viewerで開く](http://127.0.0.1:5188/?model=suzu) / [GLB](output/suzu.glb) / [全身](output/suzu-front.png) / [顔アップ](output/suzu-face.png) / [側面](output/suzu-side.png)
+- [Viewerで開く](http://127.0.0.1:5188/?model=suzu) / [GLB](human/models/suzu/output/suzu.glb) / [全身](human/models/suzu/output/suzu-front.png) / [顔アップ](human/models/suzu/output/suzu-face.png) / [側面](human/models/suzu/output/suzu-side.png)
 - 目は球体ではなく顔の曲面に沿うアーモンド形の面。縦長の虹彩・瞳孔、上まぶたの輪郭、少数のハイライトでアニメ調にしています。虹彩のグラデーションは頂点色で、画像テクスチャへの依存はありません。
-- `models/suzu.mjs`に顔の輪郭、目、髪束、服、配色を定義。`models/geometry.mjs`は輪郭の立体化、髪束、曲面に沿う薄い面などの共通部品です。生成処理はDOMに依存せず、Nodeとブラウザから同じ`createSuzu()`を呼べます。
+- `human/models/suzu/src/model.ts`に顔の輪郭、目、髪束、服、配色を定義。`human/models/suzu/src/geometry.ts`は輪郭の立体化、髪束、曲面に沿う薄い面などの共通部品です。生成処理はDOMに依存せず、Nodeとブラウザから同じ`createSuzu()`を呼べます。
 - 側面から薄く見えた初稿を修正し、頭部の前後幅を左右幅とほぼ同じに、胴体の奥行きを初稿の1.45倍にしました。頭は顔を単純に引き伸ばさず、後頭部側にボリュームを追加。`SUZU.torsoDepthScale`で服の奥行きを調整できます。
-- `just suzu`でThree.jsのGLTFExporterから`output/suzu.glb`を再生成し、Viewerの「再読み込み」で反映します。[GLTFExporter公式仕様](https://threejs.org/docs/pages/GLTFExporter.html)
+- `just suzu`でThree.jsのGLTFExporterから`human/models/suzu/output/suzu.glb`を再生成し、Viewerの「再読み込み」で反映します。[GLTFExporter公式仕様](https://threejs.org/docs/pages/GLTFExporter.html)
 - リグ・アニメーション・表情モーフは未実装。目の発色を保つため一部にunlitマテリアルを使い、髪・肌・服は通常のPBRマテリアルです。輪郭線付きのフル・トゥーンシェーダーではありません。
 - テストではGLBの妥当性、部品名、有限な頂点と単位法線、目が顔の中に埋まらないことを検査。E2Eで既存Viewerによる表示、顔へのフォーカス、モバイル表示を確認します。
 
@@ -177,31 +183,31 @@ RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、
 ### リグ・歩行版
 
 - [歩行をViewerで見る](http://127.0.0.1:5188/?model=traveler-walk)
-- [アニメーション付きGLB](output/traveler-walk.glb) / [Blender](output/traveler-walk.blend) / [歩行姿勢](output/traveler-walk.png)
+- [アニメーション付きGLB](human/models/traveler/output/traveler-walk.glb) / [Blender](human/models/traveler/output/traveler-walk.blend) / [歩行姿勢](human/models/traveler/output/traveler-walk.png)
 - 18ボーンと正規化した頂点ウェイト。腰・背骨・首・頭・左右の腕、手、脚、足を制御します。指や表情の個別ボーンはありません。
 - `Walk`は30 fps、36フレーム区間＝1.2秒のその場歩行です。前進するルートモーションは含みません。
-- 歩行の数値パラメータは`scripts/gait.py`、骨格・スキニング・キーフレーム生成は`scripts/rig_character.py`。`just walk`でGLB・blend・PNGを再生成します。
+- 歩行の数値パラメータは`human/models/traveler/src/gait.py`、骨格・スキニング・キーフレーム生成は`human/models/traveler/src/rig_character.py`。`just walk`でGLB・blend・PNGを再生成します。
 - 足の接地期間と遊脚期間を分け、足の目標位置から2本の脚ボーンの姿勢を計算してキーフレームに焼き込みます。足首は水平に保つ簡単な歩行で、つま先の蹴り出しや衣服の物理シミュレーションは含みません。
 - Blenderファイルには編集可能な骨格と`Walk`アクションを保存しています。静止版は別ファイルとして維持します。
 
 ### IK編集版
 
 - [IKをViewerで試す](http://127.0.0.1:5188/?model=traveler-ik)
-- [GLB](output/traveler-ik.glb) / [Blender](output/traveler-ik.blend) / [Viewerでの屈伸](output/ik-crouch.png)
+- [GLB](human/models/traveler/output/traveler-ik.glb) / [Blender](human/models/traveler/output/traveler-ik.blend) / [Viewerでの屈伸](human/models/traveler/output/ik-crouch.png)
 - 手足・腰の目印をドラッグすると姿勢が追従します。青い膝・肘のポールは曲がる方向を指定します。ドラッグはカメラに平行な面内の移動で、奥行きは視点変更またはX/Y/Zスライダーで調整できます。
 - 「しゃがむ」で腰を12 cm下げ、足先を固定した屈伸を確認できます。「FK」で各関節を直接回転。「ポーズをリセット」で初期状態に戻ります。
 - Blenderでは`CTRL_Hips`、`CTRL_LeftFoot`等を移動し、`POLE_*`で曲がる方向を調整。リグのカスタムプロパティ`IK`を1でIK、0でFKに切り替えます。手足ターゲットの回転にも追従します。
 - **GLB標準にはBlenderのIK制約は保存されません。** このGLBはスキンと`extras.ikRig`の独自定義を持ち、共通ViewerがリアルタイムにIKを解きます。他のViewerでは通常のスキン付きモデルとして表示されます。編集可能なネイティブ制約はblend側に保存しています。
-- `scripts/ik_contract.json`にバージョン、腰・腕・脚のボーン名、モデル座標系（glTF Y-up）のポール位置を定義。今後も同じ定義形式を持つGLBでViewerを使い回せます。IK定義がないモデルでは編集UIを表示しません。
+- `human/models/traveler/src/ik_contract.json`にバージョン、腰・腕・脚のボーン名、モデル座標系（glTF Y-up）のポール位置を定義。今後も同じ定義形式を持つGLBでViewerを使い回せます。IK定義がないモデルでは編集UIを表示しません。
 - Viewerのポーズ変更はメモリ上のみで、保存・アニメーションへの焼き込みは未実装。IK/FK切り替え時の姿勢自動マッチング、関節の可動域制限、衝突回避も未実装です。届かない目標は骨を伸ばさず到達可能な距離に制限します。
-- `just ik`で生成・Blender制約検証・GLB出力・レンダリング。生成は`scripts/build_ik.py`、IK計算は`viewer/ik.mjs`、ドラッグ操作は`viewer/ik-editor.mjs`に分離しています。静止版・歩行版は別ファイルとして維持します。
+- `just ik`で生成・Blender制約検証・GLB出力・レンダリング。生成は`human/models/traveler/src/build_ik.py`、IK計算は`viewer/ik.ts`、ドラッグ操作は`viewer/ik-editor.ts`に分離しています。静止版・歩行版は別ファイルとして維持します。
 
 ### 静止版
 
-- [GLB](output/traveler.glb) / [プレビュー](output/traveler.png) / [Blender](output/traveler.blend)
+- [GLB](human/models/traveler/output/traveler.glb) / [プレビュー](human/models/traveler/output/traveler.png) / [Blender](human/models/traveler/output/traveler.blend)
 - [キャラクターをViewerで開く](http://127.0.0.1:5188/?model=traveler)
 - `just character`で生成・GLB再読み込み検証・レンダリング。
-- 生成元は`scripts/build_character.py`。頭、胴体、左右の腕・脚、リュックを名前付きグループに分割。
+- 生成元は`human/models/traveler/src/build_character.py`。頭、胴体、左右の腕・脚、リュックを名前付きグループに分割。
 - 静止モデルです。リグ、スキニング、アニメーションは含みません。各パーツは個別のメッシュで、3Dプリント用の一体形状ではありません。
 
 ## Petit Quartier
@@ -210,9 +216,9 @@ RAVENとは別の地上重装型ロボット。傾斜装甲、厚い胸背部、
 
 ## 成果物
 
-- [GLBモデル](output/little-town.glb)：外部テクスチャ不要の単体ファイル。glTF標準のY-up、単位はメートル。
-- [プレビュー画像](output/little-town.png)：GLBをBlenderに再読み込みしてレンダリングした画像。
-- [Blenderファイル](output/little-town.blend)：モデルに撮影用カメラ・照明・背景を追加した編集用ファイル。
+- [GLBモデル](models/little-town/output/little-town.glb)：外部テクスチャ不要の単体ファイル。glTF標準のY-up、単位はメートル。
+- [プレビュー画像](models/little-town/output/little-town.png)：GLBをBlenderに再読み込みしてレンダリングした画像。
+- [Blenderファイル](models/little-town/output/little-town.blend)：モデルに撮影用カメラ・照明・背景を追加した編集用ファイル。
 
 台座は約28 × 24 m。建物の室内は作っていません。マテリアルは単色のPBR設定で、GLBの見え方は読み込み先の照明によって変わります。撮影用の床・照明・カメラはGLBには含めていません。
 
@@ -232,14 +238,14 @@ http://127.0.0.1:5188 を開くと、共通のThree.js Viewerを表示します�
 - アニメーションがあるGLBでは、クリップ選択・再生／一時停止・速度変更・タイムラインの時間送り・骨格表示が使えます。時間送りや部品へのフォーカスは再生を一時停止します。
 - 「GLBを開く」またはドラッグ＆ドロップでローカルGLBを表示。ファイルをサーバーへアップロードする処理はありません。
 - 生成コードを実行した後、「再読み込み」で選択中のモデルを更新。ローカルで選んだファイルを外部アプリで編集した場合は「GLBを開く」で再選択してください。
-- `output/`へGLBを追加するとモデル一覧に自動追加。表示名と推奨カメラ方向は`viewer/catalog.mjs`で任意に指定できます。
+- 各モデルの `output/` 直下へGLBを追加するとモデル一覧に自動追加。`output/parts/` の単体部品は一覧に含めません。表示名と推奨カメラ方向は`viewer/catalog.ts`で任意に指定できます。
 - `?model=traveler`や`?model=little-town`でモデルを指定して直接開けます。
 
 外部ファイルに依存しないGLB 2.0を想定しています。Draco・KTX2等の追加デコーダーが必要な圧縮形式は未対応です。表示寸法はglTFのメートル単位に従い、アニメーションでは選択中のクリップを36分割でサンプルした移動範囲を表示します。
 
 `just viewer-build`で一覧の全GLBを含む静的配信用の`dist/`を生成し、`pnpm preview`で確認できます。静的ビルドにはビルド時点のモデルが含まれるため、モデルを更新したらビューアも再ビルドしてください。
 
-画面と入力処理は`viewer/main.mjs`、計測・カメラ距離計算・解放処理は`viewer/model.mjs`、再生状態とクリップ管理は`runtime/animation-player.mjs`、IKの計算と状態は`runtime/solvers.mjs`と`runtime/ik.mjs`に分離しています。
+画面と入力処理は`viewer/main.ts`、計測・カメラ距離計算・解放処理は`viewer/model.ts`、再生状態とクリップ管理は`runtime/animation-player.ts`、IKの計算と状態は`runtime/solvers.ts`と`runtime/ik.ts`に分離しています。
 
 `just test`でGLB形式とカメラ・計測ロジック、`just test-e2e`でPlaywrightによる表示・視点切り替え・ファイル選択・エラーからの復帰・モバイル表示を検証します。初回にテスト用ブラウザがない場合は`pnpm exec playwright install chromium`を実行してください。
 
@@ -258,4 +264,4 @@ just all
 
 macOSでは `/Applications/Blender.app/Contents/MacOS/Blender`、それ以外ではPATH上の`blender`を使用します。別の場所にある場合は`BLENDER`環境変数を指定してください。
 
-生成元は[scripts/build_town.py](scripts/build_town.py)です。`PALETTE`で配色、`create_town()`で建物・小物の配置、`stage()`で撮影条件を変更できます。乱数シードは固定しています。
+生成元は[models/little-town/src/build_town.py](models/little-town/src/build_town.py)です。`PALETTE`で配色、`create_town()`で建物・小物の配置、`stage()`で撮影条件を変更できます。乱数シードは固定しています。

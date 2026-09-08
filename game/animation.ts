@@ -1,5 +1,5 @@
 import { Bone, Euler, Object3D, Quaternion, Vector3 } from 'three';
-import { strixPose } from '../models/strix-motion.mjs';
+import { strixPose } from '../robot/models/strix/src/motion.ts';
 import type { PilotState, Vec3 } from './types.ts';
 
 interface RigPose {position:number[];rotations:Record<string,Vec3>;scales:Record<string,Vec3>}

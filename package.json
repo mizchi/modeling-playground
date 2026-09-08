@@ -4,21 +4,25 @@
   "packageManager": "pnpm@11.24.0",
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
+    "typecheck:native": "tsgo --noEmit",
     "dev": "vite --host 127.0.0.1 --port 5188 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test tests/*.test.ts",
     "test:e2e": "playwright test",
-    "test:pages": "playwright test --config playwright.pages.config.mjs"
+    "test:pages": "playwright test --config playwright.pages.config.ts"
   },
   "engines": {
     "node": ">=24"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@types/three": "^0.185.4",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "gltf-validator": "2.0.0-dev.3.10",
     "typescript": "^7.0.2",
     "vite": "^8.2.2"

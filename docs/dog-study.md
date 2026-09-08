@@ -24,7 +24,7 @@
 
 [コーギーを表示](http://127.0.0.1:5188/?model=corgi)。短脚・長胴、大きい耳、短い尾、明るい茶と赤系の首輪を持つ別プリセット。590三角形・433共有頂点・約21.4 KiB。MUGIと同じ1メッシュ・1材質・17ボーンと`Idle`／`Rest`を使用する。
 
-`models/dog-definition.mjs`の`CORGI`だけに犬種差を定義し、`createDog(CORGI)`で生成する。犬種専用の造形コードや待機モーションは複製しない。
+`models/dog/src/definition.ts`の`CORGI`だけに犬種差を定義し、`createDog(CORGI)`で生成する。犬種専用の造形コードや待機モーションは複製しない。
 
 - `bodyLength: 1.65`、`bodyWidth: 1.15`で胴と前後脚の配置を調整。
 - `legHeight: 0.55`で脚の下部を短くし、胴・頭を下げる。胴の厚みは潰さない。
@@ -35,8 +35,8 @@
 
 ```sh
 just corgi
-node --test tests/dog.test.mjs tests/corgi.test.mjs
-pnpm exec playwright test tests/e2e/dog.spec.mjs
+node --test tests/dog.test.ts tests/corgi.test.ts
+pnpm exec playwright test tests/e2e/dog.spec.ts
 ```
 
 生成スクリプト・ビューアの多方向撮影・待機再生テストも両プリセットで共用。コーギー固有の検証は「胴が長い」「脚が短い」「同じ骨格名と予算を維持」「GLB再読込後も待機・接地が正常」に絞る。
@@ -54,19 +54,19 @@ pnpm exec playwright test tests/e2e/dog.spec.mjs
 
 ## 作り方と検証
 
-- `models/dog-definition.mjs`：予算・色・骨格の接続と基準位置。
-- `models/dog.mjs`：犬固有の形状と配色・ウェイト。
-- `modeling/compact-mesh.mjs`：共有頂点、8ビット属性、多角形断面からの生成。
-- `models/dog-motion.mjs`：少数のキーフレームによる待機モーション。
-- `scripts/build_dog.mjs`：GLB出力と予算チェック。
+- `models/dog/src/definition.ts`：予算・色・骨格の接続と基準位置。
+- `models/dog/src/model.ts`：犬固有の形状と配色・ウェイト。
+- `modeling/compact-mesh.ts`：共有頂点、8ビット属性、多角形断面からの生成。
+- `models/dog/src/motion.ts`：少数のキーフレームによる待機モーション。
+- `models/dog/src/build.ts`：GLB出力と予算チェック。
 
 ```sh
 just dog
-node --test tests/dog.test.mjs
-pnpm exec playwright test tests/e2e/dog.spec.mjs
+node --test tests/dog.test.ts
+pnpm exec playwright test tests/e2e/dog.spec.ts
 ```
 
-[ローカルViewer](http://127.0.0.1:5188/?model=dog)。正面・側面・背面の形、実再生・骨格表示・モバイル表示をPlaywrightで確認し、`output/dog-*.png`へ保存。GLB Validatorの警告・エラー、ウェイトの正規化、退化三角形、待機中の床との関係、ループ端の一致、生成物とソースの一致も検査する。
+[ローカルViewer](http://127.0.0.1:5188/?model=dog)。正面・側面・背面の形、実再生・骨格表示・モバイル表示をPlaywrightで確認し、`models/dog/output/dog-*.png`へ保存。GLB Validatorの警告・エラー、ウェイトの正規化、退化三角形、待機中の床との関係、ループ端の一致、生成物とソースの一致も検査する。
 
 初稿では長い耳がキツネ寄りに見えたため短縮。腹の白色判定を三角形ごとに行うと意図しないギザギザが生じたため、同じ四角面を作る2枚の三角形では色を揃えた。色や細部を増やす前に、面の配置と配色のまとまりを直す。
 

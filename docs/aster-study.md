@@ -22,19 +22,19 @@ LILA / `fes256` のソース・GLB・表情を変更せず、別モデル `aster
 
 ```sh
 just aster
-node --test tests/aster.test.mjs tests/aster-hair.test.mjs
-pnpm exec playwright test tests/e2e/aster.spec.mjs
+node --test tests/aster.test.ts tests/aster-hair.test.ts
+pnpm exec playwright test tests/e2e/aster.spec.ts
 ```
 
-- `models/aster-definition.mjs`：配色・予算・ボーンと取付点。
-- `models/aster-head.mjs`：固定されたXY配置と、額・鼻・頬・顎のZ断面。
-- `models/aster-texture.mjs`：通常・笑顔・怒り・驚き・瞬き・ウインクの描画。
-- `models/aster-hair.mjs`：髪の形状、ボーン階層、ウェイト、物理接続用ヒント。
-- `contracts/hair.mjs` / `.d.mts`：髪の制御データの実行時検査・型。
-- `runtime/hair-rig.mjs`：物理エンジン非依存の関節制御・リセット。
-- `models/aster.mjs`：身体、スキニング、各メッシュの接続。
+- `human/models/aster/src/definition.ts`：配色・予算・ボーンと取付点。
+- `human/models/aster/src/head.ts`：固定されたXY配置と、額・鼻・頬・顎のZ断面。
+- `human/models/aster/src/texture.ts`：通常・笑顔・怒り・驚き・瞬き・ウインクの描画。
+- `human/models/aster/src/hair.ts`：髪の形状、ボーン階層、ウェイト、物理接続用ヒント。
+- `contracts/hair.ts` / `contracts/hair.types.ts`：髪の制御データの実行時検査・型。
+- `runtime/hair-rig.ts`：物理エンジン非依存の関節制御・リセット。
+- `human/models/aster/src/model.ts`：身体、スキニング、各メッシュの接続。
 
-`just aster`は[頭単体](../output/parts/aster-head.glb)・[髪単体](../output/parts/aster-hair.glb)も出力する。両者は同じHeadローカル原点で、移動せず重ねて組み立てられる。これらは全身モデルとは別の編集用GLBで、Viewerの一覧には追加していない。[髪を外した頭](../output/aster-head-only.png)も確認できる。
+`just aster`は[頭単体](../human/models/aster/output/parts/aster-head.glb)・[髪単体](../human/models/aster/output/parts/aster-hair.glb)も出力する。両者は同じHeadローカル原点で、移動せず重ねて組み立てられる。これらは全身モデルとは別の編集用GLBで、Viewerの一覧には追加していない。[髪を外した頭](../human/models/aster/output/aster-head-only.png)も確認できる。
 
 表情は既存の `ExpressionAtlas` によるUV切替。表情を変えても顔の頂点は動かない。他のアプリで切り替えるにはこの契約を読む処理が必要。GLB単体でも保存時の表情を表示できる。
 
@@ -46,7 +46,7 @@ GLBではスキンのメッシュをScene直下に置き、ボーンのAnchorだ
 
 ```js
 import { Quaternion, Vector3 } from 'three';
-import { HairRig } from './runtime/hair-rig.mjs';
+import { HairRig } from './runtime/hair-rig.ts';
 const hair = new HairRig(gltf.scene.getObjectByName('Hair'));
 hair.setJoint('side-left', 1, new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 0.3));
 hair.reset();
@@ -60,11 +60,11 @@ hair.reset();
 
 ## 確認と残る制約
 
-[ローカルViewer](http://127.0.0.1:5188/?model=aster) / [GLB](../output/aster.glb) / [斜め](../output/aster-quarter.png) / [正面](../output/aster-front.png) / [側面](../output/aster-side.png) / [背面](../output/aster-back.png) / [顔](../output/aster-face.png) / [ワイヤー](../output/aster-face-wire.png) / [曲げ確認](../output/aster-pose.png) / [曲げ側面](../output/aster-pose-side.png)。
+[ローカルViewer](http://127.0.0.1:5188/?model=aster) / [GLB](../human/models/aster/output/aster.glb) / [斜め](../human/models/aster/output/aster-quarter.png) / [正面](../human/models/aster/output/aster-front.png) / [側面](../human/models/aster/output/aster-side.png) / [背面](../human/models/aster/output/aster-back.png) / [顔](../human/models/aster/output/aster-face.png) / [ワイヤー](../human/models/aster/output/aster-face-wire.png) / [曲げ確認](../human/models/aster/output/aster-pose.png) / [曲げ側面](../human/models/aster/output/aster-pose-side.png)。
 
-正面偏重を避け、[左斜め見下ろし](../output/aster-high-left.png) / [右斜め見下ろし](../output/aster-high-right.png) / [斜め後ろ見下ろし](../output/aster-high-back.png) / [見上げ](../output/aster-low-angle.png) / [髪の曲げ](../output/aster-hair-bend.png) / [髪の曲げ・側面](../output/aster-hair-bend-side.png)をE2Eで生成。ASTERの初期カメラも見下ろし寄りへ変更した。
+正面偏重を避け、[左斜め見下ろし](../human/models/aster/output/aster-high-left.png) / [右斜め見下ろし](../human/models/aster/output/aster-high-right.png) / [斜め後ろ見下ろし](../human/models/aster/output/aster-high-back.png) / [見上げ](../human/models/aster/output/aster-low-angle.png) / [髪の曲げ](../human/models/aster/output/aster-hair-bend.png) / [髪の曲げ・側面](../human/models/aster/output/aster-hair-bend-side.png)をE2Eで生成。ASTERの初期カメラも見下ろし寄りへ変更した。
 
-[髪の曲げ・背面](../output/aster-hair-bend-back.png)も追加。画像を生成したことと、実際に見て検査したことを区別する。今回の背面リテイクは、最初に生成済みの背面を十分に目視していなかったのが原因。[修正前の背面](../output/aster-before-back-fix.png) / [修正前の後ろ斜め](../output/aster-before-back-fix-quarter.png)を残し、後頭部から毛先の連続性、中央の割れ、平板の貼り付け感を比較する。
+[髪の曲げ・背面](../human/models/aster/output/aster-hair-bend-back.png)も追加。画像を生成したことと、実際に見て検査したことを区別する。今回の背面リテイクは、最初に生成済みの背面を十分に目視していなかったのが原因。[修正前の背面](../human/models/aster/output/aster-before-back-fix.png) / [修正前の後ろ斜め](../human/models/aster/output/aster-before-back-fix-quarter.png)を残し、後頭部から毛先の連続性、中央の割れ、平板の貼り付け感を比較する。
 
 単体テストは比率、短い首の幅と接続位置、顔と髪の外接矩形の比率、髪と頭の厚みの差、部品の独立性、顔の突出量、表情切替時の形状不変、関節の頂点追従、三角形の面積、全身／部品GLBの再生成一致とValidatorを検査する。外接矩形は見た目を守る近似指標であり、髪の画面占有面積の実測ではない。E2Eでは再読込・表情切替・各方向・モバイル・旧モデルへの切替・髪を取り外した表示を検査する。
 
@@ -72,8 +72,8 @@ hair.reset();
 
 少ない面では、隣接する三角形を別々の位置判定で塗るとブーツや服の境目が斜めに割れる。今回は四角面単位で色を決めた。横髪を尖った板として重ねると外殻との間に隙間が残ったため、厚みのある束へ変更し、その上端を頭頂内へ差し込む。髪の谷のような凹形状では、全体の重心から面の表裏を推定せず、接続順で表裏を定義する。数値テストの通過と、自然に見えるという評価は分けて扱う。
 
-次のリテイクでは「別メッシュにしてある」だけで分離できたと考えず、頭を単体で確認し、髪の厚みを頭蓋との距離として設計する。また、首の違和感を大きなマフラーで隠すことは、首の省略とは違う。今回の[変更前・斜め](../output/aster-before-volume-quarter.png)／[変更前・側面](../output/aster-before-volume-side.png)を比較用に残した。
+次のリテイクでは「別メッシュにしてある」だけで分離できたと考えず、頭を単体で確認し、髪の厚みを頭蓋との距離として設計する。また、首の違和感を大きなマフラーで隠すことは、首の省略とは違う。今回の[変更前・斜め](../human/models/aster/output/aster-before-volume-quarter.png)／[変更前・側面](../human/models/aster/output/aster-before-volume-side.png)を比較用に残した。
 
-その後、首を完全に省くのも極端との指摘で短い首へ戻した。小顔化する前の[全身](../output/aster-before-small-face-quarter.png)／[顔](../output/aster-before-small-face.png)も比較用に保存。顔を縮めると髪の内側に隙間ができるため、外側の量感だけでなく、内側とこめかみ側の接続も再調整する。
+その後、首を完全に省くのも極端との指摘で短い首へ戻した。小顔化する前の[全身](../human/models/aster/output/aster-before-small-face-quarter.png)／[顔](../human/models/aster/output/aster-before-small-face.png)も比較用に保存。顔を縮めると髪の内側に隙間ができるため、外側の量感だけでなく、内側とこめかみ側の接続も再調整する。
 
-金髪への変更前の[顔](../output/aster-before-long-hair-face.png)／[側面](../output/aster-before-long-hair-side.png)、丸める前の[頭頂](../output/aster-before-rounded-crown.png)も保存。今回追加した確認は髪リグの再読込・固定根元・頂点変形・リセット・不正設定拒否・頭回転への追従・頭頂断面の絞り。顔が見えることだけで髪の取付や頭頂の形を合格にしない。
+金髪への変更前の[顔](../human/models/aster/output/aster-before-long-hair-face.png)／[側面](../human/models/aster/output/aster-before-long-hair-side.png)、丸める前の[頭頂](../human/models/aster/output/aster-before-rounded-crown.png)も保存。今回追加した確認は髪リグの再読込・固定根元・頂点変形・リセット・不正設定拒否・頭回転への追従・頭頂断面の絞り。顔が見えることだけで髪の取付や頭頂の形を合格にしない。

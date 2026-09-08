@@ -2,7 +2,7 @@
 
 添付された重装二脚メカの画像を参考にした、RAVENとは別のオリジナル機体。アーマード・コア系の「小さなセンサー頭部・重い接地脚・露出フレーム・左右非対称の武装」を造形の軸にする。特定の公式機体の精密複製ではない。
 
-[ローカルで開く](http://127.0.0.1:5188/?model=bastion) / [標準構成GLB](../output/bastion.glb) / [パーツ規格JSON](../output/bastion.parts.json)
+[ローカルで開く](http://127.0.0.1:5188/?model=bastion) / [標準構成GLB](../robot/models/bastion/output/bastion.glb) / [パーツ規格JSON](../robot/models/bastion/output/bastion.parts.json)
 
 ## 今回の造形
 
@@ -14,7 +14,7 @@
 
 標準構成は約6.36 m高（肩砲含む）、15,210三角形、296メッシュ、約1.01 MiB。今回はPS1向けのポリゴン上限を設定していない。分離メッシュ数は交換・フォーカスの扱いやすさを優先したもので、ゲーム向け描画呼出し最適化は未実施。
 
-[斜め](../output/bastion-quarter.png) / [正面](../output/bastion-front.png) / [側面](../output/bastion-side.png) / [反対側](../output/bastion-opposite-side.png) / [背面](../output/bastion-back.png) / [斜め後ろ](../output/bastion-rear-quarter.png) / [交換例](../output/bastion-custom.png)
+[斜め](../robot/models/bastion/output/bastion-quarter.png) / [正面](../robot/models/bastion/output/bastion-front.png) / [側面](../robot/models/bastion/output/bastion-side.png) / [反対側](../robot/models/bastion/output/bastion-opposite-side.png) / [背面](../robot/models/bastion/output/bastion-back.png) / [斜め後ろ](../robot/models/bastion/output/bastion-rear-quarter.png) / [交換例](../robot/models/bastion/output/bastion-custom.png)
 
 ## 11か所の交換規格
 
@@ -28,7 +28,7 @@
 | `leftWeapon`, `rightWeapon` | ライフル／回転機関砲／なし | 左右の手持ち武装 |
 | `leftShoulder`, `rightShoulder` | ミサイル／榴弾砲／なし | 左右の肩武装 |
 
-`models/bastion-definition.mjs`を原本に、選択肢・標準構成・接続位置を固定。規格名は`bastion-v1`、メートル、Y-up、+Z前方、+Xが機体の左。規格と状態はThree.jsやDOMから独立したデータであり、形状実装は再生成できる。
+`robot/models/bastion/src/definition.ts`を原本に、選択肢・標準構成・接続位置を固定。規格名は`bastion-v1`、メートル、Y-up、+Z前方、+Xが機体の左。規格と状態はThree.jsやDOMから独立したデータであり、形状実装は再生成できる。
 
 ```text
 BASTION-06  extras: modelId, assemblyVersion, loadout
@@ -53,7 +53,7 @@ BASTION-06  extras: modelId, assemblyVersion, loadout
 
 「再読み込み」は読み込み元の構成に戻る。変更の自動保存はしない。「標準構成に戻す」は11モジュールを標準選択に戻す。RAVENなど他モデルでは編集欄を表示しない。
 
-実装は規格`bastion-definition.mjs`、材質と形状語彙`bastion-kit.mjs`、各部品`bastion-parts.mjs`、組立・交換`bastion.mjs`、DOM操作`viewer/assembly.mjs`に分離した。
+実装は規格`bastion-definition.ts`、材質と形状語彙`bastion-kit.ts`、各部品`bastion-parts.ts`、組立・交換`bastion.ts`、DOM操作`viewer/assembly.ts`に分離した。
 
 ## 今回の検証とリテイク予防
 

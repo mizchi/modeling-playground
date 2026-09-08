@@ -13,17 +13,17 @@
 
 ## 構成と再生成
 
-- `models/wyvern-definition.mjs`：寸法・断面・翼のアンカー・配色を固定した仕様。
-- `models/wyvern-geometry.mjs`：多角形断面のスイープ、稜線付きプレート、頂点色と材質別のメッシュ統合。
-- `models/wyvern.mjs`：胴・首・頭・左右の翼／脚・尾・背棘の組み立て。
-- `models/wyvern-rig.mjs`：29ボーンの接続・バインド位置・部位ごとの連続ウェイト。形状コードは静止素体として維持し、リグを別工程で追加する。
-- `models/wyvern-motion.mjs`：時刻から姿勢を返す純粋関数と、共通処理による60 Hzのクリップ生成。
-- `scripts/build_wyvern.mjs`：共通GLBエクスポータを使用して`output/wyvern.glb`を生成。
+- `models/wyvern/src/definition.ts`：寸法・断面・翼のアンカー・配色を固定した仕様。
+- `models/wyvern/src/geometry.ts`：多角形断面のスイープ、稜線付きプレート、頂点色と材質別のメッシュ統合。
+- `models/wyvern/src/model.ts`：胴・首・頭・左右の翼／脚・尾・背棘の組み立て。
+- `models/wyvern/src/rig.ts`：29ボーンの接続・バインド位置・部位ごとの連続ウェイト。形状コードは静止素体として維持し、リグを別工程で追加する。
+- `models/wyvern/src/motion.ts`：時刻から姿勢を返す純粋関数と、共通処理による60 Hzのクリップ生成。
+- `models/wyvern/src/build.ts`：共通GLBエクスポータを使用して`models/wyvern/output/wyvern.glb`を生成。
 
 ```sh
 just wyvern
-node --test tests/wyvern.test.mjs tests/wyvern-motion.test.mjs
-pnpm exec playwright test tests/e2e/wyvern.spec.mjs
+node --test tests/wyvern.test.ts tests/wyvern-motion.test.ts
+pnpm exec playwright test tests/e2e/wyvern.spec.ts
 ```
 
 [ローカルViewer](http://127.0.0.1:5188/?model=wyvern)で回転・拡大・部品へのフォーカスが可能。GLBは3,362三角形、17スキンメッシュ、約743 KiB。画像テクスチャや外部ファイルは不要。Y-up、+Zが前、単位はメートル。
@@ -58,7 +58,7 @@ GLB標準のスキニングとキーフレームだけで再生可能。Viewer�
 
 自動テストは翼と胴の比率、胴と頭の前後厚、翼の左右対称性と面積、足先の接地、有限な頂点、ゼロ面積の三角形がないこと、単位法線、再生成の決定性を検査する。生成元と納品GLBの一致、glTF Validatorのエラー・警告ゼロも確認する。
 
-Playwrightで斜め・正面・側面・背面・上面とモバイル表示を撮影。画像は`output/wyvern-*.png`に保存する。多方向の目視確認は数値テストと別に行い、テストの成功だけで造形の良さを保証しない。
+Playwrightで斜め・正面・側面・背面・上面とモバイル表示を撮影。画像は`models/wyvern/output/wyvern-*.png`に保存する。多方向の目視確認は数値テストと別に行い、テストの成功だけで造形の良さを保証しない。
 
 モーションは生成前とGLB再読込後の両方で全頂点を一周期サンプルし、有限な座標、地面との隙間、翼端の大きな振り幅、ループ端の一致を検査する。左右の関節角、姿勢関数の継ぎ目の速度、ウェイトの正規化、`Rest`の素体との一致も確認。E2Eでは実再生・時間送り・周回と、打ち上げ／打ち下ろし／回復の画像を確認する。
 

@@ -15,35 +15,35 @@
 
 追加のユーザー提供画像（側面ワイヤーと、正面／斜め／側面の頭部作例）を参照。初回改修で幅を0.50 mまで増やしたところ横に膨らみすぎたため、頭蓋の最大幅を0.436 mへ戻した。さらに頭を0.50→0.45 mに短縮し、額から頭頂へ続く長い斜面を短くした。卵型は横幅の一律拡大ではなく、頭頂からこめかみ・顎へつながる輪郭で表現する。顎下・首の接続は維持。唇の開口、口の表情用ループは未実装。耳は後述の共通素体改訂で追加。目元は後述のテクスチャ用の浅い面に改修した。
 
-`models/base45-head.mjs`に頭と首の造形を分離。顎下の面を後方へ持ち上げ、首の上端を後ろへ寄せて、筒を頭の真下に付けた形を避ける。骨格とソケット原点は維持した。
+`human/models/base45/src/head.ts`に頭と首の造形を分離。顎下の面を後方へ持ち上げ、首の上端を後ろへ寄せて、筒を頭の真下に付けた形を避ける。骨格とソケット原点は維持した。
 
 初回の詳細化では頭を24分割にして全体が728四角面になったが、素体には過剰という指摘を受け、頭・首とも12分割へ戻した。顔の中間ループ、上腕・前腕の直線区間、太腿・脛の中間ループ、親指の中間断面を削減。肘と膝の3本の補助ループは残し、一度508四角面まで削減した。その後、目元に38四角面を配分して546面、斜めの輪郭に32四角面を配分して578面、仮テクスチャ検証後に額・下頬の2段（32面）を追加して610面、顎下の丸い接続に12面を追加して622面になった。さらに左右の耳を接続して648面へ変更。うなじの接続と首の曲げ用に1段を追加し、660面になった。さらに耳の接合部へ12面を局所追加し、672面になった。環状の接合部を頭部側の縦列へ置き換え、頭頂の丸み用の段を追加し、現在は720面。頂点722以下／面720以下を回帰テストで制限し、均等な細分化で輪郭調整を代用しない。
 
 頭頂の尖りは、頂点を増やさず上側2ループの位置を再配置して調整。高低差だけを減らすと上面が平らに見えるため、その下のループも丸い輪郭に沿って動かす。その後の短縮では頭頂Y=2.20 m、直下のループY=2.185〜2.187 m、半幅0.083 mとし、額側の中間ループをY=2.10 m付近へ下げた。面数は変えていない。
 
-[拡大正面](../output/base45-face-front.png)・[横顔](../output/base45-face-side.png)・[斜め無地](../output/base45-face-quarter-clay.png)・[うなじ](../output/base45-face-back.png)で確認できる。
+[拡大正面](../human/models/base45/output/base45-face-front.png)・[横顔](../human/models/base45/output/base45-face-side.png)・[斜め無地](../human/models/base45/output/base45-face-quarter-clay.png)・[うなじ](../human/models/base45/output/base45-face-back.png)で確認できる。
 
 ### 斜めの顔外周を支える帯
 
 参照画像の黄色線は、目の穴ではなく、こめかみ→頬→顎の面が側面へ回り込む輪郭。目の内側だけを変更しても、外周が一枚の広い面のままでは斜めの形を直せなかった。
 
-`models/base45-contour.mjs`で左右それぞれ2列を挿入し、正面と側面の間を3列の曲面に変更。頭部の各段（当初8段、補助ループ追加後は10段）に追加した列を頭頂と顎下にも接続する。首の周回数と身体は維持し、最大頭幅も広げない。`Head.LeftContour`／`Head.RightContour`を選択領域として保持する。
+`human/models/base45/src/contour.ts`で左右それぞれ2列を挿入し、正面と側面の間を3列の曲面に変更。頭部の各段（当初8段、補助ループ追加後は10段）に追加した列を頭頂と顎下にも接続する。首の周回数と身体は維持し、最大頭幅も広げない。`Head.LeftContour`／`Head.RightContour`を選択領域として保持する。
 
 拡大画像で確認すると、列の追加だけでは額の側端と目の下の折れが残った。このため額の横断面を眉から連続する形に広げ、頬の上端を目元と同じ浅い曲率へ合わせ、鼻先の突出量も抑えた。輪郭の角を減らすために頂点位置を変更したのであって、スムーズシェーディングだけで隠したものではない。
 
 頭と首の実際の面だけを切り出す診断用GLBをテスト内で生成し、頂点位置を変えずに拡大表示する。正面から左右35度・55度、45度＋上下15度へ同じ条件で回転し、カメラの減衰が止まってから撮影する。ワイヤーと無地の画像を実際に開いて確認した。角度はOrbitControlsへの入力値で、画像から測った値ではない。
 
-[左35度・無地](../output/base45-contour-left-35-clay.png)・[左55度・ワイヤー](../output/base45-contour-left-55.png)・[右35度](../output/base45-contour-right-35.png)・[右55度・無地](../output/base45-contour-right-55-clay.png)・[見下ろし](../output/base45-contour-high-45-clay.png)・[見上げ](../output/base45-contour-low-45.png)。低ポリの角はまだあり、参照画像の密度・輪郭を完全再現したものではない。
+[左35度・無地](../human/models/base45/output/base45-contour-left-35-clay.png)・[左55度・ワイヤー](../human/models/base45/output/base45-contour-left-55.png)・[右35度](../human/models/base45/output/base45-contour-right-35.png)・[右55度・無地](../human/models/base45/output/base45-contour-right-55-clay.png)・[見下ろし](../human/models/base45/output/base45-contour-high-45-clay.png)・[見上げ](../human/models/base45/output/base45-contour-low-45.png)。低ポリの角はまだあり、参照画像の密度・輪郭を完全再現したものではない。
 
 ### 仮の目と格子による実貼付検証
 
-`models/base45-inspection.mjs`は無地・仮の目・格子の3種類の診断モデルを生成する。素体の頭と首の面を切り出し、位置だけでなく**元モデルの法線もそのままコピー**する。切断したモデルで法線を再計算すると、元モデルにない陰影の差を形状の問題と取り違えるため。UV境界で頂点を複製しても、元の頂点番号と四角面の対応を保持する。
+`human/models/base45/src/inspection.ts`は無地・仮の目・格子の3種類の診断モデルを生成する。素体の頭と首の面を切り出し、位置だけでなく**元モデルの法線もそのままコピー**する。切断したモデルで法線を再計算すると、元モデルにない陰影の差を形状の問題と取り違えるため。UV境界で頂点を複製しても、元の頂点番号と四角面の対応を保持する。
 
 256×256の目・眉・口は、絵の欠けや方向を確認するための仮素材。格子は同じ正面投影UVで貼る。後頭部に目が繰り返されないよう、顔以外は単色のテクセルへ割り当てる。製品用の全身UV展開・表情アトラスではない。診断GLBはリグなしの頭部のみで、全身の四角面素体は引き続き無地。
 
 実貼付で額の長い直線と頬下の角が目立ったため、額Y=2.049付近と下頬Y=1.81付近に補助ループを追加。目の位置・サイズ、最大頭幅、首と身体の形状、22ボーンは変更しない。目の接続段は配列の固定番号でなく、mouth/nose/eye/browの役割で選ぶようにし、補助段の追加で接続先がずれるのを防ぐ。
 
-[仮の目・正面](../output/base45-eyes-front.png)・[斜め35度](../output/base45-eyes-35.png)・[斜め55度](../output/base45-eyes-55.png)・[見下ろし](../output/base45-eyes-high.png)・[格子・斜め](../output/base45-grid-35.png)・[格子・見上げ](../output/base45-grid-low.png)・[背面](../output/base45-eyes-back.png)。これらの拡大画像を開いて確認。鼻と顎の格子が斜めで縮むこと自体は奥行きによる投影であり、UVの裏返りとは区別する。テストでは描画対象の全三角形について正面投影で面積が正であること、UV倍率、法線・頂点の一致、GLBへのPNG内包を確認する。これだけで美観や全角度の歪みの少なさを保証するわけではない。
+[仮の目・正面](../human/models/base45/output/base45-eyes-front.png)・[斜め35度](../human/models/base45/output/base45-eyes-35.png)・[斜め55度](../human/models/base45/output/base45-eyes-55.png)・[見下ろし](../human/models/base45/output/base45-eyes-high.png)・[格子・斜め](../human/models/base45/output/base45-grid-35.png)・[格子・見上げ](../human/models/base45/output/base45-grid-low.png)・[背面](../human/models/base45/output/base45-eyes-back.png)。これらの拡大画像を開いて確認。鼻と顎の格子が斜めで縮むこと自体は奥行きによる投影であり、UVの裏返りとは区別する。テストでは描画対象の全三角形について正面投影で面積が正であること、UV倍率、法線・頂点の一致、GLBへのPNG内包を確認する。これだけで美観や全角度の歪みの少なさを保証するわけではない。
 
 Viewerの「BASE-45 · 仮の目／顔形状チェック」は`base45-face-check.glb`を表示する。格子はPlaywright検証時に切り替える診断モードで、Viewerに格子切替UIは追加していない。
 
@@ -51,11 +51,11 @@ Viewerの「BASE-45 · 仮の目／顔形状チェック」は`base45-face-check
 
 正面寄りの斜め表示だけでは、顎の側面まで縮小した断面と、ほぼ水平な首上端が作る板状の下面を見落としていた。ユーザーの全身見上げ画像を受け、左右55度・仰角-25度、真横、横の見上げ、後ろ斜め、正面の仰角-45度を固定の追加確認角度とした。
 
-`models/base45-jaw.mjs`に顎先・顎の角・うなじの座標を分離。下顎を頭蓋断面の一律縮小として作らず、顎先は細く、頬の後ろの角は半幅0.129 mで支える。首上端も水平なY=1.745の輪ではなく、喉Y=1.770、側面1.790、うなじ1.815へ上がる接合線に変更。顎先Y=1.750から後方の喉へ下面が上がる。この段階では首より下の身体、目と額、骨格、面数610を維持した。その後、下記の顎下ループを追加した。
+`human/models/base45/src/jaw.ts`に顎先・顎の角・うなじの座標を分離。下顎を頭蓋断面の一律縮小として作らず、顎先は細く、頬の後ろの角は半幅0.129 mで支える。首上端も水平なY=1.745の輪ではなく、喉Y=1.770、側面1.790、うなじ1.815へ上がる接合線に変更。顎先Y=1.750から後方の喉へ下面が上がる。この段階では首より下の身体、目と額、骨格、面数610を維持した。その後、下記の顎下ループを追加した。
 
 下面は`Head.UnderJaw`として編集選択できる。テストは顎角の位置、首との奥行き差、下面が後方へ上がることを検証。形状の美観をテスト合格だけで判断しない。
 
-[修正前・右見上げ](../output/base45-jaw-before-right-low.png)と[修正後・同じ角度](../output/base45-jaw-after-right-low.png)を比較し、[左見上げ](../output/base45-jaw-after-left-low.png)・[真横](../output/base45-jaw-after-profile.png)・[後ろ斜め](../output/base45-jaw-after-rear-low.png)・[顎下ワイヤー](../output/base45-jaw-after-under-chin-wire.png)も確認する。[全身の見上げ](../output/base45-jaw-after-body-low.png)は頭部切り出しではなく元のリグ付きGLBを表示する。
+[修正前・右見上げ](../human/models/base45/output/base45-jaw-before-right-low.png)と[修正後・同じ角度](../human/models/base45/output/base45-jaw-after-right-low.png)を比較し、[左見上げ](../human/models/base45/output/base45-jaw-after-left-low.png)・[真横](../human/models/base45/output/base45-jaw-after-profile.png)・[後ろ斜め](../human/models/base45/output/base45-jaw-after-rear-low.png)・[顎下ワイヤー](../human/models/base45/output/base45-jaw-after-under-chin-wire.png)も確認する。[全身の見上げ](../human/models/base45/output/base45-jaw-after-body-low.png)は頭部切り出しではなく元のリグ付きGLBを表示する。
 
 ### 顔の外周を強調しすぎた硬い縁の修正
 
@@ -63,7 +63,7 @@ Viewerの「BASE-45 · 仮の目／顔形状チェック」は`base45-face-check
 
 `contourTurn`は頬側の傾きを引き継いで側面へ回り込むHermite補間に変更。下頬・下顎の前後位置を再配分して、目元の浅い面から顎先まで徐々に傾くよう調整。顎下と喉の間には12点の補助ループを1本追加し、一枚の広い面で直接つながない。スムーズ法線の設定だけで隠すのではなく、頂点位置と面構成を変更した。目の位置・頭の最大幅・身体・22ボーンは維持する。
 
-テストには補間の始点の傾き、横方向の折り返しがないこと、代表の頬境界の面角が30度未満であること、顎下の中間段を追加。角度のしきい値は局所の回帰防止であり、顔全体の自然さを保証しない。[見本に寄せた斜め下の角度](../output/base45-jaw-after-reference-low.png)と[同ワイヤー](../output/base45-jaw-after-reference-low-wire.png)を追加し、正面・左右・顎下・テクスチャも目視確認する。撮影角度は正面から35度、仰角-35度の設定で、参考画像のカメラを厳密に復元したものではない。
+テストには補間の始点の傾き、横方向の折り返しがないこと、代表の頬境界の面角が30度未満であること、顎下の中間段を追加。角度のしきい値は局所の回帰防止であり、顔全体の自然さを保証しない。[見本に寄せた斜め下の角度](../human/models/base45/output/base45-jaw-after-reference-low.png)と[同ワイヤー](../human/models/base45/output/base45-jaw-after-reference-low-wire.png)を追加し、正面・左右・顎下・テクスチャも目視確認する。撮影角度は正面から35度、仰角-35度の設定で、参考画像のカメラを厳密に復元したものではない。
 
 ### 目と眼窩への局所的な面配分
 
@@ -71,7 +71,7 @@ Viewerの「BASE-45 · 仮の目／顔形状チェック」は`base45-face-check
 
 最初の2列×2段／8点案は目の縦幅が狭く帯状に見えたため、頬側へ接続範囲を広げた。さらに「この上に目のテクスチャを貼る」という用途が明示されたため、深い眼窩・まぶたの溝・独立した眼球状の盛り上がりを撤去。目元と外側境界は共通の緩い顔面曲率で計算し、内側ループの差は1 mmに抑える。頬への下端も同じ面へブレンドする。鼻筋の小さな起伏は残すが、絵を貼る部分に穴や急な段差を作らない。
 
-`models/base45-eyes.mjs`に局所構造を分離。JSON／OBJでは`Head.LeftOrbit`／`Head.LeftLid`／`Head.LeftEye`と右側相当の領域を区別する。Blenderにも各領域の`Select_`頂点グループを残す。
+`human/models/base45/src/eyes.ts`に局所構造を分離。JSON／OBJでは`Head.LeftOrbit`／`Head.LeftLid`／`Head.LeftEye`と右側相当の領域を区別する。Blenderにも各領域の`Select_`頂点グループを残す。
 
 目の表面は素体とつながったテクスチャ用の連続面。局所ループの名前は編集領域の区別であって、立体的な眼球・開口を意味しない。診断用の正面UVと仮テクスチャのみ実装済みで、素体の製品用UVと顔デザインは未制作。独立した球体眼球、視線制御、まばたきも未実装。眼球リグ付きと呼ばない。
 
@@ -79,12 +79,12 @@ Viewerの「BASE-45 · 仮の目／顔形状チェック」は`base45-face-check
 
 | ファイル | 用途 |
 | --- | --- |
-| [base45.blend](../output/base45.blend) | 四角面・頂点グループ・Armatureを直接編集。ワイヤー重畳表示を初期設定 |
-| [base45.obj](../output/base45.obj) | DCC間で四角面を受け渡す。リグ・ウェイトは含まない |
-| [base45.glb](../output/base45.glb) | Viewer／ゲーム用。三角化されたメッシュ、ウェイト、骨、四角面情報のextras |
-| [base45.topology.json](../output/base45.topology.json) | 頂点・四角面・部位・名前付きウェイト・レスト骨位置の生成元データ |
-| [base45-face-check.glb](../output/base45-face-check.glb) | 仮の目を貼った、元の頂点・法線のままの頭部クロップ。リグなし |
-| [base45-face-check.png](../output/base45-face-check.png) | 診断用256pxテクスチャ。完成したキャラクターの顔デザインではない |
+| [base45.blend](../human/models/base45/output/base45.blend) | 四角面・頂点グループ・Armatureを直接編集。ワイヤー重畳表示を初期設定 |
+| [base45.obj](../human/models/base45/output/base45.obj) | DCC間で四角面を受け渡す。リグ・ウェイトは含まない |
+| [base45.glb](../human/models/base45/output/base45.glb) | Viewer／ゲーム用。三角化されたメッシュ、ウェイト、骨、四角面情報のextras |
+| [base45.topology.json](../human/models/base45/output/base45.topology.json) | 頂点・四角面・部位・名前付きウェイト・レスト骨位置の生成元データ |
+| [base45-face-check.glb](../human/models/base45/output/base45-face-check.glb) | 仮の目を貼った、元の頂点・法線のままの頭部クロップ。リグなし |
+| [base45-face-check.png](../human/models/base45/output/base45-face-check.png) | 診断用256pxテクスチャ。完成したキャラクターの顔デザインではない |
 
 `just base45`でGLB・OBJ・JSON・診断GLB/PNG、`just base45-blend`でそれらに加えてBlenderファイルを再生成する。生成コマンドは同名の成果物を上書きするため、手編集する場合は別名で保存する。Blenderの手編集内容をJSへ戻すインポーターは未実装。
 
@@ -102,7 +102,7 @@ OBJのグループは部位の選択用。閉じた一体メッシュを維持�
 
 頭側面の左右各2面を開き、それぞれ6頂点の付け根・耳輪・浅い内側のくぼみへ接続。左右合計で26頂点・26四角面（52三角形）の純増となり、全体は650頂点・648四角面になった。耳のために頭や身体を全体的に細分化していない。耳は独立した交差プリミティブではなく、頭と共有頂点でつながった閉じた表面で、Headへ100%ウェイトを付ける。22ボーンとソケットは維持。
 
-耳輪はY=1.894〜1.991、最大横幅は片側X=±0.277。頭蓋の幅・顔・顎・首は変更せず、頭蓋の幅検査から耳を分離している。耳の面は正面から側面へ斜めに回し、横から板状に見えない奥行きを付けた。造形は `models/base45-ears.mjs` に分離。頭への接続、左右対称、耳の奥行き、四角面、Headウェイトを検証する。
+耳輪はY=1.894〜1.991、最大横幅は片側X=±0.277。頭蓋の幅・顔・顎・首は変更せず、頭蓋の幅検査から耳を分離している。耳の面は正面から側面へ斜めに回し、横から板状に見えない奥行きを付けた。造形は `human/models/base45/src/ears.ts` に分離。頭への接続、左右対称、耳の奥行き、四角面、Headウェイトを検証する。
 
 GLB・OBJ・トポロジーJSON・ネイティブBlender・診断用GLBを再生成。`createBase45()` を共有するLUMIにも同じ耳が反映される。Blenderでは `Select_Head.LeftEar.*` / `Select_Head.RightEar.*` の頂点グループから耳の各部を選択できる。
 
@@ -120,7 +120,7 @@ GLB内の`FaceSocket`／`HairSocket`は`Head`の子で、原点はソース座�
 
 Viewerで`BASE-45`を選ぶと、無地表面＋四角面エッジを表示する。「ワイヤーフレーム」を外すと無地表面のみ。GLBの三角化で生まれた対角線は表示しない。四角面メタデータのない既存モデルでは従来の三角ワイヤー表示を維持する。
 
-[正面](../output/base45-front.png)・[側面](../output/base45-side.png)・[背面](../output/base45-back.png)・[上面](../output/base45-top.png)・[前方見下ろし](../output/base45-high-front.png)・[背面見下ろし](../output/base45-high-back.png)・[見上げ](../output/base45-low-front.png)・[無地](../output/base45-clay.png)を生成する。側面・背面・見下ろしと[関節曲げ](../output/base45-pose.png)は画像を開いて目視確認した。スクリーンショット生成だけを目視確認と呼ばない。
+[正面](../human/models/base45/output/base45-front.png)・[側面](../human/models/base45/output/base45-side.png)・[背面](../human/models/base45/output/base45-back.png)・[上面](../human/models/base45/output/base45-top.png)・[前方見下ろし](../human/models/base45/output/base45-high-front.png)・[背面見下ろし](../human/models/base45/output/base45-high-back.png)・[見上げ](../human/models/base45/output/base45-low-front.png)・[無地](../human/models/base45/output/base45-clay.png)を生成する。側面・背面・見下ろしと[関節曲げ](../human/models/base45/output/base45-pose.png)は画像を開いて目視確認した。スクリーンショット生成だけを目視確認と呼ばない。
 
 Nodeテストでは比率・左右対称・接地・側面厚み・一体性・閉じたエッジ・向き・非退化三角形・ウェイト・変形・再生成一致・GLB再読込を確認する。Playwrightでは全方向、ワイヤー切替、骨格、狭幅画面、曲げたGLBの再読込を確認する。
 
@@ -136,7 +136,7 @@ Nodeテストでは比率・左右対称・接地・側面厚み・一体性・�
 
 ### 継続するルール
 
-うなじの接続をさらに修正し、後ろ中心の頂点をY=1.715〜1.975に分散して、首の上で急に水平方向へ広がる形を解消。`base45-nape.mjs` が後頭部の曲線を定義し、耳へ向かって変形量を0へ減衰させる。顔の前面・顎先は維持。首の中段を1段だけ追加し、12頂点・12四角面（24三角形）の増加に抑えた。この時点では全体662頂点・660四角面、身体22ボーンは維持。その後の耳の接合部改訂で674頂点・672四角面になった。
+うなじの接続をさらに修正し、後ろ中心の頂点をY=1.715〜1.975に分散して、首の上で急に水平方向へ広がる形を解消。`base45-nape.ts` が後頭部の曲線を定義し、耳へ向かって変形量を0へ減衰させる。顔の前面・顎先は維持。首の中段を1段だけ追加し、12頂点・12四角面（24三角形）の増加に抑えた。この時点では全体662頂点・660四角面、身体22ボーンは維持。その後の耳の接合部改訂で674頂点・672四角面になった。
 
 首の下段はChest 20% / Neck 80%、中段はNeck 82% / Head 18%、上端はNeck 40% / Head 60%、顎下はNeck 15% / Head 85%、頭蓋はHead 100%。細い一列に変形を集中させない。human-viewerの「首・頭チェック」で左右約45度・上下約30度・横傾き約23度と複合姿勢を再生できる。
 

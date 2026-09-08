@@ -6,20 +6,20 @@
 
 ```text
 contracts/asset.{mjs,d.mts}       JSON の検証と型定義
-models/raven-definition.mjs      骨格・ソケット・判定形状・噴射・クリップ設定
-models/raven.mjs                 キャラクター固有の造形・材質
-models/raven-motion.mjs          キャラクター固有の演出と姿勢関数
+robot/models/raven/src/definition.ts      骨格・ソケット・判定形状・噴射・クリップ設定
+robot/models/raven/src/model.ts                 キャラクター固有の造形・材質
+robot/models/raven/src/motion.ts          キャラクター固有の演出と姿勢関数
            ↓ 利用
 modeling/                       形状部品・骨格生成・剛体ウェイト・動作の焼き込み
 runtime/                        共通の再生・IK・横薙ぎソルバー・設定の解決
            ↓ Node で出力
-output/raven.glb                 見た目・26 ボーン・モーション・6 ソケット
-output/raven.asset.json          付随するゲーム用設定
+robot/models/raven/output/raven.glb                 見た目・26 ボーン・モーション・6 ソケット
+robot/models/raven/output/raven.asset.json          付随するゲーム用設定
            ↓ 読み込み
 viewer/                         入力・カメラ・表示（将来のゲームも runtime を利用）
 ```
 
-`modeling/` と `runtime/` は DOM・ファイル I/O・特定のキャラクター名に依存しない。ファイル出力は `scripts/`、操作ハンドルは `viewer/ik-editor.mjs` に残す。旧 `viewer/ik.mjs` と `viewer/animation.mjs` の公開 API は互換エントリーポイントとして維持する。
+形状・骨格・モーション処理と `runtime/` は DOM・ファイル I/O に依存しない。Node専用の出力境界は `modeling/output.ts`、`export-glb.ts`、`export-asset.ts`、`png.ts` に分離し、各モデルの `src/build.ts` から利用する。出力先の所有規則は `modeling/asset-paths.ts` に集約する。操作ハンドルは `viewer/ik-editor.ts`、旧 `viewer/ik.ts` と `viewer/animation.ts` の公開 API は互換エントリーポイントとして維持する。[モデルの配置と追加手順](model-layout.md)。
 
 ## 設定の意味
 
@@ -64,4 +64,4 @@ const signals = binding.sample('BladeSlash', player.time);
 
 Viewer は同名の `.asset.json` があるカタログモデルだけ設定を読み込む。設定のない従来モデルや、単独で開いた GLB も表示・再生できる。GLB の `extras.animationModes` と `extras.groundLevel` は互換用に同じ定義から生成する。
 
-`tests/raven-regression.test.mjs` はリファクタ前 `27aaf9a` の全メッシュ属性・材質・モーションサンプルのハッシュを保持する。意図的な造形変更では確認後に更新するが、構造整理では変更しない。生成された GLB/JSON は手で編集せず、公開時には両方をコミットする。
+`tests/raven-regression.test.ts` はリファクタ前 `27aaf9a` の全メッシュ属性・材質・モーションサンプルのハッシュを保持する。意図的な造形変更では確認後に更新するが、構造整理では変更しない。生成された GLB/JSON は手で編集せず、公開時には両方をコミットする。

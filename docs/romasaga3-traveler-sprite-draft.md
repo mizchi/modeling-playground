@@ -2,7 +2,7 @@
 
 ## 状態
 
-- 画像: `../output/romasaga3-traveler-draft.png`
+- 画像: `../human/models/traveler/human/models/traveler/output/romasaga3-traveler-draft.png`
 - built-in image_gen で生成。CLI/API フォールバックは使用していない。
 - 1024 × 1536 PNG、4列 × 8行の試作。32セルの想定。
 - **未完成: ゲーム用の検証済みスプライトアトラスではない。** 背景の市松模様は描画されており、アルファチャンネルなし。
