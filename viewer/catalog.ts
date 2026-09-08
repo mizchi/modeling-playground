@@ -4,6 +4,9 @@ const files = import.meta.glob<string>(['../human/models/*/output/*.glb', '../ro
 const definitions = import.meta.glob<string>(['../human/models/*/output/*.asset.json', '../robot/models/*/output/*.asset.json', '../models/*/output/*.asset.json'], { eager: true, query: '?url', import: 'default' });
 const metadata: Record<string, Pick<CatalogEntry,'label' | 'direction' | 'defaultWireframe'>> = {
   lumi: { label: 'LUMI · BASE-45＋顔・レイヤーショート', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-meshy-v2-relaxed': { label: 'LUMI Meshy v2 · 軽く握った手（標準形状）', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-meshy-v2-walking-relaxed': { label: 'LUMI Meshy v2 · 歩行／軽く握った手', direction: [1.2,.55,2.4], defaultWireframe: false },
+  'lumi-meshy-v2-running-relaxed': { label: 'LUMI Meshy v2 · 走行／軽く握った手', direction: [1.2,.55,2.4], defaultWireframe: false },
   base45: { label: 'BASE-45 · 顔テクスチャ用素体', direction: [1, .65, 2.4], defaultWireframe: true },
   'base45-face-check': { label: 'BASE-45 · 仮の目／顔形状チェック', direction: [1.4, .35, 2.4] },
   aster: { label: 'ASTER · 金髪ロングの4等身', direction: [1.3, 1.35, 2.4] },

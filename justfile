@@ -39,6 +39,14 @@ motion-editor:
 motion-generate *args:
     node motion/generation/cli.ts {{args}}
 
+# Reference image → unrigged geometry → inspect → explicitly rig.
+human-meshy-v2 *args:
+    node --env-file-if-exists=.env human/models/lumi-meshy-v2/src/generate.ts {{args}}
+
+# Local-only relaxed finger shape; preserves original rig and animations.
+human-meshy-v2-hands:
+    node human/models/lumi-meshy-v2/src/build-relaxed-hands.ts
+
 motion-check:
     pnpm typecheck:native
     node --test tests/motion-*.test.ts
