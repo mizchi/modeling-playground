@@ -1,0 +1,43 @@
+{
+  "id": "confirm",
+  "name": "決定",
+  "duration": 0.28,
+  "peak": 0.45,
+  "description": "明るい上行2音。短く、耳に刺さりにくい決定音。",
+  "reflections": [],
+  "layers": [
+    {
+      "kind": "tone",
+      "start": 0,
+      "duration": 0.052,
+      "frequency": 880,
+      "endFrequency": 880,
+      "glide": 0.01,
+      "decay": 0.03,
+      "gain": 0.7,
+      "attack": 0.002,
+      "pan": 0,
+      "partials": [
+        1,
+        0.14
+      ]
+    },
+    {
+      "kind": "tone",
+      "start": 0.049,
+      "duration": 0.195,
+      "frequency": 1318.51,
+      "endFrequency": 1318.51,
+      "glide": 0.01,
+      "decay": 0.045,
+      "gain": 0.85,
+      "attack": 0.002,
+      "pan": 0,
+      "partials": [
+        1,
+        0.1,
+        0.035
+      ]
+    }
+  ]
+}

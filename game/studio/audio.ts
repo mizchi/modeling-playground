@@ -1,9 +1,9 @@
-import bgmUrl from '../assets/audio/battle.wav?url';
-import confirmUrl from '../assets/audio/confirm.wav?url';
-import cancelUrl from '../assets/audio/cancel.wav?url';
-import explosionUrl from '../assets/audio/explosion.wav?url';
-import swordUrl from '../assets/audio/sword.wav?url';
-import bluntUrl from '../assets/audio/blunt.wav?url';
+import bgmUrl from '../../audio/output/03-oath-of-the-lightning-battle.wav?url';
+import confirmUrl from '../../audio/output/sfx/02-confirm.wav?url';
+import cancelUrl from '../../audio/output/sfx/03-cancel.wav?url';
+import explosionUrl from '../../audio/output/sfx/01-explosion.wav?url';
+import swordUrl from '../../audio/output/sfx/04-sword-hit.wav?url';
+import bluntUrl from '../../audio/output/sfx/05-blunt-hit.wav?url';
 import type { ActionDocument, GameEvent, SoundId } from './contracts.ts';
 
 const urls={'bgm.battle':bgmUrl,'sfx.confirm':confirmUrl,'sfx.cancel':cancelUrl,'sfx.explosion':explosionUrl,'sfx.sword':swordUrl,'sfx.blunt':bluntUrl};

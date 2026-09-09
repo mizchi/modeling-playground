@@ -1,0 +1,42 @@
+[
+  {
+    "name": "01-windward-trail-chip",
+    "arrangement": "chip",
+    "bpm": 104,
+    "bars": 16,
+    "frames": 1628308,
+    "sampleRate": 44100,
+    "duration": 36.92308390022676,
+    "peak": 0.23523495482482362,
+    "rms": 0.07876508907695555,
+    "lufs": -20,
+    "melodyNotes": 80,
+    "measuredPeak": 0.2352294921875,
+    "measuredRms": 0.07876387865350482,
+    "boundaryJump": [
+      0.00048828125,
+      0.000640869140625
+    ],
+    "checks": "passed"
+  },
+  {
+    "name": "02-windward-trail-acoustic",
+    "arrangement": "acoustic",
+    "bpm": 104,
+    "bars": 16,
+    "frames": 1628308,
+    "sampleRate": 44100,
+    "duration": 36.92308390022676,
+    "peak": 0.37331447095138265,
+    "rms": 0.07317012020421922,
+    "lufs": -20,
+    "melodyNotes": 80,
+    "measuredPeak": 0.373321533203125,
+    "measuredRms": 0.07316899858652887,
+    "boundaryJump": [
+      0.002899169921875,
+      0.0015869140625
+    ],
+    "checks": "passed"
+  }
+]

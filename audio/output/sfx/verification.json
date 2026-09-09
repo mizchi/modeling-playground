@@ -1,0 +1,50 @@
+[
+  {
+    "name": "01-explosion",
+    "duration": 1.9,
+    "peakDb": -1.9383327973301165,
+    "rms": 0.11966463895143653,
+    "tailRms": 0,
+    "checks": "passed"
+  },
+  {
+    "name": "02-confirm",
+    "duration": 0.28,
+    "peakDb": -6.936103161438021,
+    "rms": 0.12161484339149892,
+    "tailRms": 0,
+    "checks": "passed"
+  },
+  {
+    "name": "03-cancel",
+    "duration": 0.24,
+    "peakDb": -7.33077883700723,
+    "rms": 0.11426521885134762,
+    "tailRms": 0,
+    "checks": "passed"
+  },
+  {
+    "name": "04-sword-hit",
+    "duration": 0.48,
+    "peakDb": -2.3839653275888213,
+    "rms": 0.08901114613353175,
+    "tailRms": 0,
+    "checks": "passed"
+  },
+  {
+    "name": "05-blunt-hit",
+    "duration": 0.34,
+    "peakDb": -2.1584613831352866,
+    "rms": 0.14146822012693155,
+    "tailRms": 0,
+    "checks": "passed"
+  },
+  {
+    "name": "00-demo",
+    "duration": 6.34,
+    "peakDb": -1.9383327973301165,
+    "rms": 0.08433226890914859,
+    "tailRms": 0,
+    "checks": "passed"
+  }
+]

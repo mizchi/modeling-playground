@@ -1,0 +1,61 @@
+{
+  "id": "blunt-hit",
+  "name": "打撲",
+  "duration": 0.34,
+  "peak": 0.78,
+  "description": "低く短い衝撃と、乾いた表面のアタック。金属の余韻は付けない。",
+  "reflections": [],
+  "layers": [
+    {
+      "kind": "tone",
+      "start": 0,
+      "duration": 0.26,
+      "frequency": 170,
+      "endFrequency": 63,
+      "glide": 0.013,
+      "decay": 0.045,
+      "gain": 1,
+      "attack": 0.0015,
+      "pan": 0,
+      "partials": [
+        1,
+        0.22,
+        0.05
+      ]
+    },
+    {
+      "kind": "tone",
+      "start": 0.001,
+      "duration": 0.14,
+      "frequency": 380,
+      "endFrequency": 175,
+      "glide": 0.009,
+      "decay": 0.021,
+      "gain": 0.24,
+      "attack": 0.0015,
+      "pan": 0
+    },
+    {
+      "kind": "noise",
+      "start": 0,
+      "duration": 0.065,
+      "low": 220,
+      "high": 2200,
+      "decay": 0.012,
+      "gain": 0.65,
+      "attack": 0.001,
+      "pan": 0
+    },
+    {
+      "kind": "noise",
+      "start": 0.002,
+      "duration": 0.2,
+      "low": 60,
+      "high": 680,
+      "decay": 0.035,
+      "gain": 0.66,
+      "attack": 0.001,
+      "pan": 0
+    }
+  ]
+}

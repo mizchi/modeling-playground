@@ -3,12 +3,15 @@
 モデル、攻撃演出、音声、配置、ミッション進行を1つの試遊に接続するプリプロ用の試作。
 開発場所は modeling-playground。kagura はリファクタリング後に統合するため、依存も変更も加えていない。
 
+現在は試行を優先し、本格的な設計はkagura接続時に行う。[試作で得た知見・次に試す仮説](prototyping-notes.md) に、引き継ぎたいことと未検証のことを記録する。
+
 ## 起動と操作
 
-Node.js 24+ / pnpm を使用する。
+Node.js 24+ / pnpm / just / FFmpeg を使用する。WAV・MP3はGit管理外のため、初回は音源を生成する。
 
 ```sh
 pnpm install
+just audio-generate
 just scene-editor
 ```
 
@@ -75,8 +78,9 @@ kaguraのAPIが落ち着いたら、入力・時刻・アセット解決をア�
 
 ## 音声の由来・配布
 
-`game/assets/audio/manifest.json` に media-studio の元ファイル、コミット `035fe2c`、SHA-256 を記録。
-オリジナルの戦闘BGMと5種の効果音をコピーしてあるため、ビルド時に隣のリポジトリは不要。
+media-studioの作曲・合成・検証機能と全音源は `audio/` に統合した。[音源と再生成の手順](../audio/README.md)。
+`audio/game-assets.json` に、ゲーム用ID、現在のパス、media-studioの元ファイル・コミット `035fe2c`・SHA-256を記録。
+ゲームと攻撃プレビューは `audio/output/` のWAVを直接参照する。WAV・MP3はローカルまたはCIで生成し、Gitにコミットしない。生成・ビルドとも隣のリポジトリへの依存やゲーム用コピーは不要。
 発射音は打撲音を短く高めに再生し、命中音に剣ヒット、撃破に爆発、メニューに決定／キャンセルを使う。
 今回の試作では専用の銃声や新しい音源は生成していない。
 

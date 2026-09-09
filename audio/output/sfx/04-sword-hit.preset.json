@@ -1,0 +1,107 @@
+{
+  "id": "sword-hit",
+  "name": "剣のヒット",
+  "duration": 0.48,
+  "peak": 0.76,
+  "description": "即時の切断感、衝撃の芯、短い金属の響き。",
+  "reflections": [
+    {
+      "delay": 0.021,
+      "gain": 0.075
+    },
+    {
+      "delay": 0.043,
+      "gain": 0.035
+    }
+  ],
+  "layers": [
+    {
+      "kind": "noise",
+      "start": 0,
+      "duration": 0.06,
+      "low": 1700,
+      "high": 10500,
+      "decay": 0.012,
+      "gain": 0.85,
+      "attack": 0.001,
+      "pan": 0
+    },
+    {
+      "kind": "noise",
+      "start": 0.002,
+      "duration": 0.17,
+      "low": 700,
+      "high": 6500,
+      "decay": 0.035,
+      "gain": 0.48,
+      "attack": 0.001,
+      "pan": 0,
+      "endHigh": 1900,
+      "filterDecay": 0.035
+    },
+    {
+      "kind": "tone",
+      "start": 0,
+      "duration": 0.13,
+      "frequency": 290,
+      "endFrequency": 105,
+      "glide": 0.011,
+      "decay": 0.029,
+      "gain": 0.68,
+      "attack": 0.0015,
+      "pan": 0,
+      "partials": [
+        1,
+        0.25
+      ]
+    },
+    {
+      "kind": "tone",
+      "start": 0.006,
+      "duration": 0.35,
+      "frequency": 1920,
+      "endFrequency": 1870,
+      "glide": 0.035,
+      "decay": 0.065,
+      "gain": 0.35,
+      "attack": 0.0015,
+      "pan": -0.08
+    },
+    {
+      "kind": "tone",
+      "start": 0.006,
+      "duration": 0.29,
+      "frequency": 2897,
+      "endFrequency": 2840,
+      "glide": 0.03,
+      "decay": 0.043,
+      "gain": 0.23,
+      "attack": 0.0015,
+      "pan": 0.08
+    },
+    {
+      "kind": "tone",
+      "start": 0.007,
+      "duration": 0.22,
+      "frequency": 4321,
+      "endFrequency": 4250,
+      "glide": 0.025,
+      "decay": 0.029,
+      "gain": 0.14,
+      "attack": 0.0015,
+      "pan": 0
+    },
+    {
+      "kind": "tone",
+      "start": 0.004,
+      "duration": 0.13,
+      "frequency": 5713,
+      "endFrequency": 5600,
+      "glide": 0.02,
+      "decay": 0.018,
+      "gain": 0.07,
+      "attack": 0.0015,
+      "pan": 0
+    }
+  ]
+}

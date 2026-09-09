@@ -159,7 +159,7 @@ export function GameApp({scene=DEFAULT_SCENE,onExit}:{scene?:SceneDocument;onExi
         {audioStatus.error&&<p role="alert">{audioStatus.error}<button onClick={()=>void audio.unlock()}>音声を再読み込み</button></p>}
         <p className="hint">クリックでマウスを固定 · Escで解除<br/>固定できない環境では右ドラッグで視点操作</p>
         <div className="menu-footer">{started&&<button onClick={()=>reset()}>出発地点へ戻す</button>}{onExit?<button onClick={()=>{controls.pause();audio.reset();onExit();}}>編集に戻る</button>:<a href="./scene-editor.html">Scene Editor</a>}<a href="./index.html?model=strix">モデルビューアへ</a></div>
-        <details className="game-credits"><summary>クレジット・操作</summary><p>モデル・モーション：modeling-playground<br/>BGM「閃光の誓い」・効果音：media-studio<br/>制作：mizchi / Codex<br/>WASD：移動、Space：ジャンプ、Shift：ブースト、Esc：停止</p></details>
+        <details className="game-credits"><summary>クレジット・操作</summary><p>モデル・モーション：modeling-playground<br/>BGM「閃光の誓い」・効果音：Audio Studio<br/>制作：mizchi / Codex<br/>WASD：移動、Space：ジャンプ、Shift：ブースト、Esc：停止</p></details>
         <p className="scope">Space短押し：ジャンプ · 長押し：上昇ブースト<br/>弾数無制限 · ミサイル再装填3秒 · Escから標的をリセット</p>
       </div>
     </section>}

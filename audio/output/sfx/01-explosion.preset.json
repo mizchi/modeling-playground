@@ -1,0 +1,99 @@
+{
+  "id": "explosion",
+  "name": "爆発",
+  "duration": 1.9,
+  "peak": 0.8,
+  "description": "鋭い破裂、低い圧力音、左右に広がる崩壊の余韻。",
+  "reflections": [
+    {
+      "delay": 0.031,
+      "gain": 0.16
+    },
+    {
+      "delay": 0.079,
+      "gain": 0.11
+    },
+    {
+      "delay": 0.181,
+      "gain": 0.07
+    }
+  ],
+  "layers": [
+    {
+      "kind": "noise",
+      "start": 0,
+      "duration": 0.1,
+      "low": 700,
+      "high": 10000,
+      "decay": 0.018,
+      "gain": 0.75,
+      "attack": 0.001,
+      "pan": 0
+    },
+    {
+      "kind": "noise",
+      "start": 0.002,
+      "duration": 0.75,
+      "low": 75,
+      "high": 6500,
+      "decay": 0.145,
+      "gain": 1.35,
+      "attack": 0.001,
+      "pan": 0,
+      "endHigh": 850,
+      "filterDecay": 0.16
+    },
+    {
+      "kind": "tone",
+      "start": 0,
+      "duration": 0.85,
+      "frequency": 118,
+      "endFrequency": 32,
+      "glide": 0.038,
+      "decay": 0.19,
+      "gain": 1.05,
+      "attack": 0.0015,
+      "pan": 0,
+      "partials": [
+        1,
+        0.3,
+        0.12
+      ]
+    },
+    {
+      "kind": "noise",
+      "start": 0.014,
+      "duration": 1.6,
+      "low": 28,
+      "high": 430,
+      "decay": 0.36,
+      "gain": 2,
+      "attack": 0.001,
+      "pan": -0.24,
+      "modulation": 8.7
+    },
+    {
+      "kind": "noise",
+      "start": 0.022,
+      "duration": 1.55,
+      "low": 35,
+      "high": 580,
+      "decay": 0.32,
+      "gain": 1.6,
+      "attack": 0.001,
+      "pan": 0.26,
+      "modulation": 12.3
+    },
+    {
+      "kind": "noise",
+      "start": 0.13,
+      "duration": 0.63,
+      "low": 600,
+      "high": 2700,
+      "decay": 0.12,
+      "gain": 0.2,
+      "attack": 0.012,
+      "pan": 0.42
+    }
+  ]
+}

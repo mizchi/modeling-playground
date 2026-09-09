@@ -1,0 +1,45 @@
+[
+  {
+    "name": "03-oath-of-the-lightning-battle",
+    "title": "閃光の誓い / Oath of the Lightning",
+    "arrangement": "chip",
+    "bpm": 184,
+    "bars": 40,
+    "frames": 2300870,
+    "sampleRate": 44100,
+    "duration": 52.17392290249433,
+    "lufs": -16,
+    "sections": [
+      {
+        "bar": 1,
+        "name": "Ignition",
+        "seconds": 0
+      },
+      {
+        "bar": 5,
+        "name": "Hero theme",
+        "seconds": 5.217391304347826
+      },
+      {
+        "bar": 13,
+        "name": "Escalation",
+        "seconds": 15.652173913043478
+      },
+      {
+        "bar": 21,
+        "name": "Heroic lift",
+        "seconds": 26.086956521739133
+      },
+      {
+        "bar": 29,
+        "name": "Climax",
+        "seconds": 36.52173913043478
+      },
+      {
+        "bar": 37,
+        "name": "Turnaround",
+        "seconds": 46.95652173913044
+      }
+    ]
+  }
+]

@@ -1,4 +1,9 @@
 node_modules/
+audio/.cache/
+# Rendered audio is regenerated locally and in CI; keep scores and source instead.
+*.wav
+*.mp3
+.DS_Store
 *.blend1
 dist/
 test-results/

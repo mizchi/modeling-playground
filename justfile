@@ -97,6 +97,31 @@ game-check:
 scene-editor:
     pnpm dev --open /scene-editor.html
 
+# Audio sources and generated assets live together under audio/.
+audio-test:
+    pnpm audio:test
+
+audio-verify:
+    pnpm audio:verify
+    pnpm audio:verify:battle
+    pnpm audio:verify:sfx
+
+audio-check: audio-test audio-verify
+
+audio-bgm:
+    pnpm audio:generate
+    pnpm audio:verify
+
+audio-battle:
+    pnpm audio:battle
+    pnpm audio:verify:battle
+
+audio-sfx:
+    pnpm audio:sfx
+    pnpm audio:verify:sfx
+
+audio-generate: audio-bgm audio-battle audio-sfx
+
 # Standalone mizchi/three compatibility proof; no kagura checkout is used.
 moonbit-bridge-check:
     cd integration/moonbit && moon update

@@ -1,0 +1,42 @@
+{
+  "id": "cancel",
+  "name": "キャンセル",
+  "duration": 0.24,
+  "peak": 0.43,
+  "description": "少し低い下行2音。エラー警告ほど強くしない戻る音。",
+  "reflections": [],
+  "layers": [
+    {
+      "kind": "tone",
+      "start": 0,
+      "duration": 0.065,
+      "frequency": 659.25,
+      "endFrequency": 622.25,
+      "glide": 0.022,
+      "decay": 0.026,
+      "gain": 0.72,
+      "attack": 0.002,
+      "pan": 0,
+      "partials": [
+        1,
+        0.09
+      ]
+    },
+    {
+      "kind": "tone",
+      "start": 0.06,
+      "duration": 0.15,
+      "frequency": 440,
+      "endFrequency": 392,
+      "glide": 0.026,
+      "decay": 0.035,
+      "gain": 0.83,
+      "attack": 0.002,
+      "pan": 0,
+      "partials": [
+        1,
+        0.12
+      ]
+    }
+  ]
+}

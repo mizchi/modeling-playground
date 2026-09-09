@@ -1,6 +1,6 @@
 # Modeling Playground
 
-生成コードで作る3Dモデル、共通のThree.js GLB Viewer、React Three Fiber製のTPS試作。
+生成コードで作る3Dモデル・BGM・効果音、共通のThree.js GLB Viewer、React Three Fiber製のTPS試作。
 
 キャラクター制作の前に：[リテイク再発防止ガイド](docs/modeling-retake-guide.md)。正面先行による厚み不足を避け、背中の量感・目の向き・衣服の接続を初期段階から確認するための手順です。
 
@@ -26,6 +26,7 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 - `runtime/`：DOMに依存しない再生・IK・横薙ぎ計算・ソケット追従・時間イベント。
 - `viewer/`：共通Viewerの表示と入力。
 - `motion/`：動画参照・キーフレーム編集、人体リグ接続、外部モーション取り込み。
+- `audio/`：BGM・SEの作曲／合成コード、テスト、生成済みWAV・MP3・MIDI・譜面JSON、音源ライセンス。
 
 生成コードはTypeScriptで、Node.js 24が `.ts` を直接実行します（`tsx` / `ts-node` 不要）。`pnpm typecheck` でstrict型検査、`just test` で型検査と回帰テストを実行します。
 
@@ -33,7 +34,13 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 モデルのコピー・派生追加・出力先の規則は[モデル単位の構成](docs/model-layout.md)を参照してください。
 
+## AUDIO — BGM・効果音
+
+media-studioの機能を `audio/` に統合しました。[試聴・音源・再生成の手順](audio/README.md)。採用済み3曲と5種のSEの生成コード・譜面を保持し、ゲームも生成したWAVを直接参照します。WAV・MP3はGit管理外です。新しいチェックアウトでは、FFmpegを用意して **`just audio-generate` をテスト・開発サーバー・ビルドの前に実行**してください。`just audio-check` でテストと既存音源の検証ができます。CIでは音源を生成してからテスト・配布ビルドを行います。
+
 ## SCENE STUDIO — 配置・攻撃演出・試遊
+
+現在はプロトタイピングとして試行を重ね、本格設計はkagura接続時に行います。[試作記録](docs/prototyping-notes.md) に、役立ったこと・利用者の評価・カスタムビューとレイアウトの仮説を残しています。
 
 `just scene-editor` で [Scene Studio](http://127.0.0.1:5188/scene-editor.html) を起動。建物・敵・出撃地点の配置、Undo/Redo、JSON保存／読込、ライフルの反動・閃光・効果音のプレビューと、そのまま試遊する機能を備えています。IRON YARDには戦闘BGM・SEと180秒／3波の勝敗・再出撃を追加。kaguraへの統合は後で行い、Scene / Action / GameEventを独立した型として定義しています。`just moonbit-bridge-check` で同じJSONをMoonBitの `mizchi/three` に読み込む検証ができます。[操作・設計・制限](docs/scene-studio.md)。
 

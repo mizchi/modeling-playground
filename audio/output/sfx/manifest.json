@@ -1,0 +1,69 @@
+{
+  "effects": [
+    {
+      "id": "explosion",
+      "name": "01-explosion",
+      "title": "爆発",
+      "description": "鋭い破裂、低い圧力音、左右に広がる崩壊の余韻。",
+      "duration": 1.9,
+      "frames": 91200,
+      "sampleRate": 48000,
+      "targetPeak": 0.8,
+      "peakDb": -1.938200260161128,
+      "demoStart": 0.25
+    },
+    {
+      "id": "confirm",
+      "name": "02-confirm",
+      "title": "決定",
+      "description": "明るい上行2音。短く、耳に刺さりにくい決定音。",
+      "duration": 0.28,
+      "frames": 13440,
+      "sampleRate": 48000,
+      "targetPeak": 0.45,
+      "peakDb": -6.935749724493126,
+      "demoStart": 2.8
+    },
+    {
+      "id": "cancel",
+      "name": "03-cancel",
+      "title": "キャンセル",
+      "description": "少し低い下行2音。エラー警告ほど強くしない戻る音。",
+      "duration": 0.24,
+      "frames": 11520,
+      "sampleRate": 48000,
+      "targetPeak": 0.43,
+      "peakDb": -7.330630888408269,
+      "demoStart": 3.73
+    },
+    {
+      "id": "sword-hit",
+      "name": "04-sword-hit",
+      "title": "剣のヒット",
+      "description": "即時の切断感、衝撃の芯、短い金属の響き。",
+      "duration": 0.48,
+      "frames": 23040,
+      "sampleRate": 48000,
+      "targetPeak": 0.76,
+      "peakDb": -2.383728154384173,
+      "demoStart": 4.62
+    },
+    {
+      "id": "blunt-hit",
+      "name": "05-blunt-hit",
+      "title": "打撲",
+      "description": "低く短い衝撃と、乾いた表面のアタック。金属の余韻は付けない。",
+      "duration": 0.34,
+      "frames": 16320,
+      "sampleRate": 48000,
+      "targetPeak": 0.78,
+      "peakDb": -2.158107946190392,
+      "demoStart": 5.75
+    }
+  ],
+  "demo": {
+    "name": "00-demo",
+    "frames": 304320,
+    "duration": 6.34
+  }
+}
