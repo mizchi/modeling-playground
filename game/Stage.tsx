@@ -3,7 +3,7 @@ import { useThree } from '@react-three/fiber';
 import { PMREMGenerator } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { STAGE } from './stage.ts';
-import type { Solid, Vec3 } from './types.ts';
+import type { Solid, Vec3, StageDefinition } from './types.ts';
 
 function Box({position,size,color,metalness=.15}:{position:Vec3;size:Vec3;color:string;metalness?:number}) {
   return <mesh position={position} castShadow receiveShadow><boxGeometry args={size}/><meshStandardMaterial color={color} roughness={.78} metalness={metalness}/></mesh>;
@@ -51,14 +51,14 @@ function Environment() {
   return null;
 }
 
-export function Stage() {
-  const {bounds}=STAGE,width=bounds.maxX-bounds.minX,depth=bounds.maxZ-bounds.minZ;
+export function Stage({stage=STAGE,skyColor='#a4b3bd',sunIntensity=3.2}:{stage?:StageDefinition;skyColor?:string;sunIntensity?:number}) {
+  const {bounds}=stage,width=bounds.maxX-bounds.minX,depth=bounds.maxZ-bounds.minZ;
   const centerZ=(bounds.minZ+bounds.maxZ)/2;
   return <>
-    <color attach="background" args={['#a4b3bd']}/><fog attach="fog" args={['#a4b3bd',65,180]}/>
+    <color attach="background" args={[skyColor]}/><fog attach="fog" args={[skyColor,65,180]}/>
     <Environment/>
     <hemisphereLight args={['#e1edff','#465154',1.3]}/>
-    <directionalLight position={[-35,65,-25]} intensity={3.2} color="#fff0d7" castShadow
+    <directionalLight position={[-35,65,-25]} intensity={sunIntensity} color="#fff0d7" castShadow
       shadow-mapSize={[2048,2048]} shadow-camera-left={-65} shadow-camera-right={65}
       shadow-camera-top={65} shadow-camera-bottom={-65} shadow-camera-far={180} shadow-normalBias={.04}/>
     <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[650,650]}/><meshStandardMaterial color="#46555c" roughness={.95}/></mesh>
@@ -71,9 +71,9 @@ export function Stage() {
       <Box position={[-6.5,.025,-46+i*5]} size={[.13,.025,2.2]} color="#bfa064"/>
       <Box position={[6.5,.025,-46+i*5]} size={[.13,.025,2.2]} color="#bfa064"/>
     </group>)}
-    <mesh position={[0,.04,-36]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[5.4,5.58,64]}/><meshStandardMaterial color="#d5b570"/></mesh>
+    <mesh position={[stage.spawn[0],.04,stage.spawn[2]]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[5.4,5.58,64]}/><meshStandardMaterial color="#d5b570"/></mesh>
     <Box position={[0,.035,-42]} size={[10,.035,.18]} color="#d5b570"/>
-    {STAGE.solids.map(s=><Structure key={s.id} solid={s}/>)}
+    {stage.solids.map(s=><Structure key={s.id} solid={s}/>)}
     {Array.from({length:10},(_,i)=><Box key={i} position={[-100+i*22,18+i%3*8,95+(i%2)*15]} size={[12,36+i%3*16,16]} color="#73858e"/>)}
     {[-1,1].flatMap(side=>[-32,12,42].map(z=><group key={`${side}/${z}`} position={[side*43,0,z]}>
       <Box position={[0,4,0]} size={[.18,8,.18]} color="#283940"/>

@@ -33,6 +33,10 @@ Pages検証では、モデル読込の完了（モデル名・「表示中」・
 
 モデルのコピー・派生追加・出力先の規則は[モデル単位の構成](docs/model-layout.md)を参照してください。
 
+## SCENE STUDIO — 配置・攻撃演出・試遊
+
+`just scene-editor` で [Scene Studio](http://127.0.0.1:5188/scene-editor.html) を起動。建物・敵・出撃地点の配置、Undo/Redo、JSON保存／読込、ライフルの反動・閃光・効果音のプレビューと、そのまま試遊する機能を備えています。IRON YARDには戦闘BGM・SEと180秒／3波の勝敗・再出撃を追加。kaguraへの統合は後で行い、Scene / Action / GameEventを独立した型として定義しています。`just moonbit-bridge-check` で同じJSONをMoonBitの `mizchi/three` に読み込む検証ができます。[操作・設計・制限](docs/scene-studio.md)。
+
 ## MOTION — モーション専用エディタ
 
 `just motion-editor` で [モーション制作画面](http://127.0.0.1:5188/motion-editor.html) を起動。動画のIN/OUT・同期コマ送り、全身IK/FK、キー登録・移動・削除、Undo/Redo、編集JSON・モーションGLBの出力に対応します。BASE-45 / 女性素体 / LUMIを切り替えられます。Hunyuan MotionのSMPL-H FBX取り込みは実験対応。`just motion-generate --help` でfal用ローカル生成CLIの使い方を表示。送信は `--execute` 必須で、APIキーをブラウザに渡しません。動画の自動姿勢推定は未実装です。`just motion-check` で検証。[操作・構成・制限](docs/motion-editor.md)。

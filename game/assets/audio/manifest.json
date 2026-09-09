@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "sourceCommit": "035fe2c",
+  "assets": [
+    {
+      "id": "bgm.battle",
+      "path": "battle.wav",
+      "source": "media-studio/output/03-oath-of-the-lightning-battle.wav",
+      "sha256": "055f5f76fc33911f17fd9627232f51cf60ab6f6570f3d9f07ada333c4929768b"
+    },
+    {
+      "id": "sfx.confirm",
+      "path": "confirm.wav",
+      "source": "media-studio/output/sfx/02-confirm.wav",
+      "sha256": "13fba4fbb2e54a0182715c56f42786e5f5efba82d5875ddb9becb550b4d4bb21"
+    },
+    {
+      "id": "sfx.cancel",
+      "path": "cancel.wav",
+      "source": "media-studio/output/sfx/03-cancel.wav",
+      "sha256": "d0d1cf16ac00a62709b414c43a6a41e48300b78e1b55f7b60ff47c6bf67c49fc"
+    },
+    {
+      "id": "sfx.explosion",
+      "path": "explosion.wav",
+      "source": "media-studio/output/sfx/01-explosion.wav",
+      "sha256": "fda5987056f391d0d34766715502a27187f19e8485478025a0160a0045bc6f54"
+    },
+    {
+      "id": "sfx.sword",
+      "path": "sword.wav",
+      "source": "media-studio/output/sfx/04-sword-hit.wav",
+      "sha256": "3df9ab24d8edd4cd3142784aac087dd0af25739a6cc8b1e79722c2a090679e05"
+    },
+    {
+      "id": "sfx.blunt",
+      "path": "blunt.wav",
+      "source": "media-studio/output/sfx/05-blunt-hit.wav",
+      "sha256": "9d0c5df6a3752273e71b4e2530fb1aaead70f52c4eca440fb3d4f4b8fb05a36b"
+    }
+  ]
+}

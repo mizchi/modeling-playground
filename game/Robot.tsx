@@ -6,12 +6,14 @@ import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { PilotAnimator } from './animation.ts';
 import type { PilotState, Vec3 } from './types.ts';
 import type { WeaponMounts } from './combat.ts';
+import { sampleAction } from './studio/action.ts';
+import type { ActionDocument } from './studio/contracts.ts';
 
-type RobotProps={asset:GLTF}&(
+type RobotProps={asset:GLTF;action?:ActionDocument;attackAge?:RefObject<number>}&(
   {pilot:RefObject<PilotState>;focus:RefObject<Vec3>;mounts:RefObject<WeaponMounts>;position?:never;yaw?:never}|
   {pilot?:never;focus?:never;mounts?:never;position?:Vec3;yaw?:number}
 );
-export function Robot({asset,pilot,focus,mounts,position=[0,0,0],yaw=0}:RobotProps) {
+export function Robot({asset,pilot,focus,mounts,action,attackAge,position=[0,0,0],yaw=0}:RobotProps) {
   const rig=useMemo(()=>{
     const object=clone(asset.scene);
     object.traverse(node=>{
@@ -29,6 +31,10 @@ export function Robot({asset,pilot,focus,mounts,position=[0,0,0],yaw=0}:RobotPro
   },[rig]);
   useFrame((_,delta)=>{
     if(pilot&&focus)animator?.update(pilot.current,focus.current,delta);
+    if(action&&attackAge&&weaponBones.rifle&&pilot) {
+      weaponBones.rifle.rotateX(-sampleAction(action,attackAge.current).recoil);
+      weaponBones.rifle.updateMatrixWorld(true);
+    }
     if(mounts&&weaponBones.rifle&&weaponBones.left&&weaponBones.right) {
       mounts.current={rifle:weaponBones.rifle.localToWorld(weaponBones.point.set(0,-.08,2.18)).toArray(),missiles:[
         weaponBones.left.localToWorld(weaponBones.point.set(0,.2,1.94)).toArray(),

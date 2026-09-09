@@ -91,8 +91,18 @@ human-side-tail:
 # Type-check and test the TPS controller, then exercise the playable stage.
 game-check:
     pnpm exec tsc -p tsconfig.game.json
-    node --test tests/game.test.ts tests/game-rig.test.ts tests/game-combat.test.ts tests/game-controls.test.ts tests/game-enemies.test.ts
-    pnpm exec playwright test tests/e2e/game.spec.ts tests/e2e/game-combat.spec.ts tests/e2e/game-jump.spec.ts tests/e2e/game-enemies.spec.ts
+    node --test tests/game.test.ts tests/game-rig.test.ts tests/game-combat.test.ts tests/game-controls.test.ts tests/game-enemies.test.ts tests/game-studio.test.ts
+    pnpm exec playwright test tests/e2e/game.spec.ts tests/e2e/game-combat.spec.ts tests/e2e/game-jump.spec.ts tests/e2e/game-enemies.spec.ts tests/e2e/game-studio.spec.ts
+
+scene-editor:
+    pnpm dev --open /scene-editor.html
+
+# Standalone mizchi/three compatibility proof; no kagura checkout is used.
+moonbit-bridge-check:
+    cd integration/moonbit && moon update
+    cd integration/moonbit && pnpm install --frozen-lockfile --ignore-scripts
+    cd integration/moonbit && moon build --target js --release
+    cd integration/moonbit && node smoke.mjs
 
 # Build and check all models at the production subdirectory path.
 test-pages: viewer-build

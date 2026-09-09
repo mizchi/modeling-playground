@@ -1,5 +1,7 @@
 import type { Solid, Target, Vec3 } from './types.ts';
 import { boxIntersection } from './simulation.ts';
+import { DEFAULT_ACTION } from './studio/action.ts';
+import type { ActionDocument, GameEvent } from './studio/contracts.ts';
 
 export const WEAPONS=Object.freeze({targetHp:180,rifleDamage:12,rifleInterval:.12,missileDamage:55,
   lockTime:.65,lockRange:95,lockCos:.90,maxLocks:3,missileCooldown:3,loftTime:.65});
@@ -11,6 +13,7 @@ export interface Projectile {
 }
 export interface Impact {id:number;position:Vec3;age:number;kind:'spark'|'blast'|'kill'}
 export interface CombatState {
+  time:number;events:GameEvent[];
   hp:Record<string,number>;locks:Record<string,number>;projectiles:Projectile[];effects:Impact[];
   queue:{targetId:string;delay:number;side:0|1}[];wasLocking:boolean;rifleCooldown:number;missileCooldown:number;
   nextId:number;shots:number;missilesFired:number;hits:number;kills:number;
@@ -25,7 +28,7 @@ export const targetPoint=(target:Target):Vec3=>add(target.position,[0,3.8,0]);
 const targetBox=(t:Target):Solid=>({id:t.id,kind:'barrier',center:add(t.position,[0,3,0]),size:[5.4,6,5.4],color:'#000'});
 
 export function createCombat(world:CombatWorld):CombatState {
-  return {hp:Object.fromEntries(world.targets.map(t=>[t.id,WEAPONS.targetHp])),locks:{},projectiles:[],effects:[],queue:[],
+  return {time:0,events:[],hp:Object.fromEntries(world.targets.map(t=>[t.id,WEAPONS.targetHp])),locks:{},projectiles:[],effects:[],queue:[],
     wasLocking:false,rifleCooldown:0,missileCooldown:0,nextId:1,shots:0,missilesFired:0,hits:0,kills:0};
 }
 
@@ -43,7 +46,10 @@ function impact(state:CombatState,position:Vec3,kind:Impact['kind']) {
   state.effects.push({id:state.nextId++,position:[...position],age:0,kind});
 }
 
-function stepProjectiles(state:CombatState,dt:number,world:CombatWorld) {
+function event(state:CombatState,kind:GameEvent['kind'],position:Vec3,entityId:string|null,weapon:GameEvent['weapon']) {
+  state.events.push({version:1,id:state.nextId++,time:state.time,kind,position:[...position],entityId,weapon});
+}
+function stepProjectiles(state:CombatState,dt:number,world:CombatWorld,action:ActionDocument) {
   const survivors:Projectile[]=[];
   for(const p of state.projectiles) {
     p.age+=dt;
@@ -68,18 +74,20 @@ function stepProjectiles(state:CombatState,dt:number,world:CombatWorld) {
     p.position=add(p.position,scale(delta,fraction));
     if(collided) {
       if(hitId) {
-        state.hp[hitId]=Math.max(0,state.hp[hitId]-(p.kind==='bullet'?WEAPONS.rifleDamage:WEAPONS.missileDamage));state.hits++;
-        if(state.hp[hitId]===0){state.kills++;delete state.locks[hitId];impact(state,p.position,'kill');}
+        state.hp[hitId]=Math.max(0,state.hp[hitId]-(p.kind==='bullet'?action.damage:WEAPONS.missileDamage));state.hits++;
+        if(state.hp[hitId]===0){state.kills++;delete state.locks[hitId];impact(state,p.position,'kill');event(state,'destroyed',p.position,hitId,p.kind==='bullet'?'rifle':'missile');}
       }
       impact(state,p.position,p.kind==='bullet'?'spark':'blast');
+      event(state,'impact',p.position,hitId,p.kind==='bullet'?'rifle':'missile');
     } else survivors.push(p);
   }
   state.projectiles=survivors;
 }
 
 /** Pure bounded-substep combat. Renderer supplies current world-space muzzle and camera transforms. */
-export function advanceCombat(previous:CombatState,input:CombatInput,frame:CombatFrame,delta:number,world:CombatWorld):CombatState {
+export function advanceCombat(previous:CombatState,input:CombatInput,frame:CombatFrame,delta:number,world:CombatWorld,action:ActionDocument=DEFAULT_ACTION):CombatState {
   const state:CombatState=structuredClone(previous);
+  state.events=[];
   if(input.cancel){state.locks={};state.queue=[];state.wasLocking=false;return state;}
   const dt=Math.max(0,Math.min(.1,Number.isFinite(delta)?delta:0));
   if(dt===0)return state;
@@ -95,14 +103,20 @@ export function advanceCombat(previous:CombatState,input:CombatInput,frame:Comba
   state.wasLocking=input.lock;
   const steps=Math.ceil(dt*120),h=dt/steps;
   for(let i=0;i<steps;i++) {
+    state.time+=h;
     state.effects=state.effects.filter(e=>(e.age+=h)<(e.kind==='kill'?1.2:.45));
     state.rifleCooldown=Math.max(0,state.rifleCooldown-h);state.missileCooldown=Math.max(0,state.missileCooldown-h);
     if(input.lock&&state.missileCooldown<=0)for(const target of candidates)
-      if(state.hp[target.id]>0)state.locks[target.id]=Math.min(1,(state.locks[target.id]??0)+h/WEAPONS.lockTime);
+      if(state.hp[target.id]>0) {
+        const before=state.locks[target.id]??0;
+        state.locks[target.id]=Math.min(1,before+h/WEAPONS.lockTime);
+        if(before<1&&state.locks[target.id]>=1)event(state,'lock_ready',targetPoint(target),target.id,null);
+      }
     if(input.fire&&state.rifleCooldown<=1e-9) {
       state.projectiles.push({id:state.nextId++,kind:'bullet',position:[...frame.mounts.rifle],
         velocity:scale(unit(sub(frame.aim,frame.mounts.rifle)),130),age:0,targetId:null,trail:[]});
-      state.shots++;state.rifleCooldown=WEAPONS.rifleInterval;
+      event(state,'shot',frame.mounts.rifle,null,'rifle');
+      state.shots++;state.rifleCooldown=action.cooldown;
     }
     for(const shot of state.queue) {
       shot.delay-=h;
@@ -113,9 +127,10 @@ export function advanceCombat(previous:CombatState,input:CombatInput,frame:Comba
       state.projectiles.push({id:state.nextId++,kind:'missile',position:[...position],
         velocity:[toward[0]*7+(shot.side===0?-2:2),17,toward[2]*7],age:0,targetId:target.id,trail:[]});
       state.missilesFired++;
+      event(state,'shot',position,shot.targetId,'missile');
     }
     state.queue=state.queue.filter(s=>s.delay>0);
-    stepProjectiles(state,h,world);
+    stepProjectiles(state,h,world,action);
   }
   for(const p of state.projectiles)if(p.kind==='missile'){p.trail.push([...p.position]);if(p.trail.length>22)p.trail.shift();}
   return state;

@@ -1,0 +1,9 @@
+{
+  "name": "iron-yard-moonbit-bridge-proof",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@mizchi/three-mbt": "link:./.mooncakes/mizchi/three/js",
+    "three": "0.185.1"
+  }
+}
